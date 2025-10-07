@@ -1,6 +1,50 @@
-import { supabase } from '../lib/supabase'
+import { supabase, isSupabaseConfigured } from '../lib/supabase'
 import { EquipmentData, LogisticsData } from '../types'
 import { EquipmentRequirements } from '../components/EquipmentRequired'
+
+const LOCAL_STORAGE_KEY = 'om-quote-generator::quotes'
+
+const hasLocalStorage = () => typeof window !== 'undefined' && !!window.localStorage
+
+const readLocalQuotes = (): SavedQuote[] => {
+  if (!hasLocalStorage()) {
+    return []
+  }
+
+  try {
+    const raw = window.localStorage.getItem(LOCAL_STORAGE_KEY)
+    if (!raw) {
+      return []
+    }
+    const parsed = JSON.parse(raw)
+    if (!Array.isArray(parsed)) {
+      return []
+    }
+    return parsed as SavedQuote[]
+  } catch (error) {
+    console.error('Failed to read local quotes store:', error)
+    return []
+  }
+}
+
+const writeLocalQuotes = (quotes: SavedQuote[]) => {
+  if (!hasLocalStorage()) {
+    return
+  }
+
+  try {
+    window.localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(quotes))
+  } catch (error) {
+    console.error('Failed to write local quotes store:', error)
+  }
+}
+
+const generateLocalId = () => {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID()
+  }
+  return `local-${Date.now()}-${Math.random().toString(16).slice(2)}`
+}
 
 export interface QuoteListItem {
   id: string
@@ -33,6 +77,10 @@ export interface SavedQuote {
 }
 
 export class QuoteService {
+  static isRemoteEnabled(): boolean {
+    return isSupabaseConfigured && !!supabase
+  }
+
   // Generate a readable quote number
   static generateQuoteNumber(projectName?: string, companyName?: string): string {
     const date = new Date()
@@ -61,48 +109,100 @@ export class QuoteService {
     scopeTemplate?: string,
     existingId?: string
   ): Promise<{ success: boolean; id?: string; error?: string }> {
+    const quoteData: SavedQuote = {
+      id: existingId || generateLocalId(),
+      quote_number: quoteNumber,
+      project_name: equipmentData.projectName || null,
+      company_name: equipmentData.companyName || null,
+      contact_name: equipmentData.contactName || null,
+      site_phone: equipmentData.sitePhone || null,
+      shop_location: equipmentData.shopLocation || null,
+      site_address: equipmentData.siteAddress || null,
+      scope_of_work: equipmentData.scopeOfWork || null,
+      logistics_data: {
+        ...logisticsData,
+        shipmentType: logisticsData?.shipmentType || '',
+        storageType: logisticsData?.storageType || '',
+        storageSqFt: logisticsData?.storageSqFt || ''
+      },
+      logistics_shipment: logisticsData?.shipment || null,
+      logistics_storage: logisticsData?.storage || null,
+      equipment_requirements: equipmentRequirements || null,
+      email_template: emailTemplate || null,
+      scope_template: scopeTemplate || null,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    }
+
+    if (!this.isRemoteEnabled()) {
+      if (!hasLocalStorage()) {
+        console.warn('Supabase is not configured and local storage is unavailable.')
+        return {
+          success: false,
+          error: 'Quotes cannot be saved because Supabase is not configured.'
+        }
+      }
+
+      const existingQuotes = readLocalQuotes()
+      const existingIndex = existingId
+        ? existingQuotes.findIndex(quote => quote.id === existingId)
+        : -1
+
+      if (existingIndex >= 0) {
+        const original = existingQuotes[existingIndex]
+        existingQuotes[existingIndex] = {
+          ...quoteData,
+          id: original.id,
+          created_at: original.created_at,
+          updated_at: new Date().toISOString()
+        }
+      } else {
+        existingQuotes.unshift({
+          ...quoteData,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        })
+      }
+
+      writeLocalQuotes(existingQuotes)
+      return { success: true, id: existingId || existingQuotes[0].id }
+    }
+
     try {
-      const quoteData = {
-        quote_number: quoteNumber,
-        project_name: equipmentData.projectName || null,
-        company_name: equipmentData.companyName || null,
-        contact_name: equipmentData.contactName || null,
-        site_phone: equipmentData.sitePhone || null,
-        shop_location: equipmentData.shopLocation || null,
-        site_address: equipmentData.siteAddress || null,
-        scope_of_work: equipmentData.scopeOfWork || null,
-        logistics_data: {
-          ...logisticsData,
-          shipmentType: logisticsData?.shipmentType || '',
-          storageType: logisticsData?.storageType || '',
-          storageSqFt: logisticsData?.storageSqFt || ''
-        },
-        logistics_shipment: logisticsData?.shipment || null,
-        logistics_storage: logisticsData?.storage || null,
-        equipment_requirements: equipmentRequirements || null,
-        email_template: emailTemplate || null,
-        scope_template: scopeTemplate || null,
+      const payload = {
+        quote_number: quoteData.quote_number,
+        project_name: quoteData.project_name,
+        company_name: quoteData.company_name,
+        contact_name: quoteData.contact_name,
+        site_phone: quoteData.site_phone,
+        shop_location: quoteData.shop_location,
+        site_address: quoteData.site_address,
+        scope_of_work: quoteData.scope_of_work,
+        logistics_data: quoteData.logistics_data,
+        logistics_shipment: quoteData.logistics_shipment,
+        logistics_storage: quoteData.logistics_storage,
+        equipment_requirements: quoteData.equipment_requirements,
+        email_template: quoteData.email_template,
+        scope_template: quoteData.scope_template
       }
 
       let result
       if (existingId) {
-        // Update existing quote
-        const { data, error } = await supabase
+        const { data, error } = await supabase!
           .from('quotes')
-          .update(quoteData)
+          .update(payload)
           .eq('id', existingId)
           .select()
           .single()
-        
+
         result = { data, error }
       } else {
-        // Create new quote
-        const { data, error } = await supabase
+        const { data, error } = await supabase!
           .from('quotes')
-          .insert(quoteData)
+          .insert(payload)
           .select()
           .single()
-        
+
         result = { data, error }
       }
 
@@ -113,16 +213,32 @@ export class QuoteService {
       return { success: true, id: result.data.id }
     } catch (error) {
       console.error('Error saving quote:', error)
-      return { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Failed to save quote' 
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to save quote'
       }
     }
   }
 
   static async listQuotes(): Promise<QuoteListItem[]> {
+    if (!this.isRemoteEnabled()) {
+      const quotes = readLocalQuotes()
+      return quotes
+        .sort((a, b) => b.updated_at.localeCompare(a.updated_at))
+        .slice(0, 50)
+        .map(({ id, quote_number, project_name, company_name, contact_name, created_at, updated_at }) => ({
+          id,
+          quote_number,
+          project_name,
+          company_name,
+          contact_name,
+          created_at,
+          updated_at
+        }))
+    }
+
     try {
-      const { data, error } = await supabase
+      const { data, error } = await supabase!
         .from('quotes')
         .select('id, quote_number, project_name, company_name, contact_name, created_at, updated_at')
         .order('updated_at', { ascending: false })
@@ -140,8 +256,13 @@ export class QuoteService {
   }
 
   static async getQuote(id: string): Promise<SavedQuote | null> {
+    if (!this.isRemoteEnabled()) {
+      const quotes = readLocalQuotes()
+      return quotes.find(quote => quote.id === id) || null
+    }
+
     try {
-      const { data, error } = await supabase
+      const { data, error } = await supabase!
         .from('quotes')
         .select('*')
         .eq('id', id)
@@ -159,8 +280,15 @@ export class QuoteService {
   }
 
   static async deleteQuote(id: string): Promise<boolean> {
+    if (!this.isRemoteEnabled()) {
+      const quotes = readLocalQuotes()
+      const filtered = quotes.filter(quote => quote.id !== id)
+      writeLocalQuotes(filtered)
+      return filtered.length !== quotes.length
+    }
+
     try {
-      const { error } = await supabase
+      const { error } = await supabase!
         .from('quotes')
         .delete()
         .eq('id', id)
@@ -177,8 +305,34 @@ export class QuoteService {
   }
 
   static async searchQuotes(searchTerm: string): Promise<QuoteListItem[]> {
+    if (!this.isRemoteEnabled()) {
+      const lowerTerm = searchTerm.toLowerCase()
+      return readLocalQuotes()
+        .filter(quote => {
+          const values = [
+            quote.quote_number,
+            quote.project_name || '',
+            quote.company_name || '',
+            quote.contact_name || ''
+          ]
+
+          return values.some(value => value.toLowerCase().includes(lowerTerm))
+        })
+        .sort((a, b) => b.updated_at.localeCompare(a.updated_at))
+        .slice(0, 20)
+        .map(({ id, quote_number, project_name, company_name, contact_name, created_at, updated_at }) => ({
+          id,
+          quote_number,
+          project_name,
+          company_name,
+          contact_name,
+          created_at,
+          updated_at
+        }))
+    }
+
     try {
-      const { data, error } = await supabase
+      const { data, error } = await supabase!
         .from('quotes')
         .select('id, quote_number, project_name, company_name, contact_name, created_at, updated_at')
         .or(`quote_number.ilike.%${searchTerm}%,project_name.ilike.%${searchTerm}%,company_name.ilike.%${searchTerm}%,contact_name.ilike.%${searchTerm}%`)
