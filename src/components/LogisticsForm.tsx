@@ -251,48 +251,84 @@ const LogisticsForm: React.FC<LogisticsFormProps> = ({
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div>
               <label className="mb-1 block text-sm font-medium text-slate-200">Pickup Address</label>
-              <input
-                type="text"
-                value={data.pickupAddress}
-                onChange={(e) => onFieldChange('pickupAddress', e.target.value)}
-                className={`w-full ${inputClasses}`}
-              />
+              {(() => {
+                const field = register('pickupAddress')
+                return (
+                  <input
+                    type="text"
+                    {...field}
+                    value={data.pickupAddress}
+                    onChange={(e) => {
+                      field.onChange(e)
+                      onFieldChange('pickupAddress', e.target.value)
+                    }}
+                    className={`w-full ${inputClasses}`}
+                  />
+                )
+              })()}
               {errors.pickupAddress && (
                 <p className="mt-1 text-xs text-red-400">{String(errors.pickupAddress.message)}</p>
               )}
             </div>
             <div>
               <label className="mb-1 block text-sm font-medium text-slate-200">Pickup City</label>
-              <input
-                type="text"
-                value={data.pickupCity}
-                onChange={(e) => onFieldChange('pickupCity', e.target.value)}
-                className={`w-full ${inputClasses}`}
-              />
+              {(() => {
+                const field = register('pickupCity')
+                return (
+                  <input
+                    type="text"
+                    {...field}
+                    value={data.pickupCity}
+                    onChange={(e) => {
+                      field.onChange(e)
+                      onFieldChange('pickupCity', e.target.value)
+                    }}
+                    className={`w-full ${inputClasses}`}
+                  />
+                )
+              })()}
               {errors.pickupCity && (
                 <p className="mt-1 text-xs text-red-400">{String(errors.pickupCity.message)}</p>
               )}
             </div>
             <div>
               <label className="mb-1 block text-sm font-medium text-slate-200">Pickup State</label>
-              <input
-                type="text"
-                value={data.pickupState}
-                onChange={(e) => onFieldChange('pickupState', e.target.value)}
-                className={`w-full ${inputClasses}`}
-              />
+              {(() => {
+                const field = register('pickupState')
+                return (
+                  <input
+                    type="text"
+                    {...field}
+                    value={data.pickupState}
+                    onChange={(e) => {
+                      field.onChange(e)
+                      onFieldChange('pickupState', e.target.value)
+                    }}
+                    className={`w-full ${inputClasses}`}
+                  />
+                )
+              })()}
               {errors.pickupState && (
                 <p className="mt-1 text-xs text-red-400">{String(errors.pickupState.message)}</p>
               )}
             </div>
             <div>
               <label className="mb-1 block text-sm font-medium text-slate-200">Pickup ZIP</label>
-              <input
-                type="text"
-                value={data.pickupZip}
-                onChange={(e) => onFieldChange('pickupZip', e.target.value)}
-                className={`w-full ${inputClasses}`}
-              />
+              {(() => {
+                const field = register('pickupZip')
+                return (
+                  <input
+                    type="text"
+                    {...field}
+                    value={data.pickupZip}
+                    onChange={(e) => {
+                      field.onChange(e)
+                      onFieldChange('pickupZip', e.target.value)
+                    }}
+                    className={`w-full ${inputClasses}`}
+                  />
+                )
+              })()}
               {errors.pickupZip && (
                 <p className="mt-1 text-xs text-red-400">{String(errors.pickupZip.message)}</p>
               )}
@@ -302,48 +338,84 @@ const LogisticsForm: React.FC<LogisticsFormProps> = ({
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div>
               <label className="mb-1 block text-sm font-medium text-slate-200">Delivery Address</label>
-              <input
-                type="text"
-                value={data.deliveryAddress}
-                onChange={(e) => onFieldChange('deliveryAddress', e.target.value)}
-                className={`w-full ${inputClasses}`}
-              />
+              {(() => {
+                const field = register('deliveryAddress')
+                return (
+                  <input
+                    type="text"
+                    {...field}
+                    value={data.deliveryAddress}
+                    onChange={(e) => {
+                      field.onChange(e)
+                      onFieldChange('deliveryAddress', e.target.value)
+                    }}
+                    className={`w-full ${inputClasses}`}
+                  />
+                )
+              })()}
               {errors.deliveryAddress && (
                 <p className="mt-1 text-xs text-red-400">{String(errors.deliveryAddress.message)}</p>
               )}
             </div>
             <div>
               <label className="mb-1 block text-sm font-medium text-slate-200">Delivery City</label>
-              <input
-                type="text"
-                value={data.deliveryCity}
-                onChange={(e) => onFieldChange('deliveryCity', e.target.value)}
-                className={`w-full ${inputClasses}`}
-              />
+              {(() => {
+                const field = register('deliveryCity')
+                return (
+                  <input
+                    type="text"
+                    {...field}
+                    value={data.deliveryCity}
+                    onChange={(e) => {
+                      field.onChange(e)
+                      onFieldChange('deliveryCity', e.target.value)
+                    }}
+                    className={`w-full ${inputClasses}`}
+                  />
+                )
+              })()}
               {errors.deliveryCity && (
                 <p className="mt-1 text-xs text-red-400">{String(errors.deliveryCity.message)}</p>
               )}
             </div>
             <div>
               <label className="mb-1 block text-sm font-medium text-slate-200">Delivery State</label>
-              <input
-                type="text"
-                value={data.deliveryState}
-                onChange={(e) => onFieldChange('deliveryState', e.target.value)}
-                className={`w-full ${inputClasses}`}
-              />
+              {(() => {
+                const field = register('deliveryState')
+                return (
+                  <input
+                    type="text"
+                    {...field}
+                    value={data.deliveryState}
+                    onChange={(e) => {
+                      field.onChange(e)
+                      onFieldChange('deliveryState', e.target.value)
+                    }}
+                    className={`w-full ${inputClasses}`}
+                  />
+                )
+              })()}
               {errors.deliveryState && (
                 <p className="mt-1 text-xs text-red-400">{String(errors.deliveryState.message)}</p>
               )}
             </div>
             <div>
               <label className="mb-1 block text-sm font-medium text-slate-200">Delivery ZIP</label>
-              <input
-                type="text"
-                value={data.deliveryZip}
-                onChange={(e) => onFieldChange('deliveryZip', e.target.value)}
-                className={`w-full ${inputClasses}`}
-              />
+              {(() => {
+                const field = register('deliveryZip')
+                return (
+                  <input
+                    type="text"
+                    {...field}
+                    value={data.deliveryZip}
+                    onChange={(e) => {
+                      field.onChange(e)
+                      onFieldChange('deliveryZip', e.target.value)
+                    }}
+                    className={`w-full ${inputClasses}`}
+                  />
+                )
+              })()}
               {errors.deliveryZip && (
                 <p className="mt-1 text-xs text-red-400">{String(errors.deliveryZip.message)}</p>
               )}
@@ -353,24 +425,42 @@ const LogisticsForm: React.FC<LogisticsFormProps> = ({
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div>
               <label className="mb-1 block text-sm font-medium text-slate-200">Shipment Type</label>
-              <input
-                type="text"
-                value={data.shipmentType}
-                onChange={(e) => onFieldChange('shipmentType', e.target.value)}
-                className={`w-full ${inputClasses}`}
-              />
+              {(() => {
+                const field = register('shipmentType')
+                return (
+                  <input
+                    type="text"
+                    {...field}
+                    value={data.shipmentType}
+                    onChange={(e) => {
+                      field.onChange(e)
+                      onFieldChange('shipmentType', e.target.value)
+                    }}
+                    className={`w-full ${inputClasses}`}
+                  />
+                )
+              })()}
               {errors.shipmentType && (
                 <p className="mt-1 text-xs text-red-400">{String(errors.shipmentType.message)}</p>
               )}
             </div>
             <div>
               <label className="mb-1 block text-sm font-medium text-slate-200">Truck Type</label>
-              <input
-                type="text"
-                value={data.truckType}
-                onChange={(e) => onFieldChange('truckType', e.target.value)}
-                className={`w-full ${inputClasses}`}
-              />
+              {(() => {
+                const field = register('truckType')
+                return (
+                  <input
+                    type="text"
+                    {...field}
+                    value={data.truckType}
+                    onChange={(e) => {
+                      field.onChange(e)
+                      onFieldChange('truckType', e.target.value)
+                    }}
+                    className={`w-full ${inputClasses}`}
+                  />
+                )
+              })()}
               {errors.truckType && (
                 <p className="mt-1 text-xs text-red-400">{String(errors.truckType.message)}</p>
               )}
@@ -380,24 +470,42 @@ const LogisticsForm: React.FC<LogisticsFormProps> = ({
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div>
               <label className="mb-1 block text-sm font-medium text-slate-200">Storage Type</label>
-              <input
-                type="text"
-                value={data.storageType}
-                onChange={(e) => onFieldChange('storageType', e.target.value)}
-                className={`w-full ${inputClasses}`}
-              />
+              {(() => {
+                const field = register('storageType')
+                return (
+                  <input
+                    type="text"
+                    {...field}
+                    value={data.storageType}
+                    onChange={(e) => {
+                      field.onChange(e)
+                      onFieldChange('storageType', e.target.value)
+                    }}
+                    className={`w-full ${inputClasses}`}
+                  />
+                )
+              })()}
               {errors.storageType && (
                 <p className="mt-1 text-xs text-red-400">{String(errors.storageType.message)}</p>
               )}
             </div>
             <div>
               <label className="mb-1 block text-sm font-medium text-slate-200">Storage Sq Ft</label>
-              <input
-                type="text"
-                value={data.storageSqFt}
-                onChange={(e) => onFieldChange('storageSqFt', e.target.value)}
-                className={`w-full ${inputClasses}`}
-              />
+              {(() => {
+                const field = register('storageSqFt')
+                return (
+                  <input
+                    type="text"
+                    {...field}
+                    value={data.storageSqFt}
+                    onChange={(e) => {
+                      field.onChange(e)
+                      onFieldChange('storageSqFt', e.target.value)
+                    }}
+                    className={`w-full ${inputClasses}`}
+                  />
+                )
+              })()}
               {errors.storageSqFt && (
                 <p className="mt-1 text-xs text-red-400">{String(errors.storageSqFt.message)}</p>
               )}
