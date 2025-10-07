@@ -57,9 +57,9 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({
   const [siteAddressCopied, setSiteAddressCopied] = useState(false)
   const [companyNameCopied, setCompanyNameCopied] = useState(false)
   const inputClasses =
-    'px-4 py-2.5 rounded-xl border border-white/10 bg-slate-950/80 text-white placeholder:text-slate-400 focus:border-accent focus:ring-2 focus:ring-accent/40 transition'
+    'px-4 py-2.5 rounded-xl border border-accent/25 bg-surface-highlight/70 text-white placeholder:text-slate-400 shadow-[0_12px_28px_rgba(8,16,28,0.45)] transition focus:border-accent focus:ring-2 focus:ring-accent/40'
   const iconButtonClasses =
-    'p-2 rounded-xl border border-white/10 bg-white/5 text-slate-200 transition hover:border-accent/60 hover:bg-accent/10 disabled:cursor-not-allowed disabled:opacity-50'
+    'p-2 rounded-xl border border-accent/30 bg-accent-soft/40 text-accent transition hover:border-accent hover:bg-accent/10 hover:text-white disabled:cursor-not-allowed disabled:opacity-50'
   const handleFieldChange = (field: keyof ProjectDetailsData, rawValue: string) => {
     const value =
       field === 'projectName' || field === 'contactName'
@@ -151,7 +151,7 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({
         <button
           type="button"
           onClick={clearSection}
-          className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm font-medium text-slate-200 transition hover:border-accent/60 hover:bg-accent/10"
+          className="inline-flex items-center gap-2 rounded-xl border border-accent/30 bg-accent-soft/40 px-3 py-2 text-sm font-medium text-accent transition hover:border-accent hover:bg-accent/10 hover:text-white"
         >
           <X className="h-4 w-4" />
           Clear Section
@@ -410,8 +410,8 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({
             disabled={!canUseAI}
             className={`inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-xs font-medium transition ${
               canUseAI
-                ? 'border-accent/50 bg-accent/10 text-accent hover:border-accent/80 hover:bg-accent/15'
-                : 'border-white/10 bg-white/[0.04] text-slate-500 cursor-not-allowed'
+                ? 'border-accent/40 bg-accent-soft/40 text-accent hover:border-accent hover:bg-accent/15 hover:text-white'
+                : 'border-accent/15 bg-surface/40 text-slate-500/80 cursor-not-allowed'
             }`}
           >
             <Bot className="h-3.5 w-3.5" />

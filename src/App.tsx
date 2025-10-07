@@ -269,10 +269,10 @@ const App: React.FC = () => {
   const showLogisticsTemplate = Boolean(logisticsData.shipmentType)
 
   const actionButtonClass =
-    'group flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-medium text-slate-100 transition-all hover:-translate-y-0.5 hover:border-accent/70 hover:bg-accent/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent/60'
+    'group flex items-center justify-center gap-2 rounded-2xl border border-accent/40 bg-surface-highlight/70 px-4 py-3 text-sm font-semibold text-slate-100 shadow-[0_15px_35px_rgba(12,20,35,0.45)] transition-all hover:-translate-y-0.5 hover:border-accent hover:bg-accent-soft/40 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent/60'
 
   const disabledActionButtonClass =
-    'group flex items-center justify-center gap-2 rounded-2xl border border-white/5 bg-white/[0.04] px-4 py-3 text-sm font-medium text-slate-500 transition-all cursor-not-allowed'
+    'group flex items-center justify-center gap-2 rounded-2xl border border-accent/15 bg-surface/40 px-4 py-3 text-sm font-medium text-slate-500/80 transition-all cursor-not-allowed'
 
   const copyToClipboard = async (
     text: string,
@@ -288,14 +288,15 @@ const App: React.FC = () => {
   }
   return (
     <div className="relative min-h-screen overflow-x-hidden text-white">
-      <div className="absolute inset-0 -z-20 bg-gradient-to-br from-slate-950 via-slate-900 to-black" />
-      <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,_rgba(50,205,50,0.08),_transparent_65%)]" />
-      <div className="absolute -top-48 -left-48 -z-10 h-[28rem] w-[28rem] rounded-full bg-accent/25 blur-3xl opacity-70" />
-      <div className="absolute top-1/3 -right-40 -z-10 h-[26rem] w-[26rem] rounded-full bg-sky-500/15 blur-3xl opacity-60" />
+      <div className="absolute inset-0 -z-30 bg-[linear-gradient(140deg,_#040b15_0%,_#09152a_48%,_#03070f_100%)]" />
+      <div className="absolute inset-0 -z-20 bg-[radial-gradient(circle_at_18%_22%,_rgba(28,255,135,0.14),_transparent_62%)]" />
+      <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_80%_-5%,_rgba(56,189,248,0.16),_transparent_60%)]" />
+      <div className="absolute -top-60 -left-48 -z-10 h-[32rem] w-[32rem] rounded-full bg-accent/25 blur-[140px] opacity-80" />
+      <div className="absolute top-1/3 -right-40 -z-10 h-[28rem] w-[28rem] rounded-full bg-sky-500/15 blur-[160px] opacity-70" />
 
       <div className="relative z-10 mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <header className="mx-auto max-w-3xl text-center">
-          <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1 text-xs font-semibold uppercase tracking-[0.35em] text-slate-300">
+          <span className="inline-flex items-center gap-2 rounded-full border border-accent/30 bg-accent-soft/40 px-4 py-1 text-xs font-semibold uppercase tracking-[0.35em] text-accent">
             Bolt 3.0 Visual System
           </span>
           <h1 className="mt-6 text-4xl font-semibold tracking-tight text-white sm:text-5xl">
@@ -307,7 +308,7 @@ const App: React.FC = () => {
           </p>
         </header>
 
-        <section className="mt-12 rounded-3xl border border-white/10 bg-white/5 px-6 py-8 shadow-[0_25px_70px_rgba(15,23,42,0.45)] backdrop-blur-xl">
+        <section className="mt-12 rounded-3xl border border-accent/20 bg-surface/80 px-6 py-8 shadow-[0_35px_120px_rgba(10,15,35,0.55)] backdrop-blur-2xl">
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <button onClick={openHistory} className={actionButtonClass}>
               <Archive className="h-4 w-4 text-accent transition-transform group-hover:scale-110" />
@@ -372,7 +373,7 @@ const App: React.FC = () => {
 
         <section className="mt-12 space-y-8">
           <div className="grid gap-6 lg:grid-cols-2">
-            <div className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-[0_20px_50px_rgba(15,23,42,0.45)] backdrop-blur">
+            <div className="rounded-3xl border border-accent/15 bg-surface/80 p-6 shadow-[0_30px_100px_rgba(10,18,35,0.55)] backdrop-blur-xl">
               <div className="mb-4 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <FileText className="h-6 w-6 text-accent" />
@@ -380,10 +381,10 @@ const App: React.FC = () => {
                 </div>
                 <button
                   onClick={() => copyToClipboard(scopeTemplate, 'scope')}
-                  className={`flex items-center gap-2 rounded-xl border border-white/10 px-3 py-2 text-sm transition ${
+                  className={`flex items-center gap-2 rounded-xl border px-3 py-2 text-sm transition ${
                     copiedTemplate === 'scope'
-                      ? 'bg-accent/10 text-accent'
-                      : 'bg-white/5 text-slate-100 hover:border-accent/60 hover:bg-accent/10'
+                      ? 'border-accent/60 bg-accent-soft/50 text-accent'
+                      : 'border-accent/25 bg-accent-soft/40 text-slate-100 hover:border-accent hover:bg-accent/15 hover:text-white'
                   }`}
                 >
                   {copiedTemplate === 'scope' ? (
@@ -399,14 +400,14 @@ const App: React.FC = () => {
                   )}
                 </button>
               </div>
-              <div className="rounded-2xl border border-white/5 bg-slate-950/70 p-4">
+              <div className="rounded-2xl border border-accent/20 bg-surface-highlight/70 p-4">
                 <pre className="whitespace-pre-wrap text-sm font-mono leading-relaxed text-slate-200">
                   {scopeTemplate}
                 </pre>
               </div>
             </div>
 
-            <div className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-[0_20px_50px_rgba(15,23,42,0.45)] backdrop-blur">
+            <div className="rounded-3xl border border-accent/15 bg-surface/80 p-6 shadow-[0_30px_100px_rgba(10,18,35,0.55)] backdrop-blur-xl">
               <div className="mb-4 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Mail className="h-6 w-6 text-accent" />
@@ -414,10 +415,10 @@ const App: React.FC = () => {
                 </div>
                 <button
                   onClick={() => copyToClipboard(emailTemplate, 'email')}
-                  className={`flex items-center gap-2 rounded-xl border border-white/10 px-3 py-2 text-sm transition ${
+                  className={`flex items-center gap-2 rounded-xl border px-3 py-2 text-sm transition ${
                     copiedTemplate === 'email'
-                      ? 'bg-accent/10 text-accent'
-                      : 'bg-white/5 text-slate-100 hover:border-accent/60 hover:bg-accent/10'
+                      ? 'border-accent/60 bg-accent-soft/50 text-accent'
+                      : 'border-accent/25 bg-accent-soft/40 text-slate-100 hover:border-accent hover:bg-accent/15 hover:text-white'
                   }`}
                 >
                   {copiedTemplate === 'email' ? (
@@ -433,7 +434,7 @@ const App: React.FC = () => {
                   )}
                 </button>
               </div>
-              <div className="rounded-2xl border border-white/5 bg-slate-950/70 p-4">
+              <div className="rounded-2xl border border-accent/20 bg-surface-highlight/70 p-4">
                 <pre className="whitespace-pre-wrap text-sm font-mono leading-relaxed text-slate-200">
                   {emailTemplate}
                 </pre>
@@ -442,7 +443,7 @@ const App: React.FC = () => {
           </div>
 
           {showLogisticsTemplate && (
-            <div className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-[0_20px_50px_rgba(15,23,42,0.45)] backdrop-blur">
+            <div className="rounded-3xl border border-accent/15 bg-surface/80 p-6 shadow-[0_30px_100px_rgba(10,18,35,0.55)] backdrop-blur-xl">
               <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                 <div className="flex items-center gap-2">
                   <Truck className="h-6 w-6 text-accent" />
@@ -458,10 +459,10 @@ const App: React.FC = () => {
                   </a>
                   <button
                     onClick={() => copyToClipboard(logisticsTemplate, 'logistics')}
-                    className={`flex items-center gap-2 rounded-xl border border-white/10 px-3 py-2 text-sm transition ${
+                    className={`flex items-center gap-2 rounded-xl border px-3 py-2 text-sm transition ${
                       copiedTemplate === 'logistics'
-                        ? 'bg-accent/10 text-accent'
-                        : 'bg-white/5 text-slate-100 hover:border-accent/60 hover:bg-accent/10'
+                        ? 'border-accent/60 bg-accent-soft/50 text-accent'
+                        : 'border-accent/25 bg-accent-soft/40 text-slate-100 hover:border-accent hover:bg-accent/15 hover:text-white'
                     }`}
                   >
                     {copiedTemplate === 'logistics' ? (
@@ -478,7 +479,7 @@ const App: React.FC = () => {
                   </button>
                 </div>
               </div>
-              <div className="rounded-2xl border border-white/5 bg-slate-950/70 p-4">
+              <div className="rounded-2xl border border-accent/20 bg-surface-highlight/70 p-4">
                 <pre className="whitespace-pre-wrap text-sm font-mono leading-relaxed text-slate-200">
                   {logisticsTemplate}
                 </pre>
@@ -522,7 +523,7 @@ const App: React.FC = () => {
           </div>
         </section>
 
-        <footer className="mt-12 border-t border-white/5 pt-6 text-center text-sm text-slate-500">
+        <footer className="mt-12 border-t border-accent/10 pt-6 text-center text-sm text-slate-500">
           Crafted for Omega Morgan&apos;s Bolt 3.0 design language. Session ID: {sessionId}
         </footer>
       </div>

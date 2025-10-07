@@ -6,8 +6,11 @@ export default {
       colors: {
         'uber-black': '#000000',
         white: '#ffffff',
-        background: '#000000',
-        accent: '#32CD32',
+        background: '#050b16',
+        accent: '#1CFF87',
+        'accent-soft': 'rgba(28, 255, 135, 0.12)',
+        surface: '#0b1424',
+        'surface-highlight': '#101d33',
       },
       fontFamily: {
         sans: ['Inter', 'sans-serif'],

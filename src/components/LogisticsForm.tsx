@@ -69,13 +69,13 @@ const LogisticsForm: React.FC<LogisticsFormProps> = ({
   errors
 }) => {
   const containerClasses =
-    'relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 p-6 shadow-[0_25px_60px_rgba(15,23,42,0.45)] backdrop-blur'
+    'relative overflow-hidden rounded-3xl border border-accent/25 bg-surface/80 p-6 shadow-[0_35px_120px_rgba(10,18,35,0.55)] backdrop-blur-xl'
   const inputClasses =
-    'px-3 py-2.5 bg-slate-950/80 border border-white/10 rounded-xl text-sm text-white placeholder:text-slate-400 focus:border-accent focus:ring-2 focus:ring-accent/40 transition'
+    'px-3 py-2.5 bg-surface-highlight/70 border border-accent/25 rounded-xl text-sm text-white placeholder:text-slate-400 shadow-[0_10px_28px_rgba(8,16,28,0.45)] transition focus:border-accent focus:ring-2 focus:ring-accent/40'
 
   return (
     <div className={containerClasses}>
-      <div className="pointer-events-none absolute -bottom-32 -right-10 h-48 w-48 rounded-full bg-sky-500/20 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-32 -right-10 h-48 w-48 rounded-full bg-accent/25 blur-[120px] opacity-80" />
       <div className="relative z-10 flex flex-col gap-6">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div className="flex items-center gap-3">
@@ -95,8 +95,8 @@ const LogisticsForm: React.FC<LogisticsFormProps> = ({
             disabled={!canUseAI}
             className={`inline-flex items-center justify-center rounded-xl border px-3 py-2 text-xs font-medium transition ${
               canUseAI
-                ? 'border-accent/50 bg-accent/10 text-accent hover:border-accent/80 hover:bg-accent/15'
-                : 'border-white/10 bg-white/[0.04] text-slate-500 cursor-not-allowed'
+                ? 'border-accent/40 bg-accent-soft/40 text-accent hover:border-accent hover:bg-accent/15 hover:text-white'
+                : 'border-accent/15 bg-surface/40 text-slate-500/80 cursor-not-allowed'
             }`}
           >
             <Bot className="mr-2 h-3.5 w-3.5" />
@@ -134,14 +134,14 @@ const LogisticsForm: React.FC<LogisticsFormProps> = ({
               {data.pieces.map((piece, index) => (
                 <div
                   key={piece.id}
-                  className="grid grid-cols-12 items-end gap-3 rounded-2xl border border-white/10 bg-slate-950/60 p-4 shadow-sm"
+                  className="grid grid-cols-12 items-end gap-3 rounded-2xl border border-accent/20 bg-surface-highlight/70 p-4 shadow-[0_18px_36px_rgba(10,18,35,0.45)]"
                 >
                   <div className="col-span-5 flex items-start gap-3">
                     <input
                       type="checkbox"
                       checked={selectedPieces.includes(piece.id)}
                       onChange={() => togglePieceSelection(piece.id)}
-                      className="mt-2 h-4 w-4 rounded border-white/20 bg-transparent text-accent focus:ring-accent/40"
+                      className="mt-2 h-4 w-4 rounded border-accent/40 bg-transparent text-accent focus:ring-accent/40"
                     />
                     <div className="flex-1">
                       {(() => {
@@ -225,14 +225,14 @@ const LogisticsForm: React.FC<LogisticsFormProps> = ({
                     <button
                       onClick={() => movePiece(index, index - 1)}
                       disabled={index === 0}
-                      className="flex items-center justify-center rounded-lg border border-white/10 bg-white/[0.06] p-2 text-slate-200 transition hover:bg-white/[0.1] disabled:cursor-not-allowed disabled:opacity-40"
+                      className="flex items-center justify-center rounded-lg border border-accent/25 bg-accent-soft/40 p-2 text-accent transition hover:border-accent hover:bg-accent/15 hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
                     >
                       <ArrowUp className="h-4 w-4" />
                     </button>
                     <button
                       onClick={() => movePiece(index, index + 1)}
                       disabled={index === data.pieces.length - 1}
-                      className="flex items-center justify-center rounded-lg border border-white/10 bg-white/[0.06] p-2 text-slate-200 transition hover:bg-white/[0.1] disabled:cursor-not-allowed disabled:opacity-40"
+                      className="flex items-center justify-center rounded-lg border border-accent/25 bg-accent-soft/40 p-2 text-accent transition hover:border-accent hover:bg-accent/15 hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
                     >
                       <ArrowDown className="h-4 w-4" />
                     </button>

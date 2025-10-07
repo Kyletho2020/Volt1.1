@@ -30,11 +30,11 @@ const EquipmentForm: React.FC<EquipmentFormProps> = ({
   errors
 }) => {
   const containerClasses =
-    'relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 p-6 shadow-[0_25px_60px_rgba(15,23,42,0.45)] backdrop-blur'
+    'relative overflow-hidden rounded-3xl border border-accent/25 bg-surface/80 p-6 shadow-[0_35px_120px_rgba(10,18,35,0.55)] backdrop-blur-xl'
 
   return (
     <div className={containerClasses}>
-      <div className="pointer-events-none absolute -top-32 -right-10 h-48 w-48 rounded-full bg-accent/20 blur-3xl" />
+      <div className="pointer-events-none absolute -top-32 -right-10 h-48 w-48 rounded-full bg-accent/25 blur-[120px] opacity-80" />
       <div className="relative z-10">
         <div className="mb-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -52,8 +52,8 @@ const EquipmentForm: React.FC<EquipmentFormProps> = ({
             disabled={!canUseAI}
             className={`hidden rounded-xl border px-3 py-2 text-xs font-medium transition sm:flex ${
               canUseAI
-                ? 'border-accent/50 bg-accent/10 text-accent hover:border-accent/80 hover:bg-accent/15'
-                : 'border-white/10 bg-white/[0.04] text-slate-500 cursor-not-allowed'
+                ? 'border-accent/40 bg-accent-soft/40 text-accent hover:border-accent hover:bg-accent/15 hover:text-white'
+                : 'border-accent/15 bg-surface/40 text-slate-500/80 cursor-not-allowed'
             }`}
           >
             <Bot className="mr-2 h-3.5 w-3.5" />
