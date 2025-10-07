@@ -268,6 +268,12 @@ const App: React.FC = () => {
   const logisticsTemplate = `${logisticsSubject}\n\n${logisticsBody}`
   const showLogisticsTemplate = Boolean(logisticsData.shipmentType)
 
+  const actionButtonClass =
+    'group flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-medium text-slate-100 transition-all hover:-translate-y-0.5 hover:border-accent/70 hover:bg-accent/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent/60'
+
+  const disabledActionButtonClass =
+    'group flex items-center justify-center gap-2 rounded-2xl border border-white/5 bg-white/[0.04] px-4 py-3 text-sm font-medium text-slate-500 transition-all cursor-not-allowed'
+
   const copyToClipboard = async (
     text: string,
     templateType: 'email' | 'scope' | 'logistics'
@@ -280,58 +286,61 @@ const App: React.FC = () => {
       console.error('Failed to copy text: ', err)
     }
   }
-
   return (
-    <div className="min-h-screen bg-black text-white">
-      <div className="max-w-[2000px] mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-white mb-2">OM Quote Generator</h1>
-          <p className="text-white">Professional quote generation system for Omega Morgan</p>
-        </div>
+    <div className="relative min-h-screen overflow-x-hidden text-white">
+      <div className="absolute inset-0 -z-20 bg-gradient-to-br from-slate-950 via-slate-900 to-black" />
+      <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,_rgba(50,205,50,0.08),_transparent_65%)]" />
+      <div className="absolute -top-48 -left-48 -z-10 h-[28rem] w-[28rem] rounded-full bg-accent/25 blur-3xl opacity-70" />
+      <div className="absolute top-1/3 -right-40 -z-10 h-[26rem] w-[26rem] rounded-full bg-sky-500/15 blur-3xl opacity-60" />
 
-        {/* Action Buttons */}
-        <div className="flex flex-wrap justify-center gap-4 mb-8">
-          <button
-            onClick={openHistory}
-            className="flex items-center px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors border border-accent"
-          >
-            <Archive className="w-4 h-4 mr-2" />
-            Quote History
-          </button>
+      <div className="relative z-10 mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+        <header className="mx-auto max-w-3xl text-center">
+          <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1 text-xs font-semibold uppercase tracking-[0.35em] text-slate-300">
+            Bolt 3.0 Visual System
+          </span>
+          <h1 className="mt-6 text-4xl font-semibold tracking-tight text-white sm:text-5xl">
+            Volt 1.1 Quote Studio
+          </h1>
+          <p className="mt-4 text-base text-slate-300 sm:text-lg">
+            Generate polished Omega Morgan proposals with the refreshed Bolt 3.0 look and feel.
+            Manage client data, logistics, and AI-assisted templates from a single immersive workspace.
+          </p>
+        </header>
 
-          <button
-            onClick={handleNewQuote}
-            className="flex items-center px-4 py-2 bg-accent text-black rounded-lg hover:bg-green-400 transition-colors"
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            New Quote
-          </button>
+        <section className="mt-12 rounded-3xl border border-white/10 bg-white/5 px-6 py-8 shadow-[0_25px_70px_rgba(15,23,42,0.45)] backdrop-blur-xl">
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <button onClick={openHistory} className={actionButtonClass}>
+              <Archive className="h-4 w-4 text-accent transition-transform group-hover:scale-110" />
+              Quote History
+            </button>
 
-          <button
-            onClick={openHistory}
-            className="flex items-center px-4 py-2 bg-accent text-black rounded-lg hover:bg-green-400 transition-colors"
-          >
-            <Save className="w-4 h-4 mr-2" />
-            Save Quote
-          </button>
+            <button onClick={handleNewQuote} className={actionButtonClass}>
+              <Plus className="h-4 w-4 text-accent transition-transform group-hover:scale-110" />
+              New Quote
+            </button>
 
-          <button
-            onClick={() => handleOpenExtractor('all')}
-            disabled={!hasApiKey}
-            className={`flex items-center px-4 py-2 rounded-lg transition-colors ${
-              hasApiKey
-                ? 'bg-accent text-black hover:bg-green-400'
-                : 'bg-gray-600 text-gray-300 cursor-not-allowed'
-            }`}
-          >
-            <Bot className="w-4 h-4 mr-2" />
-            AI Extractor {hasApiKey ? '✓' : '✗'}
-          </button>
-        </div>
+            <button onClick={openHistory} className={actionButtonClass}>
+              <Save className="h-4 w-4 text-accent transition-transform group-hover:scale-110" />
+              Save Quote
+            </button>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Equipment Quote Form */}
+            <button
+              onClick={() => handleOpenExtractor('all')}
+              disabled={!hasApiKey}
+              className={hasApiKey ? actionButtonClass : disabledActionButtonClass}
+            >
+              <Bot className="h-4 w-4 text-accent" />
+              AI Extractor {hasApiKey ? 'Ready' : 'Locked'}
+            </button>
+          </div>
+          <p className="mt-4 text-center text-xs text-slate-400">
+            {hasApiKey
+              ? 'AI extraction is connected for this session — use it to accelerate scope and logistics capture.'
+              : 'Connect your encrypted Supabase key to unlock AI extraction powered by Bolt 3.0.'}
+          </p>
+        </section>
+
+        <section className="mt-12 grid gap-10 lg:grid-cols-2">
           <EquipmentForm
             data={equipmentData}
             onFieldChange={handleEquipmentChange}
@@ -344,7 +353,6 @@ const App: React.FC = () => {
             errors={equipmentForm.formState.errors}
           />
 
-          {/* Logistics Quote Form */}
           <LogisticsForm
             data={logisticsData}
             selectedPieces={selectedPieces}
@@ -360,155 +368,181 @@ const App: React.FC = () => {
             register={logisticsForm.register}
             errors={logisticsForm.formState.errors}
           />
-        </div>
+        </section>
 
-        {/* Templates */}
-        <div className="mt-8 space-y-8">
-          <div className="bg-gray-900 rounded-lg border-2 border-accent p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center">
-                <FileText className="w-6 h-6 text-white mr-2" />
-                <h2 className="text-2xl font-bold text-white">Scope of Work Template</h2>
+        <section className="mt-12 space-y-8">
+          <div className="grid gap-6 lg:grid-cols-2">
+            <div className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-[0_20px_50px_rgba(15,23,42,0.45)] backdrop-blur">
+              <div className="mb-4 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <FileText className="h-6 w-6 text-accent" />
+                  <h2 className="text-2xl font-semibold text-white">Scope of Work Template</h2>
+                </div>
+                <button
+                  onClick={() => copyToClipboard(scopeTemplate, 'scope')}
+                  className={`flex items-center gap-2 rounded-xl border border-white/10 px-3 py-2 text-sm transition ${
+                    copiedTemplate === 'scope'
+                      ? 'bg-accent/10 text-accent'
+                      : 'bg-white/5 text-slate-100 hover:border-accent/60 hover:bg-accent/10'
+                  }`}
+                >
+                  {copiedTemplate === 'scope' ? (
+                    <>
+                      <CheckCircle className="h-4 w-4" />
+                      Copied!
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="h-4 w-4" />
+                      Copy
+                    </>
+                  )}
+                </button>
               </div>
-              <button
-                onClick={() => copyToClipboard(scopeTemplate, 'scope')}
-                className="flex items-center px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors border border-accent"
-              >
-                {copiedTemplate === 'scope' ? (
-                  <>
-                    <CheckCircle className="w-4 h-4 mr-2" />
-                    Copied!
-                  </>
-                ) : (
-                  <>
-                    <Copy className="w-4 h-4 mr-2" />
-                    Copy
-                  </>
-                )}
-              </button>
+              <div className="rounded-2xl border border-white/5 bg-slate-950/70 p-4">
+                <pre className="whitespace-pre-wrap text-sm font-mono leading-relaxed text-slate-200">
+                  {scopeTemplate}
+                </pre>
+              </div>
             </div>
-            <div className="bg-black rounded-lg p-4 border border-accent">
-              <pre className="whitespace-pre-wrap text-sm text-white font-mono leading-relaxed">
-                {scopeTemplate}
-              </pre>
-            </div>
-          </div>
 
-          <div className="bg-gray-900 rounded-lg border-2 border-accent p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center">
-                <Mail className="w-6 h-6 text-white mr-2" />
-                <h2 className="text-2xl font-bold text-white">Email Template</h2>
+            <div className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-[0_20px_50px_rgba(15,23,42,0.45)] backdrop-blur">
+              <div className="mb-4 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Mail className="h-6 w-6 text-accent" />
+                  <h2 className="text-2xl font-semibold text-white">Email Template</h2>
+                </div>
+                <button
+                  onClick={() => copyToClipboard(emailTemplate, 'email')}
+                  className={`flex items-center gap-2 rounded-xl border border-white/10 px-3 py-2 text-sm transition ${
+                    copiedTemplate === 'email'
+                      ? 'bg-accent/10 text-accent'
+                      : 'bg-white/5 text-slate-100 hover:border-accent/60 hover:bg-accent/10'
+                  }`}
+                >
+                  {copiedTemplate === 'email' ? (
+                    <>
+                      <CheckCircle className="h-4 w-4" />
+                      Copied!
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="h-4 w-4" />
+                      Copy
+                    </>
+                  )}
+                </button>
               </div>
-              <button
-                onClick={() => copyToClipboard(emailTemplate, 'email')}
-                className="flex items-center px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors border border-accent"
-              >
-                {copiedTemplate === 'email' ? (
-                  <>
-                    <CheckCircle className="w-4 h-4 mr-2" />
-                    Copied!
-                  </>
-                ) : (
-                  <>
-                    <Copy className="w-4 h-4 mr-2" />
-                    Copy
-                  </>
-                )}
-              </button>
-            </div>
-            <div className="bg-black rounded-lg p-4 border border-accent">
-              <pre className="whitespace-pre-wrap text-sm text-white font-mono leading-relaxed">
-                {emailTemplate}
-              </pre>
+              <div className="rounded-2xl border border-white/5 bg-slate-950/70 p-4">
+                <pre className="whitespace-pre-wrap text-sm font-mono leading-relaxed text-slate-200">
+                  {emailTemplate}
+                </pre>
+              </div>
             </div>
           </div>
 
           {showLogisticsTemplate && (
-            <div className="bg-gray-900 rounded-lg border-2 border-accent p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center">
-                  <Truck className="w-6 h-6 text-white mr-2" />
-                  <h2 className="text-2xl font-bold text-white">Logistics Email Template</h2>
+            <div className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-[0_20px_50px_rgba(15,23,42,0.45)] backdrop-blur">
+              <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                <div className="flex items-center gap-2">
+                  <Truck className="h-6 w-6 text-accent" />
+                  <h2 className="text-2xl font-semibold text-white">Logistics Email Template</h2>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
                   <a
                     href={`mailto:Logistics@omegamorgan.com; MachineryLogistics@omegamorgan.com?subject=${encodeURIComponent(logisticsSubject)}&body=${encodeURIComponent(logisticsBody)}`}
-                    className="flex items-center px-4 py-2 bg-accent text-black rounded-lg hover:bg-green-400 transition-colors"
+                    className="flex items-center gap-2 rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-black shadow-sm transition hover:bg-green-400"
                   >
-                    <Mail className="w-4 h-4 mr-2" />
-                    Email
+                    <Mail className="h-4 w-4" />
+                    Email Logistics Team
                   </a>
                   <button
                     onClick={() => copyToClipboard(logisticsTemplate, 'logistics')}
-                    className="flex items-center px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors border border-accent"
+                    className={`flex items-center gap-2 rounded-xl border border-white/10 px-3 py-2 text-sm transition ${
+                      copiedTemplate === 'logistics'
+                        ? 'bg-accent/10 text-accent'
+                        : 'bg-white/5 text-slate-100 hover:border-accent/60 hover:bg-accent/10'
+                    }`}
                   >
                     {copiedTemplate === 'logistics' ? (
                       <>
-                        <CheckCircle className="w-4 h-4 mr-2" />
+                        <CheckCircle className="h-4 w-4" />
                         Copied!
                       </>
                     ) : (
                       <>
-                        <Copy className="w-4 h-4 mr-2" />
+                        <Copy className="h-4 w-4" />
                         Copy
                       </>
                     )}
                   </button>
                 </div>
               </div>
-              <div className="bg-black rounded-lg p-4 border border-accent">
-                <pre className="whitespace-pre-wrap text-sm text-white font-mono leading-relaxed">
+              <div className="rounded-2xl border border-white/5 bg-slate-950/70 p-4">
+                <pre className="whitespace-pre-wrap text-sm font-mono leading-relaxed text-slate-200">
                   {logisticsTemplate}
                 </pre>
               </div>
             </div>
           )}
-        </div>
+        </section>
 
-        {/* Clarifications */}
-        <div className="mt-8 space-y-8">
-          <ClarificationsSection
-            title="Machinery Moving"
-            initialItems={[
-              'Any change to the job will require approval in writing prior to completion of work.',
-              'Customer is to supply clear pathway for all items to be loaded onto trailers',
-              'Quote is based on no site visit and is not responsible for cracks in pavement or other unforeseen causes to not be able to perform work'
-            ]}
-          />
-          <ClarificationsSection
-            title="Crane"
-            initialItems={[
-              'Crew to take half hour meal break between 4 - 5 hour start of shift in yard.',
-              'Customer may work crew through first meal break and pay missed meal charge of $175 per crew member.',
-              '60 ton boom truck quoted and 6 and 8 hour minimums. 8 hour quoted for budget.',
-              'Quoted straight time and portal to portal.',
-              'Overtime overtime to be charged $65/hour.',
-              'Straight time is the first 8 hours worked between 5am - 6pm Monday through Friday including travel and dismantle.',
-              'Customer may work crew through meal with signature on work ticket and pay missed meal charge of $175 per crew member per missed meal.',
-              'Mandatory missed meal charge at 10 hours from start of shift.'
-            ]}
-          />
-        </div>
+        <section className="mt-12 space-y-6">
+          <div className="flex flex-col gap-2 text-center sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <h2 className="text-3xl font-semibold text-white">Clarifications Library</h2>
+              <p className="text-sm text-slate-400">
+                Keep your standard terms aligned with Bolt 3.0’s refreshed quoting experience.
+              </p>
+            </div>
+          </div>
 
-        {/* Modals */}
-        <AIExtractorModal
-          isOpen={showAIExtractor}
-          onClose={closeAIExtractor}
-          onExtract={handleAIExtraction}
-          sessionId={sessionId}
-          mode={extractorMode}
-        />
+          <div className="grid gap-6 lg:grid-cols-2">
+            <ClarificationsSection
+              title="Machinery Moving"
+              initialItems={[
+                'Any change to the job will require approval in writing prior to completion of work.',
+                'Customer is to supply clear pathway for all items to be loaded onto trailers',
+                'Quote is based on no site visit and is not responsible for cracks in pavement or other unforeseen causes to not be able to perform work'
+              ]}
+            />
+            <ClarificationsSection
+              title="Crane"
+              initialItems={[
+                'Crew to take half hour meal break between 4 - 5 hour start of shift in yard.',
+                'Customer may work crew through first meal break and pay missed meal charge of $175 per crew member.',
+                '60 ton boom truck quoted and 6 and 8 hour minimums. 8 hour quoted for budget.',
+                'Quoted straight time and portal to portal.',
+                'Overtime overtime to be charged $65/hour.',
+                'Straight time is the first 8 hours worked between 5am - 6pm Monday through Friday including travel and dismantle.',
+                'Customer may work crew through meal with signature on work ticket and pay missed meal charge of $175 per crew member per missed meal.',
+                'Mandatory missed meal charge at 10 hours from start of shift.'
+              ]}
+            />
+          </div>
+        </section>
 
-        <QuoteSaveManager
-          equipmentData={equipmentData}
-          equipmentRequirements={equipmentData.equipmentRequirements}
-          logisticsData={logisticsData}
-          isOpen={showHistory}
-          onClose={closeHistory}
-          onLoadQuote={handleLoadQuote}
-        />
+        <footer className="mt-12 border-t border-white/5 pt-6 text-center text-sm text-slate-500">
+          Crafted for Omega Morgan&apos;s Bolt 3.0 design language. Session ID: {sessionId}
+        </footer>
       </div>
+
+      <AIExtractorModal
+        isOpen={showAIExtractor}
+        onClose={closeAIExtractor}
+        onExtract={handleAIExtraction}
+        sessionId={sessionId}
+        mode={extractorMode}
+      />
+
+      <QuoteSaveManager
+        equipmentData={equipmentData}
+        equipmentRequirements={equipmentData.equipmentRequirements}
+        logisticsData={logisticsData}
+        isOpen={showHistory}
+        onClose={closeHistory}
+        onLoadQuote={handleLoadQuote}
+      />
     </div>
   )
 }

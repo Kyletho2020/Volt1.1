@@ -45,75 +45,74 @@ const HubSpotContactSearch: React.FC<HubSpotContactSearchProps> = ({ onSelectCon
   }
 
   return (
-    <div className="mb-6 p-4 bg-black rounded-lg border border-accent">
-      <h3 className="text-lg font-semibold text-white mb-3">HubSpot Contact Search</h3>
+    <div className="mb-6 rounded-2xl border border-white/10 bg-slate-950/60 p-5 shadow-[0_20px_45px_rgba(15,23,42,0.45)] backdrop-blur">
+      <h3 className="text-lg font-semibold text-white">HubSpot Contact Search</h3>
+      <p className="mb-4 text-sm text-slate-400">Search HubSpot and instantly load project contacts into the Bolt workspace.</p>
       <form onSubmit={handleSubmit} className="space-y-3">
-        <div className="flex gap-2">
+        <div className="flex flex-col gap-2 sm:flex-row">
           <input
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Search contacts by name..."
-            className="flex-1 px-3 py-2 bg-gray-900 border border-accent rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent text-white placeholder-white"
+            className="flex-1 rounded-xl border border-white/10 bg-slate-950/80 px-4 py-2.5 text-sm text-white placeholder:text-slate-400 focus:border-accent focus:ring-2 focus:ring-accent/40"
           />
           <button
             type="submit"
             disabled={loading}
-            className="px-4 py-2 bg-accent text-black rounded-lg hover:bg-green-400 disabled:opacity-50 transition-colors"
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-black shadow-sm transition hover:bg-green-400 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            <Search className="w-4 h-4" />
+            <Search className="h-4 w-4" />
+            {loading ? 'Searching…' : 'Search'}
           </button>
         </div>
-        
-        {error && (
-          <p className="text-red-400 text-sm">{error}</p>
-        )}
-        
+
+        {error && <p className="text-sm text-red-400">{error}</p>}
+
         {results.length > 0 && (
-          <div className="max-h-48 overflow-y-auto space-y-2">
+          <div className="max-h-48 space-y-2 overflow-y-auto">
             {results.map((contact) => (
-              <div
+              <button
                 key={contact.id}
+                type="button"
                 onClick={() => selectContact(contact)}
-                className="p-3 bg-gray-900 rounded-lg border border-gray-600 hover:border-accent cursor-pointer transition-colors"
+                className="w-full rounded-xl border border-white/10 bg-white/[0.04] p-3 text-left transition hover:border-accent/70 hover:bg-accent/10"
               >
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center mb-1">
-                      <User className="w-4 h-4 text-accent mr-2" />
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex-1 space-y-1">
+                    <div className="flex items-center gap-2">
+                      <User className="h-4 w-4 text-accent" />
                       <p className="font-medium text-white">
                         {contact.firstName} {contact.lastName}
                       </p>
                     </div>
                     {contact.companyName && (
-                      <div className="flex items-center mb-1">
-                        <Building className="w-4 h-4 text-gray-400 mr-2" />
-                        <p className="text-sm text-gray-300">{contact.companyName}</p>
+                      <div className="flex items-center gap-2 text-sm text-slate-300">
+                        <Building className="h-4 w-4 text-slate-400" />
+                        <span>{contact.companyName}</span>
                       </div>
                     )}
                     {contact.email && (
-                      <div className="flex items-center mb-1">
-                        <Mail className="w-4 h-4 text-gray-400 mr-2" />
-                        <p className="text-sm text-gray-400">{contact.email}</p>
+                      <div className="flex items-center gap-2 text-sm text-slate-400">
+                        <Mail className="h-4 w-4" />
+                        <span>{contact.email}</span>
                       </div>
                     )}
                     {contact.phone && (
-                      <div className="flex items-center mb-1">
-                        <Phone className="w-4 h-4 text-gray-400 mr-2" />
-                        <p className="text-sm text-gray-400">{contact.phone}</p>
+                      <div className="flex items-center gap-2 text-sm text-slate-400">
+                        <Phone className="h-4 w-4" />
+                        <span>{contact.phone}</span>
                       </div>
                     )}
                     {(contact.contactAddress || contact.companyAddress) && (
-                      <div className="flex items-center">
-                        <MapPin className="w-4 h-4 text-gray-400 mr-2" />
-                        <p className="text-sm text-gray-400">
-                          {contact.contactAddress || contact.companyAddress}
-                        </p>
+                      <div className="flex items-center gap-2 text-sm text-slate-400">
+                        <MapPin className="h-4 w-4" />
+                        <span>{contact.contactAddress || contact.companyAddress}</span>
                       </div>
                     )}
                   </div>
                 </div>
-              </div>
+              </button>
             ))}
           </div>
         )}

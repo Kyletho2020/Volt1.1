@@ -56,6 +56,10 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({
   const [projectNameCopied, setProjectNameCopied] = useState(false)
   const [siteAddressCopied, setSiteAddressCopied] = useState(false)
   const [companyNameCopied, setCompanyNameCopied] = useState(false)
+  const inputClasses =
+    'px-4 py-2.5 rounded-xl border border-white/10 bg-slate-950/80 text-white placeholder:text-slate-400 focus:border-accent focus:ring-2 focus:ring-accent/40 transition'
+  const iconButtonClasses =
+    'p-2 rounded-xl border border-white/10 bg-white/5 text-slate-200 transition hover:border-accent/60 hover:bg-accent/10 disabled:cursor-not-allowed disabled:opacity-50'
   const handleFieldChange = (field: keyof ProjectDetailsData, rawValue: string) => {
     const value =
       field === 'projectName' || field === 'contactName'
@@ -142,14 +146,14 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({
 
   return (
     <div className="mt-6 space-y-4">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-xl font-bold text-white">Project Details</h3>
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <h3 className="text-xl font-semibold text-white">Project Details</h3>
         <button
           type="button"
           onClick={clearSection}
-          className="flex items-center px-3 py-1 bg-gray-900 border border-accent rounded-lg hover:bg-gray-800 transition-colors text-white"
+          className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm font-medium text-slate-200 transition hover:border-accent/60 hover:bg-accent/10"
         >
-          <X className="w-4 h-4 mr-1" />
+          <X className="h-4 w-4" />
           Clear Section
         </button>
       </div>
@@ -161,9 +165,9 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({
           type="button"
           onClick={handleSaveContact}
           disabled={Object.keys(pendingUpdates).length === 0}
-          className="flex items-center px-3 py-1 bg-accent text-black rounded-lg hover:bg-green-400 disabled:opacity-50 transition-colors mb-2"
+          className="mb-2 inline-flex items-center gap-2 rounded-xl bg-accent px-3 py-2 text-sm font-semibold text-black shadow-sm transition hover:bg-green-400 disabled:cursor-not-allowed disabled:opacity-60"
         >
-          <Save className="w-4 h-4 mr-1" />
+          <Save className="h-4 w-4" />
           Save to HubSpot
         </button>
       )}
@@ -191,7 +195,7 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({
                       field.onChange(e)
                       handleFieldChange('projectName', formattedValue)
                     }}
-                    className="flex-1 px-3 py-2 bg-black border border-accent rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent text-white"
+                    className={`flex-1 ${inputClasses}`}
                     placeholder="Enter project name"
                   />
                   <button
@@ -199,12 +203,12 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({
                     onClick={handleCopyProjectName}
                     disabled={!data.projectName}
                     aria-label="Copy project name"
-                    className="p-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors border border-accent disabled:opacity-50"
+                    className={iconButtonClasses}
                   >
                     {projectNameCopied ? (
-                      <CheckCircle className="w-4 h-4" />
+                      <CheckCircle className="h-4 w-4" />
                     ) : (
-                      <Copy className="w-4 h-4" />
+                      <Copy className="h-4 w-4" />
                     )}
                   </button>
                 </div>
@@ -233,7 +237,7 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({
                       field.onChange(e)
                       handleFieldChange('companyName', e.target.value)
                     }}
-                    className="flex-1 px-3 py-2 bg-black border border-accent rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent text-white"
+                    className={`flex-1 ${inputClasses}`}
                     placeholder="Enter company name"
                   />
                   <button
@@ -241,12 +245,12 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({
                     onClick={handleCopyCompanyName}
                     disabled={!data.companyName}
                     aria-label="Copy company name"
-                    className="p-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors border border-accent disabled:opacity-50"
+                    className={iconButtonClasses}
                   >
                     {companyNameCopied ? (
-                      <CheckCircle className="w-4 h-4" />
+                      <CheckCircle className="h-4 w-4" />
                     ) : (
-                      <Copy className="w-4 h-4" />
+                      <Copy className="h-4 w-4" />
                     )}
                   </button>
                 </div>
@@ -278,7 +282,7 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({
                     field.onChange(e)
                     handleFieldChange('contactName', formattedValue)
                   }}
-                  className="w-full px-3 py-2 bg-black border border-accent rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent text-white"
+                  className={`w-full ${inputClasses}`}
                   placeholder="Enter site contact"
                 />
                 {errors.contactName && (
@@ -305,7 +309,7 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({
                     field.onChange(e)
                     handleFieldChange('sitePhone', e.target.value)
                   }}
-                  className="w-full px-3 py-2 bg-black border border-accent rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent text-white"
+                  className={`w-full ${inputClasses}`}
                   placeholder="Enter site phone"
                 />
                 {errors.sitePhone && (
@@ -334,24 +338,24 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({
                     field.onChange(e)
                     handleFieldChange('siteAddress', e.target.value)
                   }}
-                  className="flex-1 min-w-0 px-3 py-2 bg-black border border-accent rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent text-white"
+                  className={`flex-1 min-w-0 ${inputClasses}`}
                   placeholder="Enter site address"
                 />
                 <button
                   type="button"
                   onClick={handleCopySiteAddress}
                   disabled={!data.siteAddress}
-                  className="flex items-center px-3 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors border border-accent disabled:opacity-50 whitespace-nowrap"
+                  className={`inline-flex items-center gap-2 ${iconButtonClasses}`}
                   aria-label="Copy site address to pickup location"
                 >
                   {siteAddressCopied ? (
                     <>
-                      <CheckCircle className="w-4 h-4 mr-1" />
+                      <CheckCircle className="h-4 w-4" />
                       Copied
                     </>
                   ) : (
                     <>
-                      <Copy className="w-4 h-4 mr-1" />
+                      <Copy className="h-4 w-4" />
                       Copy to Pickup
                     </>
                   )}
@@ -380,7 +384,7 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({
                   field.onChange(e)
                   handleFieldChange('shopLocation', e.target.value)
                 }}
-                className="w-full px-3 py-2 bg-black border border-accent rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent text-white"
+                className={`w-full ${inputClasses}`}
               >
                 <option value="Shop">Shop</option>
                 <option value="Mukilteo">Mukilteo</option>
@@ -404,14 +408,14 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({
             type="button"
             onClick={onOpenScopeExtractor}
             disabled={!canUseAI}
-            className={`flex items-center px-2 py-1 rounded-lg text-xs transition-colors border ${
+            className={`inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-xs font-medium transition ${
               canUseAI
-                ? 'bg-accent text-black border-accent hover:bg-green-400'
-                : 'bg-gray-700 text-gray-300 border-gray-600 cursor-not-allowed'
+                ? 'border-accent/50 bg-accent/10 text-accent hover:border-accent/80 hover:bg-accent/15'
+                : 'border-white/10 bg-white/[0.04] text-slate-500 cursor-not-allowed'
             }`}
           >
-            <Bot className="w-3 h-3 mr-1" />
-            Extract Scope {canUseAI ? '✓' : '✗'}
+            <Bot className="h-3.5 w-3.5" />
+            Extract Scope {canUseAI ? 'Ready' : 'Locked'}
           </button>
         </div>
         {(() => {
@@ -425,7 +429,7 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({
                   handleFieldChange('scopeOfWork', e.target.value)
                 }}
                 rows={3}
-                className="w-full px-3 py-2 bg-black border border-accent rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent resize-none text-white"
+                className={`w-full resize-none ${inputClasses}`}
                 placeholder="Describe scope of work"
               />
               {errors.scopeOfWork && (
