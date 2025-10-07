@@ -177,13 +177,13 @@ const EquipmentRequired: React.FC<EquipmentRequiredProps> = ({ data, onChange })
   return (
     <div className="mt-6 space-y-6">
       <div className="flex items-center justify-between">
-      <h3 className="text-xl font-bold text-white">Equipment Requirements</h3>
+        <h3 className="text-xl font-bold text-white">Equipment Requirements</h3>
         <button
           type="button"
           onClick={clearSection}
-          className="flex items-center px-3 py-1 bg-gray-900 border border-accent rounded-lg hover:bg-gray-800 transition-colors text-white"
+          className="flex items-center gap-2 rounded-lg border border-accent/40 bg-accent-soft/40 px-3 py-1 text-sm font-medium text-accent transition hover:border-accent hover:bg-accent/15 hover:text-white"
         >
-          <X className="w-4 h-4 mr-1" />
+          <X className="h-4 w-4" />
           Clear Section
         </button>
       </div>
@@ -193,7 +193,7 @@ const EquipmentRequired: React.FC<EquipmentRequiredProps> = ({ data, onChange })
         <select
           value={data.crewSize}
           onChange={(e) => handleFieldChange('crewSize', e.target.value)}
-          className="w-full px-3 py-2 bg-black border border-accent rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent text-white"
+          className="w-full rounded-lg border border-accent/30 bg-surface-highlight/70 px-3 py-2 text-white shadow-[0_12px_28px_rgba(8,16,28,0.45)] focus:border-accent focus:ring-2 focus:ring-accent/40"
         >
           <option value="" disabled>
             Select crew size
@@ -207,14 +207,14 @@ const EquipmentRequired: React.FC<EquipmentRequiredProps> = ({ data, onChange })
       </div>
 
       <div className="space-y-4">
-        <div className="bg-gray-900 border border-accent rounded-lg p-4 text-white">
+        <div className="rounded-2xl border border-accent/25 bg-surface-highlight/70 p-4 text-white shadow-[0_20px_45px_rgba(10,18,35,0.5)]">
           <h4 className="text-lg font-semibold mb-3">Selected Equipment</h4>
           {selectedItems.length > 0 ? (
             <div className="space-y-2">
               {selectedItems.map((item) => (
                 <div
                   key={`${item.field}-${item.name}`}
-                  className="flex items-center justify-between bg-black/40 border border-accent/60 rounded-lg px-3 py-2"
+                  className="flex items-center justify-between rounded-lg border border-accent/40 bg-surface/80 px-3 py-2 shadow-[0_8px_20px_rgba(8,16,28,0.45)]"
                 >
                   <div>
                     <p className="font-medium">{item.name}</p>
@@ -224,7 +224,7 @@ const EquipmentRequired: React.FC<EquipmentRequiredProps> = ({ data, onChange })
                     <button
                       type="button"
                       onClick={() => adjustQuantity(item.field, item.name, -1)}
-                      className="p-1 bg-gray-800 rounded hover:bg-gray-700"
+                      className="flex h-7 w-7 items-center justify-center rounded border border-accent/30 bg-accent-soft/40 text-accent transition hover:border-accent hover:bg-accent/15 hover:text-white"
                     >
                       <Minus className="w-4 h-4" />
                     </button>
@@ -232,7 +232,7 @@ const EquipmentRequired: React.FC<EquipmentRequiredProps> = ({ data, onChange })
                     <button
                       type="button"
                       onClick={() => adjustQuantity(item.field, item.name, 1)}
-                      className="p-1 bg-gray-800 rounded hover:bg-gray-700"
+                      className="flex h-7 w-7 items-center justify-center rounded border border-accent/30 bg-accent-soft/40 text-accent transition hover:border-accent hover:bg-accent/15 hover:text-white"
                     >
                       <Plus className="w-4 h-4" />
                     </button>
@@ -246,12 +246,12 @@ const EquipmentRequired: React.FC<EquipmentRequiredProps> = ({ data, onChange })
           <button
             type="button"
             onClick={() => setShowAllOptions((prev) => !prev)}
-            className="mt-4 inline-flex items-center gap-2 px-3 py-1 bg-black border border-accent rounded-lg hover:bg-gray-800 transition-colors"
+            className="mt-4 inline-flex items-center gap-2 rounded-lg border border-accent/40 bg-accent-soft/40 px-3 py-1 text-sm font-medium text-accent transition hover:border-accent hover:bg-accent/15 hover:text-white"
           >
             {showAllOptions ? (
-              <ChevronUp className="w-4 h-4" aria-hidden="true" />
+              <ChevronUp className="h-4 w-4" aria-hidden="true" />
             ) : (
-              <ChevronDown className="w-4 h-4" aria-hidden="true" />
+              <ChevronDown className="h-4 w-4" aria-hidden="true" />
             )}
             <span>
               {showAllOptions ? 'Hide equipment list' : 'Add or adjust equipment'}
@@ -268,7 +268,7 @@ const EquipmentRequired: React.FC<EquipmentRequiredProps> = ({ data, onChange })
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Type to filter equipment"
-                className="w-full px-3 py-2 bg-black border border-accent rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent text-white"
+                className="w-full rounded-lg border border-accent/30 bg-surface-highlight/70 px-3 py-2 text-white shadow-[0_12px_28px_rgba(8,16,28,0.45)] focus:border-accent focus:ring-2 focus:ring-accent/40"
               />
             </div>
 
@@ -277,7 +277,7 @@ const EquipmentRequired: React.FC<EquipmentRequiredProps> = ({ data, onChange })
                 const isActive = activeCategory === section.field
                 const hasOptions = section.options.length > 0
                 return (
-                  <div key={section.field} className="border border-accent rounded-lg overflow-hidden">
+                  <div key={section.field} className="overflow-hidden rounded-xl border border-accent/30 bg-surface/80">
                     <button
                       type="button"
                       onClick={() =>
@@ -285,7 +285,7 @@ const EquipmentRequired: React.FC<EquipmentRequiredProps> = ({ data, onChange })
                           prev === section.field ? null : section.field
                         )
                       }
-                      className="w-full flex items-center justify-between px-4 py-2 bg-gray-900 text-white hover:bg-gray-800"
+                      className="flex w-full items-center justify-between px-4 py-2 text-white transition hover:bg-surface-highlight/80"
                     >
                       <span className="flex items-center gap-2">
                         {isActive ? (
@@ -300,21 +300,21 @@ const EquipmentRequired: React.FC<EquipmentRequiredProps> = ({ data, onChange })
                       </span>
                     </button>
                     {isActive && (
-                      <div className="bg-black/50 px-4 py-3 space-y-2">
+                      <div className="space-y-2 bg-surface-highlight/70 px-4 py-3">
                         {hasOptions ? (
                           section.options.map((option) => {
                             const qty = getQuantity(section.field, option)
                             return (
                               <div
                                 key={option}
-                                className="flex items-center justify-between bg-gray-900 border border-accent rounded-lg px-3 py-2 text-white"
+                                className="flex items-center justify-between rounded-lg border border-accent/30 bg-surface/90 px-3 py-2 text-white shadow-[0_8px_18px_rgba(8,16,28,0.4)]"
                               >
                                 <span>{option}</span>
                                 <div className="flex items-center space-x-2">
                                   <button
                                     type="button"
                                     onClick={() => adjustQuantity(section.field, option, -1)}
-                                    className="p-1 bg-gray-800 rounded hover:bg-gray-700"
+                                    className="flex h-7 w-7 items-center justify-center rounded border border-accent/30 bg-accent-soft/40 text-accent transition hover:border-accent hover:bg-accent/15 hover:text-white"
                                   >
                                     <Minus className="w-4 h-4" />
                                   </button>
@@ -322,7 +322,7 @@ const EquipmentRequired: React.FC<EquipmentRequiredProps> = ({ data, onChange })
                                   <button
                                     type="button"
                                     onClick={() => adjustQuantity(section.field, option, 1)}
-                                    className="p-1 bg-gray-800 rounded hover:bg-gray-700"
+                                    className="flex h-7 w-7 items-center justify-center rounded border border-accent/30 bg-accent-soft/40 text-accent transition hover:border-accent hover:bg-accent/15 hover:text-white"
                                   >
                                     <Plus className="w-4 h-4" />
                                   </button>
@@ -331,7 +331,7 @@ const EquipmentRequired: React.FC<EquipmentRequiredProps> = ({ data, onChange })
                             )
                           })
                         ) : (
-                          <p className="text-sm text-gray-300">
+                          <p className="text-sm text-slate-300">
                             No equipment matches your search.
                           </p>
                         )}

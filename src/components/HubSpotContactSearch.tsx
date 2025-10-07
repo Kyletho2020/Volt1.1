@@ -45,7 +45,7 @@ const HubSpotContactSearch: React.FC<HubSpotContactSearchProps> = ({ onSelectCon
   }
 
   return (
-    <div className="mb-6 rounded-2xl border border-white/10 bg-slate-950/60 p-5 shadow-[0_20px_45px_rgba(15,23,42,0.45)] backdrop-blur">
+    <div className="mb-6 rounded-2xl border border-accent/20 bg-surface-highlight/70 p-5 shadow-[0_28px_60px_rgba(10,18,35,0.5)] backdrop-blur-xl">
       <h3 className="text-lg font-semibold text-white">HubSpot Contact Search</h3>
       <p className="mb-4 text-sm text-slate-400">Search HubSpot and instantly load project contacts into the Bolt workspace.</p>
       <form onSubmit={handleSubmit} className="space-y-3">
@@ -55,7 +55,7 @@ const HubSpotContactSearch: React.FC<HubSpotContactSearchProps> = ({ onSelectCon
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Search contacts by name..."
-            className="flex-1 rounded-xl border border-white/10 bg-slate-950/80 px-4 py-2.5 text-sm text-white placeholder:text-slate-400 focus:border-accent focus:ring-2 focus:ring-accent/40"
+            className="flex-1 rounded-xl border border-accent/25 bg-surface/80 px-4 py-2.5 text-sm text-white placeholder:text-slate-400 shadow-[0_12px_28px_rgba(8,16,28,0.45)] focus:border-accent focus:ring-2 focus:ring-accent/40"
           />
           <button
             type="submit"
@@ -76,7 +76,7 @@ const HubSpotContactSearch: React.FC<HubSpotContactSearchProps> = ({ onSelectCon
                 key={contact.id}
                 type="button"
                 onClick={() => selectContact(contact)}
-                className="w-full rounded-xl border border-white/10 bg-white/[0.04] p-3 text-left transition hover:border-accent/70 hover:bg-accent/10"
+                className="w-full rounded-xl border border-accent/25 bg-accent-soft/40 p-3 text-left text-slate-100 transition hover:border-accent hover:bg-accent/15 hover:text-white"
               >
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1 space-y-1">
