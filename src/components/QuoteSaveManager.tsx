@@ -27,6 +27,7 @@ const QuoteSaveManager: React.FC<QuoteSaveManagerProps> = ({
   isOpen,
   onClose
 }) => {
+  const usingLocalStorage = !QuoteService.isRemoteEnabled()
   const [quoteNumber, setQuoteNumber] = useState('')
   const [quotes, setQuotes] = useState<QuoteListItem[]>([])
   const [searchTerm, setSearchTerm] = useState('')
@@ -234,6 +235,12 @@ const QuoteSaveManager: React.FC<QuoteSaveManagerProps> = ({
             <X className="w-5 h-5 text-white" />
           </button>
         </div>
+
+        {usingLocalStorage && (
+          <div className="mx-6 mt-4 rounded-lg border border-yellow-500/40 bg-yellow-500/10 p-3 text-sm text-yellow-100">
+            Supabase isn't configured in this environment. Quotes will be stored locally in this browser only.
+          </div>
+        )}
 
         {/* Message */}
         {message && (
