@@ -5,10 +5,21 @@
 
 @layer base {
   body {
-    @apply bg-black text-white font-sans;
+    @apply font-sans text-white antialiased;
+    min-height: 100vh;
+    background:
+      radial-gradient(circle at 20% 20%, rgba(56, 189, 248, 0.18), transparent 55%),
+      radial-gradient(circle at 80% 0%, rgba(52, 211, 153, 0.18), transparent 60%),
+      linear-gradient(180deg, #020617 0%, #030712 50%, #000000 100%);
+    background-attachment: fixed;
   }
 
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     @apply text-white;
   }
 }
