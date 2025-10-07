@@ -51,6 +51,17 @@ export const useLogisticsForm = () => {
   }, [logisticsData.pieces]);
 
   const handleLogisticsChange = (field: string, value: string) => {
+    if (field === 'shipmentType') {
+      const normalizedValue = value.trim().toUpperCase();
+
+      setLogisticsData(prev => ({
+        ...prev,
+        shipmentType: normalizedValue,
+        truckType: normalizedValue === '' ? '' : prev.truckType
+      }));
+      return;
+    }
+
     setLogisticsData(prev => ({ ...prev, [field]: value }));
   };
 

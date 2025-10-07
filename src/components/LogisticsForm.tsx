@@ -72,6 +72,7 @@ const LogisticsForm: React.FC<LogisticsFormProps> = ({
     'relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 p-6 shadow-[0_25px_60px_rgba(15,23,42,0.45)] backdrop-blur'
   const inputClasses =
     'px-3 py-2.5 bg-slate-950/80 border border-white/10 rounded-xl text-sm text-white placeholder:text-slate-400 focus:border-accent focus:ring-2 focus:ring-accent/40 transition'
+  const shipmentTypeOptions = ['LTL', 'FTL']
 
   return (
     <div className={containerClasses}>
@@ -355,10 +356,25 @@ const LogisticsForm: React.FC<LogisticsFormProps> = ({
               <label className="mb-1 block text-sm font-medium text-slate-200">Shipment Type</label>
               <input
                 type="text"
+                list="shipment-type-options"
+                placeholder="LTL or FTL"
+                aria-describedby="shipment-type-hint"
                 value={data.shipmentType}
                 onChange={(e) => onFieldChange('shipmentType', e.target.value)}
                 className={`w-full ${inputClasses}`}
               />
+              <datalist id="shipment-type-options">
+                {shipmentTypeOptions.map(option => (
+                  <option key={option} value={option} />
+                ))}
+              </datalist>
+              <p
+                id="shipment-type-hint"
+                className="mt-1 text-xs text-slate-400"
+              >
+                Enter <span className="font-semibold">LTL</span> for less-than-truckload or{' '}
+                <span className="font-semibold">FTL</span> for full truckload shipments.
+              </p>
               {errors.shipmentType && (
                 <p className="mt-1 text-xs text-red-400">{String(errors.shipmentType.message)}</p>
               )}
