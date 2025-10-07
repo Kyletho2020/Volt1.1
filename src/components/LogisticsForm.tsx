@@ -251,156 +251,288 @@ const LogisticsForm: React.FC<LogisticsFormProps> = ({
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div>
               <label className="mb-1 block text-sm font-medium text-slate-200">Pickup Address</label>
-              <input
-                type="text"
-                value={data.pickupAddress}
-                onChange={(e) => onFieldChange('pickupAddress', e.target.value)}
-                className={`w-full ${inputClasses}`}
-              />
-              {errors.pickupAddress && (
-                <p className="mt-1 text-xs text-red-400">{String(errors.pickupAddress.message)}</p>
-              )}
+              {(() => {
+                const fieldRegister = register('pickupAddress' as const)
+                return (
+                  <>
+                    <input
+                      type="text"
+                      {...fieldRegister}
+                      value={data.pickupAddress}
+                      onChange={(e) => {
+                        fieldRegister.onChange(e)
+                        onFieldChange('pickupAddress', e.target.value)
+                      }}
+                      className={`w-full ${inputClasses}`}
+                    />
+                    {errors.pickupAddress && (
+                      <p className="mt-1 text-xs text-red-400">{String(errors.pickupAddress.message)}</p>
+                    )}
+                  </>
+                )
+              })()}
             </div>
             <div>
               <label className="mb-1 block text-sm font-medium text-slate-200">Pickup City</label>
-              <input
-                type="text"
-                value={data.pickupCity}
-                onChange={(e) => onFieldChange('pickupCity', e.target.value)}
-                className={`w-full ${inputClasses}`}
-              />
-              {errors.pickupCity && (
-                <p className="mt-1 text-xs text-red-400">{String(errors.pickupCity.message)}</p>
-              )}
+              {(() => {
+                const fieldRegister = register('pickupCity' as const)
+                return (
+                  <>
+                    <input
+                      type="text"
+                      {...fieldRegister}
+                      value={data.pickupCity}
+                      onChange={(e) => {
+                        fieldRegister.onChange(e)
+                        onFieldChange('pickupCity', e.target.value)
+                      }}
+                      className={`w-full ${inputClasses}`}
+                    />
+                    {errors.pickupCity && (
+                      <p className="mt-1 text-xs text-red-400">{String(errors.pickupCity.message)}</p>
+                    )}
+                  </>
+                )
+              })()}
             </div>
             <div>
               <label className="mb-1 block text-sm font-medium text-slate-200">Pickup State</label>
-              <input
-                type="text"
-                value={data.pickupState}
-                onChange={(e) => onFieldChange('pickupState', e.target.value)}
-                className={`w-full ${inputClasses}`}
-              />
-              {errors.pickupState && (
-                <p className="mt-1 text-xs text-red-400">{String(errors.pickupState.message)}</p>
-              )}
+              {(() => {
+                const fieldRegister = register('pickupState' as const)
+                return (
+                  <>
+                    <input
+                      type="text"
+                      {...fieldRegister}
+                      value={data.pickupState}
+                      onChange={(e) => {
+                        fieldRegister.onChange(e)
+                        onFieldChange('pickupState', e.target.value)
+                      }}
+                      className={`w-full ${inputClasses}`}
+                    />
+                    {errors.pickupState && (
+                      <p className="mt-1 text-xs text-red-400">{String(errors.pickupState.message)}</p>
+                    )}
+                  </>
+                )
+              })()}
             </div>
             <div>
               <label className="mb-1 block text-sm font-medium text-slate-200">Pickup ZIP</label>
-              <input
-                type="text"
-                value={data.pickupZip}
-                onChange={(e) => onFieldChange('pickupZip', e.target.value)}
-                className={`w-full ${inputClasses}`}
-              />
-              {errors.pickupZip && (
-                <p className="mt-1 text-xs text-red-400">{String(errors.pickupZip.message)}</p>
-              )}
+              {(() => {
+                const fieldRegister = register('pickupZip' as const)
+                return (
+                  <>
+                    <input
+                      type="text"
+                      {...fieldRegister}
+                      value={data.pickupZip}
+                      onChange={(e) => {
+                        fieldRegister.onChange(e)
+                        onFieldChange('pickupZip', e.target.value)
+                      }}
+                      className={`w-full ${inputClasses}`}
+                    />
+                    {errors.pickupZip && (
+                      <p className="mt-1 text-xs text-red-400">{String(errors.pickupZip.message)}</p>
+                    )}
+                  </>
+                )
+              })()}
             </div>
           </div>
 
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div>
               <label className="mb-1 block text-sm font-medium text-slate-200">Delivery Address</label>
-              <input
-                type="text"
-                value={data.deliveryAddress}
-                onChange={(e) => onFieldChange('deliveryAddress', e.target.value)}
-                className={`w-full ${inputClasses}`}
-              />
-              {errors.deliveryAddress && (
-                <p className="mt-1 text-xs text-red-400">{String(errors.deliveryAddress.message)}</p>
-              )}
+              {(() => {
+                const fieldRegister = register('deliveryAddress' as const)
+                return (
+                  <>
+                    <input
+                      type="text"
+                      {...fieldRegister}
+                      value={data.deliveryAddress}
+                      onChange={(e) => {
+                        fieldRegister.onChange(e)
+                        onFieldChange('deliveryAddress', e.target.value)
+                      }}
+                      className={`w-full ${inputClasses}`}
+                    />
+                    {errors.deliveryAddress && (
+                      <p className="mt-1 text-xs text-red-400">{String(errors.deliveryAddress.message)}</p>
+                    )}
+                  </>
+                )
+              })()}
             </div>
             <div>
               <label className="mb-1 block text-sm font-medium text-slate-200">Delivery City</label>
-              <input
-                type="text"
-                value={data.deliveryCity}
-                onChange={(e) => onFieldChange('deliveryCity', e.target.value)}
-                className={`w-full ${inputClasses}`}
-              />
-              {errors.deliveryCity && (
-                <p className="mt-1 text-xs text-red-400">{String(errors.deliveryCity.message)}</p>
-              )}
+              {(() => {
+                const fieldRegister = register('deliveryCity' as const)
+                return (
+                  <>
+                    <input
+                      type="text"
+                      {...fieldRegister}
+                      value={data.deliveryCity}
+                      onChange={(e) => {
+                        fieldRegister.onChange(e)
+                        onFieldChange('deliveryCity', e.target.value)
+                      }}
+                      className={`w-full ${inputClasses}`}
+                    />
+                    {errors.deliveryCity && (
+                      <p className="mt-1 text-xs text-red-400">{String(errors.deliveryCity.message)}</p>
+                    )}
+                  </>
+                )
+              })()}
             </div>
             <div>
               <label className="mb-1 block text-sm font-medium text-slate-200">Delivery State</label>
-              <input
-                type="text"
-                value={data.deliveryState}
-                onChange={(e) => onFieldChange('deliveryState', e.target.value)}
-                className={`w-full ${inputClasses}`}
-              />
-              {errors.deliveryState && (
-                <p className="mt-1 text-xs text-red-400">{String(errors.deliveryState.message)}</p>
-              )}
+              {(() => {
+                const fieldRegister = register('deliveryState' as const)
+                return (
+                  <>
+                    <input
+                      type="text"
+                      {...fieldRegister}
+                      value={data.deliveryState}
+                      onChange={(e) => {
+                        fieldRegister.onChange(e)
+                        onFieldChange('deliveryState', e.target.value)
+                      }}
+                      className={`w-full ${inputClasses}`}
+                    />
+                    {errors.deliveryState && (
+                      <p className="mt-1 text-xs text-red-400">{String(errors.deliveryState.message)}</p>
+                    )}
+                  </>
+                )
+              })()}
             </div>
             <div>
               <label className="mb-1 block text-sm font-medium text-slate-200">Delivery ZIP</label>
-              <input
-                type="text"
-                value={data.deliveryZip}
-                onChange={(e) => onFieldChange('deliveryZip', e.target.value)}
-                className={`w-full ${inputClasses}`}
-              />
-              {errors.deliveryZip && (
-                <p className="mt-1 text-xs text-red-400">{String(errors.deliveryZip.message)}</p>
-              )}
+              {(() => {
+                const fieldRegister = register('deliveryZip' as const)
+                return (
+                  <>
+                    <input
+                      type="text"
+                      {...fieldRegister}
+                      value={data.deliveryZip}
+                      onChange={(e) => {
+                        fieldRegister.onChange(e)
+                        onFieldChange('deliveryZip', e.target.value)
+                      }}
+                      className={`w-full ${inputClasses}`}
+                    />
+                    {errors.deliveryZip && (
+                      <p className="mt-1 text-xs text-red-400">{String(errors.deliveryZip.message)}</p>
+                    )}
+                  </>
+                )
+              })()}
             </div>
           </div>
 
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div>
               <label className="mb-1 block text-sm font-medium text-slate-200">Shipment Type</label>
-              <input
-                type="text"
-                value={data.shipmentType}
-                onChange={(e) => onFieldChange('shipmentType', e.target.value)}
-                className={`w-full ${inputClasses}`}
-              />
-              {errors.shipmentType && (
-                <p className="mt-1 text-xs text-red-400">{String(errors.shipmentType.message)}</p>
-              )}
+              {(() => {
+                const fieldRegister = register('shipmentType' as const)
+                return (
+                  <>
+                    <input
+                      type="text"
+                      {...fieldRegister}
+                      value={data.shipmentType}
+                      onChange={(e) => {
+                        fieldRegister.onChange(e)
+                        onFieldChange('shipmentType', e.target.value)
+                      }}
+                      className={`w-full ${inputClasses}`}
+                    />
+                    {errors.shipmentType && (
+                      <p className="mt-1 text-xs text-red-400">{String(errors.shipmentType.message)}</p>
+                    )}
+                  </>
+                )
+              })()}
             </div>
             <div>
               <label className="mb-1 block text-sm font-medium text-slate-200">Truck Type</label>
-              <input
-                type="text"
-                value={data.truckType}
-                onChange={(e) => onFieldChange('truckType', e.target.value)}
-                className={`w-full ${inputClasses}`}
-              />
-              {errors.truckType && (
-                <p className="mt-1 text-xs text-red-400">{String(errors.truckType.message)}</p>
-              )}
+              {(() => {
+                const fieldRegister = register('truckType' as const)
+                return (
+                  <>
+                    <input
+                      type="text"
+                      {...fieldRegister}
+                      value={data.truckType}
+                      onChange={(e) => {
+                        fieldRegister.onChange(e)
+                        onFieldChange('truckType', e.target.value)
+                      }}
+                      className={`w-full ${inputClasses}`}
+                    />
+                    {errors.truckType && (
+                      <p className="mt-1 text-xs text-red-400">{String(errors.truckType.message)}</p>
+                    )}
+                  </>
+                )
+              })()}
             </div>
           </div>
 
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div>
               <label className="mb-1 block text-sm font-medium text-slate-200">Storage Type</label>
-              <input
-                type="text"
-                value={data.storageType}
-                onChange={(e) => onFieldChange('storageType', e.target.value)}
-                className={`w-full ${inputClasses}`}
-              />
-              {errors.storageType && (
-                <p className="mt-1 text-xs text-red-400">{String(errors.storageType.message)}</p>
-              )}
+              {(() => {
+                const fieldRegister = register('storageType' as const)
+                return (
+                  <>
+                    <input
+                      type="text"
+                      {...fieldRegister}
+                      value={data.storageType}
+                      onChange={(e) => {
+                        fieldRegister.onChange(e)
+                        onFieldChange('storageType', e.target.value)
+                      }}
+                      className={`w-full ${inputClasses}`}
+                    />
+                    {errors.storageType && (
+                      <p className="mt-1 text-xs text-red-400">{String(errors.storageType.message)}</p>
+                    )}
+                  </>
+                )
+              })()}
             </div>
             <div>
               <label className="mb-1 block text-sm font-medium text-slate-200">Storage Sq Ft</label>
-              <input
-                type="text"
-                value={data.storageSqFt}
-                onChange={(e) => onFieldChange('storageSqFt', e.target.value)}
-                className={`w-full ${inputClasses}`}
-              />
-              {errors.storageSqFt && (
-                <p className="mt-1 text-xs text-red-400">{String(errors.storageSqFt.message)}</p>
-              )}
+              {(() => {
+                const fieldRegister = register('storageSqFt' as const)
+                return (
+                  <>
+                    <input
+                      type="text"
+                      {...fieldRegister}
+                      value={data.storageSqFt}
+                      onChange={(e) => {
+                        fieldRegister.onChange(e)
+                        onFieldChange('storageSqFt', e.target.value)
+                      }}
+                      className={`w-full ${inputClasses}`}
+                    />
+                    {errors.storageSqFt && (
+                      <p className="mt-1 text-xs text-red-400">{String(errors.storageSqFt.message)}</p>
+                    )}
+                  </>
+                )
+              })()}
             </div>
           </div>
         </div>
