@@ -44,42 +44,51 @@ const ClarificationsSection: React.FC<ClarificationsSectionProps> = ({ title, in
   }
 
   return (
-    <div className="bg-gray-900 rounded-lg border-2 border-accent p-6">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-2xl font-bold text-white">{title}</h2>
+    <div className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-[0_20px_50px_rgba(15,23,42,0.45)] backdrop-blur">
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <h2 className="text-2xl font-semibold text-white">{title}</h2>
         <button
           onClick={handleAdd}
-          className="flex items-center px-3 py-1 bg-accent text-black rounded-lg hover:bg-green-400 transition-colors"
+          className="inline-flex items-center gap-2 rounded-xl bg-accent px-3 py-2 text-sm font-semibold text-black shadow-sm transition hover:bg-green-400"
         >
-          <Plus className="w-4 h-4 mr-1" /> Add
+          <Plus className="h-4 w-4" /> Add clarification
         </button>
       </div>
       <div className="space-y-2">
         {items.map((item, index) => (
-          <div key={index} className="flex items-center gap-2">
+          <div
+            key={index}
+            className="flex flex-col gap-2 rounded-2xl border border-white/10 bg-slate-950/60 p-3 sm:flex-row sm:items-center sm:gap-3"
+          >
             <input
               type="text"
               value={item.text}
               onChange={(e) => handleTextChange(index, e.target.value)}
-              className="flex-1 px-3 py-2 bg-black border border-accent rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent text-white text-sm"
+              className="flex-1 rounded-xl border border-white/10 bg-slate-950/80 px-3 py-2 text-sm text-white placeholder:text-slate-400 focus:border-accent focus:ring-2 focus:ring-accent/40"
               placeholder="Clarification"
             />
-            <button
-              onClick={() => handleCopy(index)}
-              className="p-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors border border-accent"
-            >
-              {item.copied ? (
-                <CheckCircle className="w-4 h-4" />
-              ) : (
-                <Copy className="w-4 h-4" />
-              )}
-            </button>
-            <button
-              onClick={() => handleDelete(index)}
-              className="p-2 bg-red-600 text-white rounded-lg hover:bg-red-500 transition-colors"
-            >
-              <Trash2 className="w-4 h-4" />
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => handleCopy(index)}
+                className={`flex items-center justify-center rounded-xl border px-3 py-2 transition ${
+                  item.copied
+                    ? 'border-accent/60 bg-accent/10 text-accent'
+                    : 'border-white/10 bg-white/5 text-slate-200 hover:border-accent/60 hover:bg-accent/10'
+                }`}
+              >
+                {item.copied ? (
+                  <CheckCircle className="h-4 w-4" />
+                ) : (
+                  <Copy className="h-4 w-4" />
+                )}
+              </button>
+              <button
+                onClick={() => handleDelete(index)}
+                className="flex items-center justify-center rounded-xl bg-red-500/90 p-2 text-white transition hover:bg-red-500"
+              >
+                <Trash2 className="h-4 w-4" />
+              </button>
+            </div>
           </div>
         ))}
       </div>
