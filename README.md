@@ -38,6 +38,22 @@ Run lint checks:
 npm run lint
 ```
 
+## Tech Stack
+
+- **Frontend:** React 18, TypeScript, Vite, and Tailwind CSS
+- **Backend:** Supabase (PostgreSQL + Edge Functions)
+- **Integrations:** HubSpot CRM, AI extraction services
+
+## Project Structure
+
+The repository follows a modular layout to keep frontend code, backend functions, and automated tests clearly separated.
+
+- `/src` – React application code including components, hooks, services, and shared types.
+- `/supabase` – Supabase Edge Functions and database migrations that back the application.
+- `/tests` – Automated tests and testing utilities executed with Vitest and Testing Library.
+
+This organization aligns the implementation with the required architecture and makes it easy to locate related functionality.
+
 ## API Key Encryption
 
 API keys are stored encrypted using AES-GCM. The encryption key is provided via the `API_KEY_ENCRYPTION_KEY` environment variable and should be managed using a secrets manager or other secure server-side mechanism. The same base64-encoded key (256 bits) must be available to both the Supabase Edge Functions and the frontend build (`VITE_API_KEY_ENCRYPTION_KEY`).
