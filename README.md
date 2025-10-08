@@ -38,6 +38,26 @@ Run lint checks:
 npm run lint
 ```
 
+## Troubleshooting
+
+### Security software blocks the deployed site
+
+Some endpoint protection suites (for example, ThreatDown) can flag Netlify preview
+domains such as `*.bolt.host` as suspicious. If your organization now blocks the
+preview URL, you have a few options:
+
+1. **Switch to a custom domain.** Configure a production-ready hostname inside
+   Netlify and point your DNS records to it. Custom domains are far less likely
+   to be blocked because they belong to your organization.
+2. **Request an allow-list entry.** Share the preview domain and IP address with
+   your security team so they can permit access to the site. Provide context on
+   the application and why the domain is safe.
+3. **Use local development.** Team members who cannot reach the hosted preview
+   can run `npm run dev` locally to review changes until the domain is
+   allow-listed.
+
+Additional detail is available in `docs/troubleshooting/security.md`.
+
 ## API Key Encryption
 
 API keys are stored encrypted using AES-GCM. The encryption key is provided via the `API_KEY_ENCRYPTION_KEY` environment variable and should be managed using a secrets manager or other secure server-side mechanism. The same base64-encoded key (256 bits) must be available to both the Supabase Edge Functions and the frontend build (`VITE_API_KEY_ENCRYPTION_KEY`).
