@@ -539,13 +539,13 @@ const App: React.FC = () => {
                   Toggle between equipment and logistics flows without losing context or data.
                 </p>
               </div>
-              <div className="flex flex-wrap items-center gap-2 rounded-full border border-accent/15 bg-surface-highlight/60 p-1">
+              <div className="grid grid-cols-2 items-center gap-2 rounded-full border border-accent/15 bg-surface-highlight/60 p-1">
                 {workspaceTabs.map(tab => (
                   <button
                     key={tab.key}
                     type="button"
                     onClick={() => setActiveWorkspace(tab.key)}
-                    className={`flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition ${
+                    className={`flex items-center justify-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition ${
                       activeWorkspace === tab.key
                         ? 'bg-accent text-black shadow-[0_12px_30px_rgba(28,255,135,0.35)]'
                         : 'text-slate-300 hover:text-white'
