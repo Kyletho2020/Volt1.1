@@ -437,8 +437,8 @@ const App: React.FC = () => {
         </div>
       </header>
 
-      <main className="relative z-10 mx-auto max-w-7xl px-4 pb-20 pt-12 sm:px-6 lg:px-8">
-        <div className="grid gap-6 xl:grid-cols-[280px_1fr_360px]">
+      <main className="relative z-10 mx-auto w-full max-w-[1500px] px-4 pb-20 pt-12 sm:px-6 lg:px-8 xl:px-6 2xl:px-0">
+        <div className="grid gap-6 xl:grid-cols-[300px_minmax(0,1.35fr)_360px] 2xl:grid-cols-[320px_minmax(0,1.5fr)_400px]">
           <aside className="space-y-6">
             <div className="rounded-3xl border border-accent/20 bg-surface/70 p-6 shadow-[0_35px_120px_rgba(10,18,35,0.55)] backdrop-blur-xl">
               <div>
