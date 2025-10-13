@@ -279,11 +279,6 @@ const App: React.FC = () => {
   const { subject: logisticsSubject, body: logisticsBody } =
     generateLogisticsEmail(equipmentData, logisticsData)
   const logisticsTemplate = `${logisticsSubject}\n\n${logisticsBody}`
-  const canEmailLogisticsTeam = Boolean(
-    logisticsData.shipmentType?.trim() &&
-      logisticsData.pickupZip?.trim() &&
-      logisticsData.deliveryZip?.trim()
-  )
   const logisticsMailToLink = `mailto:Logistics@omegamorgan.com; MachineryLogistics@omegamorgan.com?subject=${encodeURIComponent(
     logisticsSubject
   )}&body=${encodeURIComponent(logisticsBody)}`
@@ -647,22 +642,11 @@ const App: React.FC = () => {
               templateType="logistics"
               actions={
                 <a
-                  href={canEmailLogisticsTeam ? logisticsMailToLink : undefined}
-                  onClick={event => {
-                    if (!canEmailLogisticsTeam) {
-                      event.preventDefault()
-                    }
-                  }}
-                  className={`inline-flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-semibold shadow-sm transition ${
-                    canEmailLogisticsTeam
-                      ? 'bg-accent text-black hover:bg-green-400'
-                      : 'cursor-not-allowed border border-accent/30 bg-surface-highlight/50 text-slate-400'
-                  }`}
-                  aria-disabled={!canEmailLogisticsTeam}
-                  tabIndex={canEmailLogisticsTeam ? 0 : -1}
+                  href={logisticsMailToLink}
+                  className="inline-flex items-center gap-2 rounded-xl bg-accent px-3 py-2 text-xs font-semibold text-black shadow-sm transition hover:bg-green-400"
                 >
                   <Mail className="h-4 w-4" />
-                  {canEmailLogisticsTeam ? 'Email Team' : 'Add shipment details'}
+                  Email Team
                 </a>
               }
             />

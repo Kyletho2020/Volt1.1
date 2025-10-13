@@ -24,24 +24,10 @@ const LogisticsQuoteEmailCard: React.FC<LogisticsQuoteEmailCardProps> = ({
     [equipmentData, logisticsData]
   )
 
-  const canEmailLogisticsTeam = useMemo(
-    () =>
-      Boolean(
-        logisticsData.shipmentType?.trim() &&
-          logisticsData.pickupZip?.trim() &&
-          logisticsData.deliveryZip?.trim()
-      ),
-    [logisticsData.deliveryZip, logisticsData.pickupZip, logisticsData.shipmentType]
-  )
-
   const mailtoHref = useMemo(() => {
-    if (!canEmailLogisticsTeam) {
-      return undefined
-    }
-
     const recipients = RECIPIENTS.join(';')
     return `mailto:${recipients}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
-  }, [body, canEmailLogisticsTeam, subject])
+  }, [body, subject])
 
   const copyToClipboard = async (value: string, field: 'subject' | 'body') => {
     try {
@@ -71,21 +57,10 @@ const LogisticsQuoteEmailCard: React.FC<LogisticsQuoteEmailCardProps> = ({
           </div>
           <a
             href={mailtoHref}
-            onClick={event => {
-              if (!canEmailLogisticsTeam) {
-                event.preventDefault()
-              }
-            }}
-            className={`inline-flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-semibold shadow-sm transition ${
-              canEmailLogisticsTeam
-                ? 'bg-accent text-black hover:bg-green-400'
-                : 'cursor-not-allowed border border-accent/30 bg-surface-highlight/60 text-slate-400'
-            }`}
-            aria-disabled={!canEmailLogisticsTeam}
-            tabIndex={canEmailLogisticsTeam ? 0 : -1}
+            className="inline-flex items-center gap-2 rounded-xl bg-accent px-4 py-2 text-xs font-semibold text-black shadow-sm transition hover:bg-green-400"
           >
             <Mail className="h-4 w-4" />
-            {canEmailLogisticsTeam ? 'Email Logistics Team' : 'Add shipment details'}
+            Email Logistics Team
           </a>
         </div>
 
