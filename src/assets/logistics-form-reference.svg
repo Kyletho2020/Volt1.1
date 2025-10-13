@@ -1,0 +1,83 @@
+<svg width="960" height="540" viewBox="0 0 960 540" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Logistics form storage toggle preview</title>
+  <desc id="desc">Dark form preview showing pickup and delivery address fields with an include storage toggle.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a" />
+      <stop offset="45%" stop-color="#0b1120" />
+      <stop offset="100%" stop-color="#020617" />
+    </linearGradient>
+    <linearGradient id="card" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a" stop-opacity="0.95" />
+      <stop offset="100%" stop-color="#1e293b" stop-opacity="0.85" />
+    </linearGradient>
+    <linearGradient id="toggle" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0ea5e9" />
+      <stop offset="100%" stop-color="#22d3ee" />
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="20" stdDeviation="28" flood-color="#020817" flood-opacity="0.6" />
+    </filter>
+  </defs>
+  <rect width="960" height="540" fill="url(#bg)" rx="32" />
+  <g transform="translate(80 80)">
+    <rect width="800" height="380" rx="36" fill="url(#card)" stroke="#38f18d22" stroke-width="2" filter="url(#shadow)" />
+    <text x="60" y="86" fill="#cbd5f5" font-family="'Inter', 'Segoe UI', sans-serif" font-size="36" font-weight="600">Logistics Workspace</text>
+    <text x="60" y="122" fill="#64748b" font-family="'Inter', 'Segoe UI', sans-serif" font-size="18">Capture pickup, delivery and storage information in a single flow.</text>
+    <g transform="translate(60 156)">
+      <g>
+        <rect width="320" height="64" rx="18" fill="#0f172a" stroke="#1e293b" stroke-width="2" />
+        <text x="24" y="28" fill="#64748b" font-family="'Inter', 'Segoe UI', sans-serif" font-size="14" font-weight="600">Pickup Address</text>
+        <text x="24" y="48" fill="#e2e8f0" font-family="'JetBrains Mono', 'Fira Mono', monospace" font-size="16">1015 47th Ave W</text>
+      </g>
+      <g transform="translate(344 0)">
+        <rect width="160" height="64" rx="18" fill="#0f172a" stroke="#1e293b" stroke-width="2" />
+        <text x="20" y="28" fill="#64748b" font-family="'Inter', 'Segoe UI', sans-serif" font-size="14" font-weight="600">Pickup City</text>
+        <text x="20" y="48" fill="#e2e8f0" font-family="'JetBrains Mono', 'Fira Mono', monospace" font-size="16">Mukilteo</text>
+      </g>
+      <g transform="translate(528 0)">
+        <rect width="160" height="64" rx="18" fill="#0f172a" stroke="#1e293b" stroke-width="2" />
+        <text x="20" y="28" fill="#64748b" font-family="'Inter', 'Segoe UI', sans-serif" font-size="14" font-weight="600">Pickup ZIP</text>
+        <text x="20" y="48" fill="#e2e8f0" font-family="'JetBrains Mono', 'Fira Mono', monospace" font-size="16">98275</text>
+      </g>
+    </g>
+    <g transform="translate(60 236)">
+      <g>
+        <rect width="320" height="64" rx="18" fill="#0f172a" stroke="#1e293b" stroke-width="2" />
+        <text x="24" y="28" fill="#64748b" font-family="'Inter', 'Segoe UI', sans-serif" font-size="14" font-weight="600">Delivery Address</text>
+        <text x="24" y="48" fill="#e2e8f0" font-family="'JetBrains Mono', 'Fira Mono', monospace" font-size="16">Delivery Address</text>
+      </g>
+      <g transform="translate(344 0)">
+        <rect width="160" height="64" rx="18" fill="#0f172a" stroke="#1e293b" stroke-width="2" />
+        <text x="20" y="28" fill="#64748b" font-family="'Inter', 'Segoe UI', sans-serif" font-size="14" font-weight="600">Delivery City</text>
+        <text x="20" y="48" fill="#e2e8f0" font-family="'JetBrains Mono', 'Fira Mono', monospace" font-size="16">City</text>
+      </g>
+      <g transform="translate(528 0)">
+        <rect width="160" height="64" rx="18" fill="#0f172a" stroke="#1e293b" stroke-width="2" />
+        <text x="20" y="28" fill="#64748b" font-family="'Inter', 'Segoe UI', sans-serif" font-size="14" font-weight="600">Delivery ZIP</text>
+        <text x="20" y="48" fill="#e2e8f0" font-family="'JetBrains Mono', 'Fira Mono', monospace" font-size="16">98021</text>
+      </g>
+    </g>
+    <g transform="translate(60 320)">
+      <g>
+        <rect width="240" height="64" rx="18" fill="#0f172a" stroke="#1e293b" stroke-width="2" />
+        <text x="20" y="28" fill="#64748b" font-family="'Inter', 'Segoe UI', sans-serif" font-size="14" font-weight="600">Shipment Type</text>
+        <text x="20" y="48" fill="#e2e8f0" font-family="'JetBrains Mono', 'Fira Mono', monospace" font-size="16">Select shipment type</text>
+      </g>
+      <g transform="translate(264 0)">
+        <rect width="240" height="64" rx="18" fill="#0f172a" stroke="#1e293b" stroke-width="2" />
+        <text x="20" y="28" fill="#64748b" font-family="'Inter', 'Segoe UI', sans-serif" font-size="14" font-weight="600">Truck Type Requested</text>
+        <text x="20" y="48" fill="#e2e8f0" font-family="'JetBrains Mono', 'Fira Mono', monospace" font-size="16">Select truck type</text>
+      </g>
+      <g transform="translate(528 0)">
+        <rect width="212" height="64" rx="18" fill="#0f172a" stroke="#1e293b" stroke-width="2" />
+        <text x="20" y="28" fill="#64748b" font-family="'Inter', 'Segoe UI', sans-serif" font-size="14" font-weight="600">Include Storage</text>
+        <g transform="translate(128 18)">
+          <rect width="64" height="28" rx="14" fill="url(#toggle)" />
+          <circle cx="48" cy="14" r="12" fill="#0f172a" />
+        </g>
+        <text x="20" y="78" fill="#475569" font-family="'Inter', 'Segoe UI', sans-serif" font-size="13">Add optional storage space to your logistics request.</text>
+      </g>
+    </g>
+  </g>
+</svg>

@@ -53,9 +53,10 @@ describe('validation schemas', () => {
         deliveryCity: 'dc',
         deliveryState: 'ds',
         deliveryZip: 'dz',
-        shipmentType: 'LTL',
+        shipmentType: 'LTL (Less Than Truckload)',
         truckType: 'Flatbed',
-        storageType: '',
+        includeStorage: false,
+        storageLocation: '',
         storageSqFt: ''
       })
     ).rejects.toBeDefined()

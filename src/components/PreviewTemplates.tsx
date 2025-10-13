@@ -159,9 +159,13 @@ export const generateScopeTemplate = (
     }`
   })()
 
-  const storageLine = logisticsData.storageType
+  const storageLine = logisticsData.includeStorage
     ? `Storage: ${
-        logisticsData.storageType === 'inside' ? 'Inside Storage' : 'Outside Storage'
+        logisticsData.storageLocation === 'inside'
+          ? 'Inside Storage'
+          : logisticsData.storageLocation === 'outside'
+            ? 'Outside Storage'
+            : '[Storage Type]'
       } - ${logisticsData.storageSqFt || '[Sq Ft]'} sq ft\n`
     : ''
 
@@ -195,49 +199,149 @@ export const generateLogisticsEmail = (
   equipmentData: any,
   logisticsData: any
 ) => {
-  const shipmentType = logisticsData.shipmentType || '[shipment type]'
-  const pickupZip = logisticsData.pickupZip || '[pickup location zip code]'
-  const deliveryZip = logisticsData.deliveryZip || '[delivery location zip code]'
+  const rawShipmentType = logisticsData.shipmentType || ''
+  const shipmentType = rawShipmentType || '[shipment type]'
+  const shipmentCode = (() => {
+    if (!rawShipmentType) {
+      return '[shipment type]'
+    }
 
-  const pieces = logisticsData.pieces || []
-  const totalPieces = pieces.length
+    const match = String(rawShipmentType).match(/[A-Za-z]+/)
+    return match ? match[0].toUpperCase() : rawShipmentType
+  })()
+
+  const pickupZip = logisticsData.pickupZip?.trim() || '[pickup ZIP]'
+  const deliveryZip = logisticsData.deliveryZip?.trim() || '[delivery ZIP]'
+
+  const pieces = Array.isArray(logisticsData.pieces) ? logisticsData.pieces : []
+  const totalPiecesCount = pieces.length
     ? pieces.reduce(
         (sum: number, piece: any) => sum + (piece.quantity || 1),
         0
       )
-    : '[total number of items to transport]'
-  const itemsSection = pieces.length
+    : null
+  const numberOfPieces =
+    totalPiecesCount !== null ? String(totalPiecesCount) : '[number of pieces]'
+
+  const pieceDetails = pieces.length
     ? pieces
-        .map(
-          (piece: any, index: number) =>
-            `${index + 1}. (Qty: ${piece.quantity || 1}) ${
-              piece.description || '[Description]'
-            } - ${piece.length || '[L]'}"L x ${piece.width || '[W]'}"W x ${
-              piece.height || '[H]'
-            }"H, ${formatWeight(piece.weight, 'Weight Not listed')}`
-        )
+        .map((piece: any) => {
+          const quantity = piece.quantity || 1
+          const qtyPrefix = quantity > 1 ? `Qty ${quantity} – ` : ''
+          const description = piece.description
+            ? `${piece.description} – `
+            : ''
+          const dimensions = `${piece.length || '[L]'}" x ${
+            piece.width || '[W]'
+          }" x ${piece.height || '[H]'}"`
+          const weightValue = formatWeight(piece.weight, 'Weight not listed')
+          const normalizedWeight =
+            weightValue.toLowerCase() === 'weight not listed'
+              ? 'Weight not listed'
+              : `approx. ${weightValue}`
+          return `${qtyPrefix}${description}${dimensions} – ${normalizedWeight}`
+        })
         .join('\n')
-    : '[list all items with dimensions and weights]'
-  const totalWeight = pieces.length
-    ? formatWeight(
-        pieces.reduce(
-          (sum: number, piece: any) =>
-            sum + parseWeight(piece.weight) * (piece.quantity || 1),
-          0
-        ),
-        'Weight Not listed'
+    : '[List piece dimensions and weights]'
+
+  const totalWeightValue = pieces.length
+    ? pieces.reduce(
+        (sum: number, piece: any) =>
+          sum + parseWeight(piece.weight) * (piece.quantity || 1),
+        0
       )
-    : 'Weight Not listed'
+    : 0
+  const totalWeight =
+    pieces.length && totalWeightValue > 0
+      ? `Approx. ${formatWeight(totalWeightValue, 'Weight not listed')}`
+      : 'Weight not listed'
 
-  const pickupLocation = logisticsData.pickupAddress || '[pickup location]'
-  const deliveryLocation = logisticsData.deliveryAddress || '[delivery location]'
+  const composeLocation = (
+    address: string | undefined,
+    city: string | undefined,
+    state: string | undefined,
+    zip: string | undefined,
+    fallback: string
+  ) => {
+    const parts: string[] = []
+    const trimmedAddress = address?.trim()
+    if (trimmedAddress) {
+      parts.push(trimmedAddress)
+    }
+
+    const cityState = [city?.trim(), state?.trim()].filter(Boolean).join(', ')
+    const cityStateZip = [cityState, zip?.trim()].filter(Boolean).join(' ')
+    if (cityStateZip) {
+      parts.push(cityStateZip)
+    }
+
+    return parts.length ? parts.join(', ') : fallback
+  }
+
+  const pickupLocation = composeLocation(
+    logisticsData.pickupAddress,
+    logisticsData.pickupCity,
+    logisticsData.pickupState,
+    logisticsData.pickupZip,
+    '[pickup location]'
+  )
+  const deliveryLocation = composeLocation(
+    logisticsData.deliveryAddress,
+    logisticsData.deliveryCity,
+    logisticsData.deliveryState,
+    logisticsData.deliveryZip,
+    '[delivery location]'
+  )
+
   const truckType = logisticsData.truckType || '[truck type requested]'
-  const contactName = equipmentData.contactName || ''
-  const companyName = equipmentData.companyName || ''
 
-  const subject = `Quote for Truck Request for ${shipmentType} - ${pickupZip} - ${deliveryZip}`
+  const contactName = equipmentData.contactName?.trim() || ''
+  const companyName = equipmentData.companyName?.trim() || ''
+  const signatureLines = [contactName, companyName].filter(Boolean).join('\n')
 
-  const body = `Hello Team,\n\nI'm reaching out to request a logistics quote for an upcoming project. Please see the load and transport details below:\n\nNumber of Pieces: ${totalPieces}\n\n${itemsSection}\n\nTotal Load Weight: ${totalWeight}\n\nPick-Up Location: ${pickupLocation}\n\nDelivery/Set Location: ${deliveryLocation}\n\nTruck Type Requested: ${truckType}\n\nShipment Type: ${shipmentType}\n\nPlease let me know if you need any additional information or documents to complete the quote.\n\nLooking forward to your response.\n\nThanks,\n${contactName}${companyName ? `\n${companyName}` : ''}`
+  const storageRate =
+    logisticsData.storageLocation === 'inside'
+      ? 3.5
+      : logisticsData.storageLocation === 'outside'
+        ? 2.5
+        : null
+  const sanitizedStorageSqFt = logisticsData.storageSqFt
+    ? String(logisticsData.storageSqFt).replace(/,/g, '')
+    : ''
+  const parsedStorageSqFt = parseFloat(sanitizedStorageSqFt)
+  const hasStorageSqFt = !Number.isNaN(parsedStorageSqFt) && parsedStorageSqFt > 0
+  const storageSqFtDisplay = hasStorageSqFt
+    ? parsedStorageSqFt.toLocaleString(undefined, {
+        maximumFractionDigits: 2,
+        minimumFractionDigits: parsedStorageSqFt % 1 === 0 ? 0 : 2
+      })
+    : logisticsData.storageSqFt?.trim() || '[square footage]'
+  const storageCost =
+    logisticsData.includeStorage && storageRate !== null && hasStorageSqFt
+      ? parsedStorageSqFt * storageRate
+      : null
+  const storageCostDisplay =
+    storageCost !== null
+      ? new Intl.NumberFormat('en-US', {
+          style: 'currency',
+          currency: 'USD'
+        }).format(storageCost)
+      : '--'
+  const storageSection = logisticsData.includeStorage
+    ? `\nStorage Requested:\n• Type: ${
+        logisticsData.storageLocation === 'inside'
+          ? 'Inside storage ($3.50 / sq ft)'
+          : logisticsData.storageLocation === 'outside'
+            ? 'Outside storage ($2.50 / sq ft)'
+            : '[Storage Type]'
+      }\n• Square Feet: ${storageSqFtDisplay}\n• Cost: ${storageCostDisplay}\n\n`
+    : ''
+
+  const subject = `Truck request for ${shipmentCode} – ${pickupZip} to ${deliveryZip}`
+
+  const body = `Hello,\n\nI'm reaching out to request a logistics quote for an upcoming project. Please see the load and transport details below:\n\nNumber of Pieces: ${numberOfPieces}\n\nPiece Dimensions & Weights (L x W x H):\n${pieceDetails}\n\nTotal Load Weight: ${totalWeight}\n\nPick-Up Location: ${pickupLocation}\n\nDelivery/Set Location: ${deliveryLocation}\n\nTruck Type Requested: ${truckType}\n\nShipment Type: ${shipmentType}\n${storageSection}Please let me know if you need any additional information or documents to complete the quote. Looking forward to your response.\n\nBest regards,${
+    signatureLines ? `\n${signatureLines}` : ''
+  }`
 
   return { subject, body }
 }
