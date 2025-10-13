@@ -10,38 +10,20 @@ import {
   Bot
 } from 'lucide-react'
 import { UseFormRegister, FieldErrors } from 'react-hook-form'
-
-interface Piece {
-  id: string
-  description: string
-  quantity: number
-  length: string
-  width: string
-  height: string
-  weight: string
-}
-
-interface LogisticsData {
-  pieces: Piece[]
-  pickupAddress: string
-  pickupCity: string
-  pickupState: string
-  pickupZip: string
-  deliveryAddress: string
-  deliveryCity: string
-  deliveryState: string
-  deliveryZip: string
-  shipmentType: string
-  truckType: string
-  storageType: string
-  storageSqFt: string
-}
+import type { LogisticsData, LogisticsPiece } from '../types'
 
 interface LogisticsFormProps {
   data: LogisticsData
   selectedPieces: string[]
-  onFieldChange: (field: string, value: string) => void
-  onPieceChange: (index: number, field: string, value: string | number) => void
+  onFieldChange: <K extends keyof LogisticsData>(
+    field: K,
+    value: LogisticsData[K]
+  ) => void
+  onPieceChange: (
+    index: number,
+    field: keyof LogisticsPiece,
+    value: string | number
+  ) => void
   addPiece: () => void
   removePiece: (pieceId: string) => void
   togglePieceSelection: (pieceId: string) => void
@@ -72,6 +54,57 @@ const LogisticsForm: React.FC<LogisticsFormProps> = ({
     'relative overflow-hidden rounded-3xl border border-accent/25 bg-surface/80 p-6 shadow-[0_35px_120px_rgba(10,18,35,0.55)] backdrop-blur-xl'
   const inputClasses =
     'px-3 py-2.5 bg-surface-highlight/70 border border-accent/25 rounded-xl text-sm text-white placeholder:text-slate-400 shadow-[0_10px_28px_rgba(8,16,28,0.45)] transition focus:border-accent focus:ring-2 focus:ring-accent/40'
+  const selectClasses =
+    'px-3 py-2.5 bg-surface-highlight/70 border border-accent/25 rounded-xl text-sm text-white focus:border-accent focus:ring-2 focus:ring-accent/40'
+
+  const shipmentOptions = [
+    { value: '', label: 'Select shipment type' },
+    { value: 'LTL (Less Than Truckload)', label: 'LTL (Less Than Truckload)' },
+    { value: 'FTL (Full Truck Load)', label: 'FTL (Full Truck Load)' }
+  ] as const
+
+  const truckTypeOptions = [
+    'Flatbed',
+    'Flatbed with tarp',
+    'Conestoga',
+    'Step Deck',
+    'Dry Van'
+  ]
+
+  const hasCustomShipmentType =
+    data.shipmentType &&
+    !shipmentOptions.some(option => option.value === data.shipmentType)
+  const hasCustomTruckType =
+    data.truckType &&
+    !truckTypeOptions.some(
+      (option) => option.toLowerCase() === data.truckType?.toLowerCase()
+    )
+
+  const shipmentTypeRegister = register('shipmentType')
+  const truckTypeRegister = register('truckType')
+  const includeStorageRegister = register('includeStorage')
+  const storageLocationRegister = register('storageLocation')
+  const storageSqFtRegister = register('storageSqFt')
+
+  const storageRate =
+    data.storageLocation === 'inside'
+      ? 3.5
+      : data.storageLocation === 'outside'
+        ? 2.5
+        : null
+  const sanitizedSqFtInput = data.storageSqFt?.replace(/,/g, '') ?? ''
+  const parsedSqFt = parseFloat(sanitizedSqFtInput)
+  const storageCost =
+    data.includeStorage &&
+    storageRate !== null &&
+    !Number.isNaN(parsedSqFt)
+      ? parsedSqFt * storageRate
+      : null
+  const currencyFormatter = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD'
+  })
+  const storageCostLabel = storageCost !== null ? currencyFormatter.format(storageCost) : '--'
 
   return (
     <div className={containerClasses}>
@@ -131,7 +164,7 @@ const LogisticsForm: React.FC<LogisticsFormProps> = ({
             </div>
 
             <div className="space-y-3">
-              {data.pieces.map((piece, index) => (
+              {(data.pieces ?? []).map((piece, index) => (
                 <div
                   key={piece.id}
                   className="grid grid-cols-12 items-end gap-3 rounded-2xl border border-accent/20 bg-surface-highlight/70 p-4 shadow-[0_18px_36px_rgba(10,18,35,0.45)]"
@@ -194,15 +227,20 @@ const LogisticsForm: React.FC<LogisticsFormProps> = ({
                     })()}
                   </div>
                   <div className="col-span-5 grid grid-cols-4 gap-2">
-                    {['length', 'width', 'height', 'weight'].map((field) => (
+                    {(['length', 'width', 'height', 'weight'] as const).map((field) => (
                       <div key={field}>
                         {(() => {
                           const fieldRegister = register(`pieces.${index}.${field}` as const)
+                          const rawValue = piece[field]
+                          const displayValue =
+                            typeof rawValue === 'number'
+                              ? rawValue.toString()
+                              : rawValue || ''
                           return (
                             <>
                               <input
                                 type="text"
-                                value={piece[field as keyof Piece] as string}
+                                value={displayValue}
                                 onChange={(e) => {
                                   fieldRegister.onChange(e)
                                   onPieceChange(index, field, e.target.value)
@@ -231,7 +269,7 @@ const LogisticsForm: React.FC<LogisticsFormProps> = ({
                     </button>
                     <button
                       onClick={() => movePiece(index, index + 1)}
-                      disabled={index === data.pieces.length - 1}
+                      disabled={index === (data.pieces?.length ?? 0) - 1}
                       className="flex items-center justify-center rounded-lg border border-accent/25 bg-accent-soft/40 p-2 text-accent transition hover:border-accent hover:bg-accent/15 hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
                     >
                       <ArrowDown className="h-4 w-4" />
@@ -353,55 +391,169 @@ const LogisticsForm: React.FC<LogisticsFormProps> = ({
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div>
               <label className="mb-1 block text-sm font-medium text-slate-200">Shipment Type</label>
-              <input
-                type="text"
-                value={data.shipmentType}
-                onChange={(e) => onFieldChange('shipmentType', e.target.value)}
-                className={`w-full ${inputClasses}`}
-              />
+              <select
+                {...shipmentTypeRegister}
+                value={data.shipmentType || ''}
+                onChange={(e) => {
+                  shipmentTypeRegister.onChange(e)
+                  onFieldChange('shipmentType', e.target.value)
+                }}
+                className={`w-full ${selectClasses}`}
+              >
+                <option value="">Select shipment type</option>
+                {hasCustomShipmentType && (
+                  <option value={data.shipmentType}>{data.shipmentType}</option>
+                )}
+                {shipmentOptions
+                  .filter((option) => option.value !== '')
+                  .map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+              </select>
               {errors.shipmentType && (
                 <p className="mt-1 text-xs text-red-400">{String(errors.shipmentType.message)}</p>
               )}
             </div>
             <div>
-              <label className="mb-1 block text-sm font-medium text-slate-200">Truck Type</label>
-              <input
-                type="text"
-                value={data.truckType}
-                onChange={(e) => onFieldChange('truckType', e.target.value)}
-                className={`w-full ${inputClasses}`}
-              />
+              <label className="mb-1 block text-sm font-medium text-slate-200">Truck Type Requested</label>
+              <select
+                {...truckTypeRegister}
+                value={data.truckType || ''}
+                onChange={(e) => {
+                  truckTypeRegister.onChange(e)
+                  onFieldChange('truckType', e.target.value)
+                }}
+                className={`w-full ${selectClasses}`}
+              >
+                <option value="">Select truck type</option>
+                {truckTypeOptions.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+                {hasCustomTruckType && (
+                  <option value={data.truckType}>{data.truckType}</option>
+                )}
+              </select>
               {errors.truckType && (
                 <p className="mt-1 text-xs text-red-400">{String(errors.truckType.message)}</p>
               )}
             </div>
           </div>
 
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <div>
-              <label className="mb-1 block text-sm font-medium text-slate-200">Storage Type</label>
-              <input
-                type="text"
-                value={data.storageType}
-                onChange={(e) => onFieldChange('storageType', e.target.value)}
-                className={`w-full ${inputClasses}`}
-              />
-              {errors.storageType && (
-                <p className="mt-1 text-xs text-red-400">{String(errors.storageType.message)}</p>
-              )}
+          <div className="rounded-2xl border border-accent/25 bg-surface-highlight/60 p-4 shadow-[0_18px_36px_rgba(10,18,35,0.45)]">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-sm font-medium text-slate-100">Include Storage</p>
+                <p className="text-xs text-slate-400">Add optional storage space to your logistics request.</p>
+              </div>
+              <label className="relative inline-flex cursor-pointer items-center">
+                <input
+                  type="checkbox"
+                  {...includeStorageRegister}
+                  checked={Boolean(data.includeStorage)}
+                  onChange={(e) => {
+                    includeStorageRegister.onChange(e)
+                    onFieldChange('includeStorage', e.target.checked)
+
+                    if (!e.target.checked) {
+                      const resetLocationEvent = {
+                        target: {
+                          name: 'storageLocation',
+                          value: '',
+                          type: 'radio',
+                          checked: false
+                        }
+                      } as unknown as React.ChangeEvent<HTMLInputElement>
+                      const resetSqFtEvent = {
+                        target: {
+                          name: 'storageSqFt',
+                          value: '',
+                          type: 'number'
+                        }
+                      } as unknown as React.ChangeEvent<HTMLInputElement>
+                      storageLocationRegister.onChange(resetLocationEvent)
+                      storageSqFtRegister.onChange(resetSqFtEvent)
+                      onFieldChange('storageLocation', '')
+                      onFieldChange('storageSqFt', '')
+                    }
+                  }}
+                  className="peer sr-only"
+                />
+                <span className="h-6 w-11 rounded-full bg-slate-600 transition peer-checked:bg-accent"></span>
+                <span className="absolute left-1 top-1 h-4 w-4 rounded-full bg-white transition peer-checked:translate-x-5"></span>
+              </label>
             </div>
-            <div>
-              <label className="mb-1 block text-sm font-medium text-slate-200">Storage Sq Ft</label>
-              <input
-                type="text"
-                value={data.storageSqFt}
-                onChange={(e) => onFieldChange('storageSqFt', e.target.value)}
-                className={`w-full ${inputClasses}`}
-              />
-              {errors.storageSqFt && (
-                <p className="mt-1 text-xs text-red-400">{String(errors.storageSqFt.message)}</p>
-              )}
-            </div>
+
+            {data.includeStorage && (
+              <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div>
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">Storage Type</p>
+                  <div className="flex flex-wrap gap-2">
+                    {([
+                      { value: 'inside', label: 'Inside', description: '$3.50 / sq ft' },
+                      { value: 'outside', label: 'Outside', description: '$2.50 / sq ft' }
+                    ] as const).map((option) => {
+                      const isActive = data.storageLocation === option.value
+                      const radioRegister = register('storageLocation')
+                      return (
+                        <label
+                          key={option.value}
+                          className={`flex flex-1 min-w-[120px] cursor-pointer flex-col gap-1 rounded-xl border px-3 py-2 text-xs font-semibold transition ${
+                            isActive
+                              ? 'border-accent bg-accent-soft/40 text-white'
+                              : 'border-accent/20 bg-surface/60 text-slate-200 hover:border-accent/60 hover:text-white'
+                          }`}
+                        >
+                          <input
+                            type="radio"
+                            {...radioRegister}
+                            value={option.value}
+                            checked={isActive}
+                            onChange={(e) => {
+                              radioRegister.onChange(e)
+                              onFieldChange('storageLocation', option.value)
+                            }}
+                            className="sr-only"
+                          />
+                          <span>{option.label}</span>
+                          <span className="text-[10px] font-normal text-slate-300">{option.description}</span>
+                        </label>
+                      )
+                    })}
+                  </div>
+                  {errors.storageLocation && (
+                    <p className="mt-2 text-xs text-red-400">{String(errors.storageLocation.message)}</p>
+                  )}
+                </div>
+                <div>
+                  <label className="mb-2 block text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
+                    Square Feet
+                  </label>
+                  <div className="rounded-xl border border-accent/25 bg-surface/60 p-3">
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      {...storageSqFtRegister}
+                      value={data.storageSqFt || ''}
+                      onChange={(e) => {
+                        storageSqFtRegister.onChange(e)
+                        onFieldChange('storageSqFt', e.target.value)
+                      }}
+                      className={`mb-2 w-full bg-transparent text-sm text-white outline-none placeholder:text-slate-400`}
+                      placeholder="Enter square footage"
+                    />
+                    <p className="text-xs text-slate-300">Cost: {storageCostLabel}</p>
+                  </div>
+                  {errors.storageSqFt && (
+                    <p className="mt-1 text-xs text-red-400">{String(errors.storageSqFt.message)}</p>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
