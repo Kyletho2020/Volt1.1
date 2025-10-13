@@ -11,6 +11,7 @@ import {
   Truck
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
+import logisticsFormReference from './assets/logistics-form-reference.svg'
 import { useSessionId } from './hooks/useSessionId'
 import { useApiKey } from './hooks/useApiKey'
 import AIExtractorModal from './components/AIExtractorModal'
@@ -278,7 +279,14 @@ const App: React.FC = () => {
   const { subject: logisticsSubject, body: logisticsBody } =
     generateLogisticsEmail(equipmentData, logisticsData)
   const logisticsTemplate = `${logisticsSubject}\n\n${logisticsBody}`
-  const showLogisticsTemplate = Boolean(logisticsData.shipmentType)
+  const canEmailLogisticsTeam = Boolean(
+    logisticsData.shipmentType?.trim() &&
+      logisticsData.pickupZip?.trim() &&
+      logisticsData.deliveryZip?.trim()
+  )
+  const logisticsMailToLink = `mailto:Logistics@omegamorgan.com; MachineryLogistics@omegamorgan.com?subject=${encodeURIComponent(
+    logisticsSubject
+  )}&body=${encodeURIComponent(logisticsBody)}`
 
   const projectNameDisplay =
     equipmentData.projectName?.trim() || 'Untitled project'
@@ -609,13 +617,14 @@ const App: React.FC = () => {
           </section>
 
           <aside className="space-y-6">
-            <TemplateCard
-              title="Scope of Work"
-              icon={FileText}
-              description="Polished narrative ready for your proposal or internal hand-off."
-              template={scopeTemplate}
-              templateType="scope"
-            />
+            <figure className="overflow-hidden rounded-3xl border border-accent/15 bg-surface/70 shadow-[0_35px_110px_rgba(8,16,32,0.6)] backdrop-blur-xl">
+              <img
+                src={logisticsFormReference}
+                alt="Preview of the logistics form with storage toggle enabled"
+                className="w-full object-cover"
+                loading="lazy"
+              />
+            </figure>
             <TemplateCard
               title="Client Email"
               icon={Mail}
@@ -623,24 +632,40 @@ const App: React.FC = () => {
               template={emailTemplate}
               templateType="email"
             />
-            {showLogisticsTemplate && (
-              <TemplateCard
-                title="Logistics Email"
-                icon={Truck}
-                description="Send the move plan directly to the Omega Morgan logistics teams."
-                template={logisticsTemplate}
-                templateType="logistics"
-                actions={
-                  <a
-                    href={`mailto:Logistics@omegamorgan.com; MachineryLogistics@omegamorgan.com?subject=${encodeURIComponent(logisticsSubject)}&body=${encodeURIComponent(logisticsBody)}`}
-                    className="inline-flex items-center gap-2 rounded-xl bg-accent px-3 py-2 text-xs font-semibold text-black shadow-sm transition hover:bg-green-400"
-                  >
-                    <Mail className="h-4 w-4" />
-                    Email Team
-                  </a>
-                }
-              />
-            )}
+            <TemplateCard
+              title="Logistics Email"
+              icon={Truck}
+              description="Send the move plan directly to the Omega Morgan logistics teams."
+              template={logisticsTemplate}
+              templateType="logistics"
+              actions={
+                <a
+                  href={canEmailLogisticsTeam ? logisticsMailToLink : undefined}
+                  onClick={event => {
+                    if (!canEmailLogisticsTeam) {
+                      event.preventDefault()
+                    }
+                  }}
+                  className={`inline-flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-semibold shadow-sm transition ${
+                    canEmailLogisticsTeam
+                      ? 'bg-accent text-black hover:bg-green-400'
+                      : 'cursor-not-allowed border border-accent/30 bg-surface-highlight/50 text-slate-400'
+                  }`}
+                  aria-disabled={!canEmailLogisticsTeam}
+                  tabIndex={canEmailLogisticsTeam ? 0 : -1}
+                >
+                  <Mail className="h-4 w-4" />
+                  {canEmailLogisticsTeam ? 'Email Team' : 'Add shipment details'}
+                </a>
+              }
+            />
+            <TemplateCard
+              title="Scope of Work"
+              icon={FileText}
+              description="Polished narrative ready for your proposal or internal hand-off."
+              template={scopeTemplate}
+              templateType="scope"
+            />
           </aside>
         </div>
 
