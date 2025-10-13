@@ -36,16 +36,34 @@ export const logisticsSchema = yup.object({
   deliveryZip: yup.string().required('Delivery zip is required'),
   shipmentType: yup
     .string()
-    .oneOf(['', 'LTL', 'FTL'], 'Invalid shipment type'),
+    .oneOf(
+      ['', 'LTL', 'FTL', 'LTL (Less Than Truckload)', 'FTL (Full Truck Load)'],
+      'Invalid shipment type'
+    ),
   truckType: yup.string().when('shipmentType', {
     is: (val: string) => val && val !== '',
     then: schema => schema.required('Truck type is required'),
     otherwise: schema => schema
   }),
-  storageType: yup.string(),
-  storageSqFt: yup.string().when('storageType', {
-    is: (val: string) => val && val !== '',
-    then: schema => schema.required('Storage square footage is required'),
+  includeStorage: yup.boolean(),
+  storageLocation: yup
+    .string()
+    .oneOf(['', 'inside', 'outside'], 'Invalid storage location')
+    .when('includeStorage', {
+      is: true,
+      then: schema => schema.required('Storage type is required').oneOf(['inside', 'outside']),
+      otherwise: schema => schema
+    }),
+  storageSqFt: yup.string().when('includeStorage', {
+    is: true,
+    then: schema =>
+      schema
+        .required('Storage square footage is required')
+        .test('is-positive-number', 'Storage square footage must be a positive number', value => {
+          if (!value) return false
+          const numericValue = Number(value)
+          return Number.isFinite(numericValue) && numericValue > 0
+        }),
     otherwise: schema => schema
   })
 })

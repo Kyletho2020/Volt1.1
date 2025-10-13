@@ -27,7 +27,8 @@ test('LogisticsForm renders Logistics Quote heading', () => {
     deliveryZip: '',
     shipmentType: '',
     truckType: '',
-    storageType: '',
+    includeStorage: false,
+    storageLocation: '',
     storageSqFt: ''
   };
 

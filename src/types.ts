@@ -34,7 +34,8 @@ export interface LogisticsData {
   deliveryZip?: string
   shipmentType?: string
   truckType?: string
-  storageType?: string
+  includeStorage?: boolean
+  storageLocation?: 'inside' | 'outside' | ''
   storageSqFt?: string
   shipment?: Record<string, unknown> | null
   storage?: Record<string, unknown> | null
