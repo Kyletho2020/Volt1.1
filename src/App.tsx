@@ -23,6 +23,7 @@ import QuoteSaveManager from './components/QuoteSaveManager'
 import ClarificationsSection from './components/ClarificationsSection'
 import EquipmentForm from './components/EquipmentForm'
 import LogisticsForm from './components/LogisticsForm'
+import LogisticsQuoteEmailCard from './components/LogisticsQuoteEmailCard'
 import useEquipmentForm from './hooks/useEquipmentForm'
 import useLogisticsForm from './hooks/useLogisticsForm'
 import useModals from './hooks/useModals'
@@ -233,15 +234,24 @@ const App: React.FC = () => {
       equipmentRequirements:
         loadedEquipmentRequirements || initialEquipmentData.equipmentRequirements
     })
+    const legacyStorageType = (loadedLogisticsData as Record<string, unknown>)
+      .storageType as string | undefined
+    const normalizedStorageLocation =
+      loadedLogisticsData.storageLocation || legacyStorageType || ''
+
     setLogisticsData({
-      truckType: '',
-      shipmentType: '',
-      storageType: '',
-      storageSqFt: '',
+      ...initialLogisticsData,
       ...loadedLogisticsData,
+      truckType: loadedLogisticsData.truckType || '',
+      shipmentType: loadedLogisticsData.shipmentType || '',
+      includeStorage:
+        loadedLogisticsData.includeStorage ??
+        Boolean(normalizedStorageLocation),
+      storageLocation: normalizedStorageLocation,
+      storageSqFt: loadedLogisticsData.storageSqFt || '',
       pieces: loadedLogisticsData.pieces
         ? loadedLogisticsData.pieces.map(piece => createLogisticsPiece(piece))
-        : loadedLogisticsData.pieces
+        : initialLogisticsData.pieces
     })
   }
 
@@ -573,21 +583,27 @@ const App: React.FC = () => {
                 />
               </div>
               <div className={activeWorkspace === 'logistics' ? 'block' : 'hidden'}>
-                <LogisticsForm
-                  data={logisticsData}
-                  selectedPieces={selectedPieces}
-                  onFieldChange={handleLogisticsChange}
-                  onPieceChange={handlePieceChange}
-                  addPiece={addPiece}
-                  removePiece={removePiece}
-                  togglePieceSelection={togglePieceSelection}
-                  deleteSelectedPieces={deleteSelectedPieces}
-                  movePiece={movePiece}
-                  onOpenLogisticsExtractor={() => handleOpenExtractor('logistics')}
-                  canUseAI={hasApiKey}
-                  register={logisticsForm.register}
-                  errors={logisticsForm.formState.errors}
-                />
+                <div className="space-y-6">
+                  <LogisticsQuoteEmailCard
+                    equipmentData={equipmentData}
+                    logisticsData={logisticsData}
+                  />
+                  <LogisticsForm
+                    data={logisticsData}
+                    selectedPieces={selectedPieces}
+                    onFieldChange={handleLogisticsChange}
+                    onPieceChange={handlePieceChange}
+                    addPiece={addPiece}
+                    removePiece={removePiece}
+                    togglePieceSelection={togglePieceSelection}
+                    deleteSelectedPieces={deleteSelectedPieces}
+                    movePiece={movePiece}
+                    onOpenLogisticsExtractor={() => handleOpenExtractor('logistics')}
+                    canUseAI={hasApiKey}
+                    register={logisticsForm.register}
+                    errors={logisticsForm.formState.errors}
+                  />
+                </div>
               </div>
             </div>
           </section>

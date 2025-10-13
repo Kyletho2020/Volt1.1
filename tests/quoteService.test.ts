@@ -32,7 +32,9 @@ const equipmentData: EquipmentData = {
 
 const logisticsData: LogisticsData = {
   shipmentType: '',
-  storageType: '',
+  truckType: '',
+  includeStorage: false,
+  storageLocation: '',
   storageSqFt: '',
   shipment: null,
   storage: null

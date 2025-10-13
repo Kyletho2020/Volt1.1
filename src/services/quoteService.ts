@@ -124,7 +124,8 @@ export class QuoteService {
       logistics_data: {
         ...logisticsData,
         shipmentType: logisticsData?.shipmentType || '',
-        storageType: logisticsData?.storageType || '',
+        includeStorage: logisticsData?.includeStorage ?? false,
+        storageLocation: logisticsData?.storageLocation || '',
         storageSqFt: logisticsData?.storageSqFt || ''
       },
       logistics_shipment: logisticsData?.shipment || null,

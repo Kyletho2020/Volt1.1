@@ -16,7 +16,8 @@ export const useLogisticsForm = () => {
       deliveryZip: '',
       shipmentType: '',
       truckType: '',
-      storageType: '',
+      includeStorage: false,
+      storageLocation: '',
       storageSqFt: ''
     }),
     []
@@ -50,7 +51,10 @@ export const useLogisticsForm = () => {
     );
   }, [logisticsData.pieces]);
 
-  const handleLogisticsChange = (field: string, value: string) => {
+  const handleLogisticsChange = <K extends keyof LogisticsData>(
+    field: K,
+    value: LogisticsData[K]
+  ) => {
     setLogisticsData(prev => ({ ...prev, [field]: value }));
   };
 
