@@ -88,15 +88,17 @@ export class QuoteService {
     const month = (date.getMonth() + 1).toString().padStart(2, '0')
     const day = date.getDate().toString().padStart(2, '0')
     const time = date.getHours().toString().padStart(2, '0') + date.getMinutes().toString().padStart(2, '0')
-    
-    // Create prefix from project or company name
-    let prefix = 'QT'
-    if (projectName) {
-      prefix = projectName.replace(/[^a-zA-Z0-9]/g, '').slice(0, 4).toUpperCase()
-    } else if (companyName) {
-      prefix = companyName.replace(/[^a-zA-Z0-9]/g, '').slice(0, 4).toUpperCase()
-    }
-    
+
+    const sanitize = (value?: string) =>
+      (value || '').replace(/[^a-zA-Z0-9]/g, '').toUpperCase()
+
+    const companySegment = sanitize(companyName)
+    const projectSegment = sanitize(projectName)
+
+    const base = companySegment || projectSegment || 'QUOTE'
+    const repeatCount = Math.ceil(6 / base.length)
+    const prefix = base.repeat(repeatCount).slice(0, 6)
+
     return `${prefix}-${year}${month}${day}-${time}`
   }
 

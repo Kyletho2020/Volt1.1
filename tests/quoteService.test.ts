@@ -1,7 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 vi.mock('../src/lib/supabase', () => ({
-  supabase: { from: vi.fn() }
+  supabase: { from: vi.fn() },
+  isSupabaseConfigured: true
 }))
 
 import { QuoteService } from '../src/services/quoteService'
@@ -50,9 +51,14 @@ beforeEach(() => {
 })
 
 describe('QuoteService', () => {
-  it('generates quote number with project prefix', () => {
+  it('generates quote number with company prefix in first six characters', () => {
+    const quoteNumber = QuoteService.generateQuoteNumber('My Project', 'Volt Corp')
+    expect(quoteNumber.startsWith('VOLTCO-')).toBe(true)
+  })
+
+  it('falls back to project name prefix when company is missing', () => {
     const quoteNumber = QuoteService.generateQuoteNumber('My Project')
-    expect(quoteNumber.startsWith('MYPR-')).toBe(true)
+    expect(quoteNumber.startsWith('MYPROJ-')).toBe(true)
   })
 
   it('saves quote successfully', async () => {

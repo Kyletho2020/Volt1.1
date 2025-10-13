@@ -1,7 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 vi.mock('../src/lib/supabase', () => ({
-  supabase: { from: vi.fn() }
+  supabase: { from: vi.fn() },
+  isSupabaseConfigured: true
 }))
 
 vi.mock('../src/lib/encryption', () => ({
