@@ -11,6 +11,12 @@ import {
 } from 'lucide-react'
 import { UseFormRegister, FieldErrors } from 'react-hook-form'
 import type { LogisticsData, LogisticsPiece } from '../types'
+import {
+  formatStorageRateLabel,
+  getStorageRate,
+  normalizeStorageLocation,
+  type StorageLocation
+} from '../lib/storage'
 
 interface LogisticsFormProps {
   data: LogisticsData
@@ -86,12 +92,8 @@ const LogisticsForm: React.FC<LogisticsFormProps> = ({
   const storageLocationRegister = register('storageLocation')
   const storageSqFtRegister = register('storageSqFt')
 
-  const storageRate =
-    data.storageLocation === 'inside'
-      ? 3.5
-      : data.storageLocation === 'outside'
-        ? 2.5
-        : null
+  const normalizedStorageLocation = normalizeStorageLocation(data.storageLocation)
+  const storageRate = getStorageRate(data.storageLocation)
   const sanitizedSqFtInput = data.storageSqFt?.replace(/,/g, '') ?? ''
   const parsedSqFt = parseFloat(sanitizedSqFtInput)
   const storageCost =
@@ -492,11 +494,13 @@ const LogisticsForm: React.FC<LogisticsFormProps> = ({
                 <div>
                   <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">Storage Type</p>
                   <div className="flex flex-wrap gap-2">
-                    {([
-                      { value: 'inside', label: 'Inside', description: '$3.50 / sq ft' },
-                      { value: 'outside', label: 'Outside', description: '$2.50 / sq ft' }
-                    ] as const).map((option) => {
-                      const isActive = data.storageLocation === option.value
+                    {(['inside', 'outside'] as const).map((value) => {
+                      const option: { value: StorageLocation; label: string; description: string } = {
+                        value,
+                        label: value === 'inside' ? 'Inside' : 'Outside',
+                        description: formatStorageRateLabel(value)
+                      }
+                      const isActive = normalizedStorageLocation === option.value
                       const radioRegister = register('storageLocation')
                       return (
                         <label

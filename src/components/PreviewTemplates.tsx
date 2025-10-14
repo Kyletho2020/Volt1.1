@@ -1,6 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from 'react'
 import { FileText, Mail, Copy, CheckCircle, Eye, X, Truck } from 'lucide-react'
+import {
+  formatStorageRateLabel,
+  getStorageRate,
+  normalizeStorageLocation,
+  type StorageLocation
+} from '../lib/storage'
 
 const PROPER_EQUIPMENT_TERMS = new Set([
   'versalift',
@@ -299,12 +305,10 @@ export const generateLogisticsEmail = (
   const companyName = equipmentData.companyName?.trim() || ''
   const signatureLines = [contactName, companyName].filter(Boolean).join('\n')
 
-  const storageRate =
-    logisticsData.storageLocation === 'inside'
-      ? 3.5
-      : logisticsData.storageLocation === 'outside'
-        ? 2.5
-        : null
+  const normalizedStorageLocation = normalizeStorageLocation(
+    logisticsData.storageLocation
+  )
+  const storageRate = getStorageRate(logisticsData.storageLocation)
   const sanitizedStorageSqFt = logisticsData.storageSqFt
     ? String(logisticsData.storageSqFt).replace(/,/g, '')
     : ''
@@ -327,14 +331,17 @@ export const generateLogisticsEmail = (
           currency: 'USD'
         }).format(storageCost)
       : '--'
+  const storageTypeLabels: Record<StorageLocation, string> = {
+    inside: `Inside storage (${formatStorageRateLabel('inside')})`,
+    outside: `Outside storage (${formatStorageRateLabel('outside')})`
+  }
+
+  const storageTypeLabel = normalizedStorageLocation
+    ? storageTypeLabels[normalizedStorageLocation]
+    : '[Storage Type]'
+
   const storageSection = logisticsData.includeStorage
-    ? `\nStorage Requested:\n• Type: ${
-        logisticsData.storageLocation === 'inside'
-          ? 'Inside storage ($3.50 / sq ft)'
-          : logisticsData.storageLocation === 'outside'
-            ? 'Outside storage ($2.50 / sq ft)'
-            : '[Storage Type]'
-      }\n• Square Feet: ${storageSqFtDisplay}\n• Cost: ${storageCostDisplay}\n\n`
+    ? `\nStorage Requested:\n• Type: ${storageTypeLabel}\n• Square Feet: ${storageSqFtDisplay}\n• Cost: ${storageCostDisplay}\n\n`
     : ''
 
   const subject = `Truck request for ${shipmentCode} – ${pickupZip} to ${deliveryZip}`
