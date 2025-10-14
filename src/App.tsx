@@ -12,7 +12,6 @@ import {
   Truck
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
-import logisticsFormReference from './assets/logistics-form-reference.svg'
 import { useSessionId } from './hooks/useSessionId'
 import { useApiKey } from './hooks/useApiKey'
 import AIExtractorModal from './components/AIExtractorModal'
@@ -731,14 +730,6 @@ const App: React.FC = () => {
           </section>
 
           <aside className="space-y-6">
-            <figure className="overflow-hidden rounded-3xl border border-accent/15 bg-surface/70 shadow-[0_35px_110px_rgba(8,16,32,0.6)] backdrop-blur-xl">
-              <img
-                src={logisticsFormReference}
-                alt="Preview of the logistics form with storage toggle enabled"
-                className="w-full object-cover"
-                loading="lazy"
-              />
-            </figure>
             <TemplateCard
               title="Client Email"
               icon={Mail}
