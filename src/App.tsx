@@ -731,6 +731,13 @@ const App: React.FC = () => {
 
           <aside className="space-y-6">
             <TemplateCard
+              title="Scope of Work"
+              icon={FileText}
+              description="Polished narrative ready for your proposal or internal hand-off."
+              template={scopeTemplate}
+              templateType="scope"
+            />
+            <TemplateCard
               title="Client Email"
               icon={Mail}
               description="Instant client communication built from the details you capture."
@@ -763,13 +770,6 @@ const App: React.FC = () => {
                   {canEmailLogisticsTeam ? 'Email Team' : 'Add shipment details'}
                 </a>
               }
-            />
-            <TemplateCard
-              title="Scope of Work"
-              icon={FileText}
-              description="Polished narrative ready for your proposal or internal hand-off."
-              template={scopeTemplate}
-              templateType="scope"
             />
           </aside>
         </div>
