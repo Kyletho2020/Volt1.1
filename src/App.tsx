@@ -8,6 +8,7 @@ import {
   CheckCircle,
   Mail,
   Save,
+  RefreshCcw,
   Truck
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
@@ -36,6 +37,7 @@ import { equipmentSchema, logisticsSchema } from './lib/validation'
 import { createLogisticsPiece } from './lib/logisticsPieces'
 import { parseAddressParts } from './lib/address'
 import { HubSpotContact } from './services/hubspotService'
+import { QuoteService } from './services/quoteService'
 
 type TemplateType = 'email' | 'scope' | 'logistics'
 
@@ -96,6 +98,11 @@ const App: React.FC = () => {
 
   const [extractorMode, setExtractorMode] = useState<'all' | 'logistics' | 'scope'>('all')
   const [activeWorkspace, setActiveWorkspace] = useState<'equipment' | 'logistics'>('equipment')
+  const [activeQuoteId, setActiveQuoteId] = useState<string | null>(null)
+  const [activeQuoteNumber, setActiveQuoteNumber] = useState<string | null>(null)
+  const [isQuickSaving, setIsQuickSaving] = useState(false)
+  const [quickSaveMessage, setQuickSaveMessage] = useState<string | null>(null)
+  const [quickSaveState, setQuickSaveState] = useState<'idle' | 'success' | 'error'>('idle')
 
   const handleOpenExtractor = (mode: 'all' | 'logistics' | 'scope') => {
     setExtractorMode(mode)
@@ -228,7 +235,9 @@ const App: React.FC = () => {
   const handleLoadQuote = (
     loadedEquipmentData: EquipmentData,
     loadedLogisticsData: LogisticsData,
-    loadedEquipmentRequirements?: EquipmentRequirements
+    loadedEquipmentRequirements?: EquipmentRequirements,
+    quoteId?: string,
+    quoteNumber?: string
   ) => {
     setEquipmentData({
       ...loadedEquipmentData,
@@ -254,12 +263,25 @@ const App: React.FC = () => {
         ? loadedLogisticsData.pieces.map(piece => createLogisticsPiece(piece))
         : initialLogisticsData.pieces
     })
+
+    if (quoteId) {
+      setActiveQuoteId(quoteId)
+    }
+    if (quoteNumber) {
+      setActiveQuoteNumber(quoteNumber)
+    }
+    setQuickSaveMessage(null)
+    setQuickSaveState('idle')
   }
 
   const handleNewQuote = () => {
     setEquipmentData(initialEquipmentData)
     setLogisticsData(initialLogisticsData)
     setSelectedPieces([])
+    setActiveQuoteId(null)
+    setActiveQuoteNumber(null)
+    setQuickSaveMessage(null)
+    setQuickSaveState('idle')
   }
 
   const [copiedTemplate, setCopiedTemplate] = useState<TemplateType | null>(null)
@@ -318,6 +340,69 @@ const App: React.FC = () => {
 
   const aiControlButton =
     'flex flex-1 items-center justify-center gap-2 rounded-xl border border-accent/25 bg-surface-highlight/60 px-3 py-2 text-xs font-semibold text-slate-100 transition hover:border-accent hover:bg-accent-soft/30 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent/60'
+
+  useEffect(() => {
+    if (quickSaveState === 'success' || quickSaveState === 'error') {
+      if (typeof window === 'undefined') {
+        return
+      }
+
+      const timeout = window.setTimeout(() => {
+        setQuickSaveMessage(null)
+        setQuickSaveState('idle')
+      }, 4000)
+
+      return () => window.clearTimeout(timeout)
+    }
+  }, [quickSaveState])
+
+  const handleQuickSave = async () => {
+    if (!activeQuoteId || !activeQuoteNumber) {
+      setQuickSaveMessage('Select a saved quote from the library to enable quick save.')
+      setQuickSaveState('error')
+      openHistory()
+      return
+    }
+
+    setIsQuickSaving(true)
+    setQuickSaveMessage(null)
+
+    try {
+      const result = await QuoteService.saveQuote(
+        activeQuoteNumber,
+        equipmentData,
+        logisticsData,
+        equipmentData.equipmentRequirements,
+        emailTemplate,
+        scopeTemplate,
+        activeQuoteId
+      )
+
+      if (result.success) {
+        setQuickSaveState('success')
+        setQuickSaveMessage(`Quote ${activeQuoteNumber} updated.`)
+        if (result.id) {
+          setActiveQuoteId(result.id)
+        }
+      } else {
+        setQuickSaveState('error')
+        setQuickSaveMessage(result.error || 'Failed to save quote.')
+      }
+    } catch (error) {
+      console.error('Quick save failed:', error)
+      setQuickSaveState('error')
+      setQuickSaveMessage('Failed to save quote.')
+    } finally {
+      setIsQuickSaving(false)
+    }
+  }
+
+  const handleQuoteSaved = (quoteId: string, quoteNumber: string) => {
+    setActiveQuoteId(quoteId)
+    setActiveQuoteNumber(quoteNumber)
+    setQuickSaveState('success')
+    setQuickSaveMessage(`Quote ${quoteNumber} ready for quick save.`)
+  }
 
   const aiControlButtonDisabled =
     'flex flex-1 items-center justify-center gap-2 rounded-xl border border-accent/10 bg-surface/60 px-3 py-2 text-xs font-semibold text-slate-500/80 cursor-not-allowed'
@@ -478,6 +563,26 @@ const App: React.FC = () => {
                       </span>
                       <span className="text-xs text-slate-400">Library</span>
                     </button>
+                    <button
+                      type="button"
+                      onClick={handleQuickSave}
+                      className={`${primaryActionButton} ${
+                        isQuickSaving
+                          ? 'cursor-not-allowed opacity-70'
+                          : activeQuoteId
+                            ? 'border-accent/40'
+                            : 'border-accent/10'
+                      }`}
+                      disabled={isQuickSaving}
+                    >
+                      <span className="flex items-center gap-2">
+                        <RefreshCcw className="h-4 w-4 text-accent" />
+                        {isQuickSaving ? 'Saving…' : 'Quick Save'}
+                      </span>
+                      <span className="text-xs text-slate-400">
+                        {activeQuoteNumber ? `Overwrite ${activeQuoteNumber}` : 'Select quote first'}
+                      </span>
+                    </button>
                     <button type="button" onClick={handleNewQuote} className={primaryActionButton}>
                       <span className="flex items-center gap-2">
                         <Plus className="h-4 w-4 text-accent" />
@@ -485,6 +590,15 @@ const App: React.FC = () => {
                       </span>
                       <span className="text-xs text-slate-400">Reset</span>
                     </button>
+                    {quickSaveMessage && (
+                      <p
+                        className={`text-xs ${
+                          quickSaveState === 'error' ? 'text-red-400' : 'text-accent'
+                        }`}
+                      >
+                        {quickSaveMessage}
+                      </p>
+                    )}
                   </div>
                 </div>
 
@@ -725,6 +839,7 @@ const App: React.FC = () => {
         isOpen={showHistory}
         onClose={closeHistory}
         onLoadQuote={handleLoadQuote}
+        onQuoteSaved={handleQuoteSaved}
       />
     </div>
   )

@@ -12,11 +12,13 @@ interface QuoteSaveManagerProps {
     equipmentData: any,
     logisticsData: any,
     equipmentRequirements: any,
-    emailTemplate: string,
-    scopeTemplate: string
+    quoteId?: string,
+    quoteNumber?: string
   ) => void
   isOpen: boolean
   onClose: () => void
+  onQuoteSaved?: (quoteId: string, quoteNumber: string) => void
+  onQuoteLoaded?: (quoteId: string, quoteNumber: string) => void
 }
 
 const QuoteSaveManager: React.FC<QuoteSaveManagerProps> = ({
@@ -25,7 +27,9 @@ const QuoteSaveManager: React.FC<QuoteSaveManagerProps> = ({
   equipmentRequirements,
   onLoadQuote,
   isOpen,
-  onClose
+  onClose,
+  onQuoteSaved,
+  onQuoteLoaded
 }) => {
   const usingLocalStorage = !QuoteService.isRemoteEnabled()
   const [quoteNumber, setQuoteNumber] = useState('')
@@ -119,12 +123,16 @@ const QuoteSaveManager: React.FC<QuoteSaveManagerProps> = ({
       )
 
       if (result.success) {
-        setMessage({ 
-          type: 'success', 
-          text: overwriteId ? 'Quote updated successfully!' : 'Quote saved successfully!' 
+        setMessage({
+          type: 'success',
+          text: overwriteId ? 'Quote updated successfully!' : 'Quote saved successfully!'
         })
         loadQuotes()
-        setSelectedQuote(null)
+        const resultingId = result.id || overwriteId || null
+        setSelectedQuote(resultingId)
+        if (resultingId) {
+          onQuoteSaved?.(resultingId, quoteNumber)
+        }
       } else {
         setMessage({ type: 'error', text: result.error || 'Failed to save quote' })
       }
@@ -149,7 +157,7 @@ const QuoteSaveManager: React.FC<QuoteSaveManagerProps> = ({
           shopLocation: quote.shop_location || 'Shop',
           siteAddress: quote.site_address || '',
           scopeOfWork: quote.scope_of_work || '',
-          email: '',
+          email: ''
         }
 
         const defaultRequirements = {
@@ -170,15 +178,18 @@ const QuoteSaveManager: React.FC<QuoteSaveManagerProps> = ({
           ...(quote.logistics_storage ? { storage: quote.logistics_storage } : {})
         }
 
+        setQuoteNumber(quote.quote_number || quoteNumber)
+        setSelectedQuote(id)
         onLoadQuote(
           loadedEquipmentData,
           loadedLogisticsData,
           loadedRequirements,
-          quote.email_template || '',
-          quote.scope_template || ''
+          id,
+          quote.quote_number || quoteNumber
         )
         setMessage({ type: 'success', text: 'Quote loaded successfully!' })
         setShowHistory(false)
+        onQuoteLoaded?.(id, quote.quote_number || quoteNumber)
       }
     } catch {
       setMessage({ type: 'error', text: 'Failed to load quote' })
@@ -368,7 +379,13 @@ const QuoteSaveManager: React.FC<QuoteSaveManagerProps> = ({
                             ? 'border-accent bg-gray-800'
                             : 'border-gray-600 bg-black hover:border-accent hover:bg-gray-800'
                         }`}
-                        onClick={() => setSelectedQuote(selectedQuote === quote.id ? null : quote.id)}
+                        onClick={() => {
+                          const isCurrentlySelected = selectedQuote === quote.id
+                          setSelectedQuote(isCurrentlySelected ? null : quote.id)
+                          if (!isCurrentlySelected) {
+                            setQuoteNumber(quote.quote_number || '')
+                          }
+                        }}
                       >
                         <div className="flex items-start justify-between">
                           <div className="flex-1 min-w-0">
