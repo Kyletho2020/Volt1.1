@@ -36,6 +36,11 @@ import { equipmentSchema, logisticsSchema } from './lib/validation'
 import { createLogisticsPiece } from './lib/logisticsPieces'
 import { parseAddressParts } from './lib/address'
 import { HubSpotContact } from './services/hubspotService'
+import {
+  LOGISTICS_QUOTE_RECIPIENTS,
+  formatMissingLogisticsFields,
+  getLogisticsEmailReadiness
+} from './lib/logisticsEmail'
 
 type TemplateType = 'email' | 'scope' | 'logistics'
 
@@ -279,9 +284,27 @@ const App: React.FC = () => {
   const { subject: logisticsSubject, body: logisticsBody } =
     generateLogisticsEmail(equipmentData, logisticsData)
   const logisticsTemplate = `${logisticsSubject}\n\n${logisticsBody}`
-  const logisticsMailToLink = `mailto:Logistics@omegamorgan.com; MachineryLogistics@omegamorgan.com?subject=${encodeURIComponent(
+  const logisticsRecipients = LOGISTICS_QUOTE_RECIPIENTS.join(';')
+  const logisticsMailToLink = `mailto:${logisticsRecipients}?subject=${encodeURIComponent(
     logisticsSubject
   )}&body=${encodeURIComponent(logisticsBody)}`
+  const {
+    isReady: isLogisticsEmailReady,
+    missingFields: logisticsEmailMissingFields
+  } = getLogisticsEmailReadiness(logisticsData)
+  const logisticsMailTooltip = isLogisticsEmailReady
+    ? 'Shipment details complete. Email is ready to send.'
+    : `Add ${formatMissingLogisticsFields(
+        logisticsEmailMissingFields
+      )} to email the logistics team.`
+
+  const handleLogisticsMailShortcut = () => {
+    if (!isLogisticsEmailReady) {
+      return
+    }
+
+    window.location.href = logisticsMailToLink
+  }
 
   const projectNameDisplay =
     equipmentData.projectName?.trim() || 'Untitled project'
@@ -641,13 +664,21 @@ const App: React.FC = () => {
               template={logisticsTemplate}
               templateType="logistics"
               actions={
-                <a
-                  href={logisticsMailToLink}
-                  className="inline-flex items-center gap-2 rounded-xl bg-accent px-3 py-2 text-xs font-semibold text-black shadow-sm transition hover:bg-green-400"
+                <button
+                  type="button"
+                  onClick={handleLogisticsMailShortcut}
+                  disabled={!isLogisticsEmailReady}
+                  aria-disabled={!isLogisticsEmailReady}
+                  title={logisticsMailTooltip}
+                  className={`inline-flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-semibold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent/60 ${
+                    isLogisticsEmailReady
+                      ? 'bg-accent text-black shadow-sm hover:bg-green-400'
+                      : 'border border-accent/20 bg-surface/60 text-slate-400 cursor-not-allowed'
+                  }`}
                 >
                   <Mail className="h-4 w-4" />
-                  Email Team
-                </a>
+                  {isLogisticsEmailReady ? 'Email Team' : 'Add Details to Send'}
+                </button>
               }
             />
           </aside>

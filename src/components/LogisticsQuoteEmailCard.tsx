@@ -2,16 +2,16 @@ import React, { useMemo, useState } from 'react'
 import { Mail, Copy, CheckCircle, Truck } from 'lucide-react'
 import { generateLogisticsEmail } from './PreviewTemplates'
 import type { EquipmentData, LogisticsData } from '../types'
+import {
+  LOGISTICS_QUOTE_RECIPIENTS,
+  formatMissingLogisticsFields,
+  getLogisticsEmailReadiness
+} from '../lib/logisticsEmail'
 
 interface LogisticsQuoteEmailCardProps {
   equipmentData: EquipmentData
   logisticsData: LogisticsData
 }
-
-const RECIPIENTS = [
-  'Logistics@omegamorgan.com',
-  'MachineryLogistics@omegamorgan.com'
-]
 
 const LogisticsQuoteEmailCard: React.FC<LogisticsQuoteEmailCardProps> = ({
   equipmentData,
@@ -24,10 +24,29 @@ const LogisticsQuoteEmailCard: React.FC<LogisticsQuoteEmailCardProps> = ({
     [equipmentData, logisticsData]
   )
 
+  const { isReady, missingFields } = useMemo(
+    () => getLogisticsEmailReadiness(logisticsData),
+    [logisticsData]
+  )
+
+  const readinessMessage = isReady
+    ? 'Shipment details complete. Email is ready to send.'
+    : `Add ${formatMissingLogisticsFields(missingFields)} to email the logistics team.`
+
+  const buttonLabel = isReady ? 'Email Logistics Team' : 'Add Required Details'
+
   const mailtoHref = useMemo(() => {
-    const recipients = RECIPIENTS.join(';')
+    const recipients = LOGISTICS_QUOTE_RECIPIENTS.join(';')
     return `mailto:${recipients}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
   }, [body, subject])
+
+  const handleSendClick = () => {
+    if (!isReady) {
+      return
+    }
+
+    window.location.href = mailtoHref
+  }
 
   const copyToClipboard = async (value: string, field: 'subject' | 'body') => {
     try {
@@ -55,13 +74,23 @@ const LogisticsQuoteEmailCard: React.FC<LogisticsQuoteEmailCardProps> = ({
               </p>
             </div>
           </div>
-          <a
-            href={mailtoHref}
-            className="inline-flex items-center gap-2 rounded-xl bg-accent px-4 py-2 text-xs font-semibold text-black shadow-sm transition hover:bg-green-400"
-          >
-            <Mail className="h-4 w-4" />
-            Email Logistics Team
-          </a>
+          <div className="flex flex-col items-start gap-2">
+            <button
+              type="button"
+              onClick={handleSendClick}
+              disabled={!isReady}
+              aria-disabled={!isReady}
+              className={`inline-flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-semibold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent/60 ${
+                isReady
+                  ? 'bg-accent text-black shadow-sm hover:bg-green-400'
+                  : 'border border-accent/20 bg-surface/60 text-slate-400 cursor-not-allowed'
+              }`}
+            >
+              <Mail className="h-4 w-4" />
+              {buttonLabel}
+            </button>
+            <p className="text-xs text-slate-400">{readinessMessage}</p>
+          </div>
         </div>
 
         <div className="space-y-4">
@@ -71,7 +100,7 @@ const LogisticsQuoteEmailCard: React.FC<LogisticsQuoteEmailCardProps> = ({
               <span>Auto-filled</span>
             </div>
             <p className="mt-2 break-words text-sm text-slate-200">
-              {RECIPIENTS.join('; ')}
+              {LOGISTICS_QUOTE_RECIPIENTS.join('; ')}
             </p>
           </div>
 

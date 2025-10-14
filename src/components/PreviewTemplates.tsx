@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from 'react'
 import { FileText, Mail, Copy, CheckCircle, Eye, X, Truck } from 'lucide-react'
+import { LOGISTICS_QUOTE_RECIPIENTS } from '../lib/logisticsEmail'
 
 const PROPER_EQUIPMENT_TERMS = new Set([
   'versalift',
@@ -351,7 +352,8 @@ export const generateLogisticsTemplate = (
   logisticsData: any
 ) => {
   const { subject, body } = generateLogisticsEmail(equipmentData, logisticsData)
-  return `To: Logistics@omegamorgan.com; MachineryLogistics@omegamorgan.com\n\n${subject}\n\n${body}`
+  const recipientsList = LOGISTICS_QUOTE_RECIPIENTS.join('; ')
+  return `To: ${recipientsList}\n\n${subject}\n\n${body}`
 }
 
 interface PreviewTemplatesProps {
