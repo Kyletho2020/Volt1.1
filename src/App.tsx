@@ -15,11 +15,7 @@ import type { LucideIcon } from 'lucide-react'
 import { useSessionId } from './hooks/useSessionId'
 import { useApiKey } from './hooks/useApiKey'
 import AIExtractorModal from './components/AIExtractorModal'
-import {
-  generateEmailTemplate,
-  generateScopeTemplate,
-  generateLogisticsEmail
-} from './components/PreviewTemplates'
+import { generateEmailTemplate, generateScopeTemplate } from './components/PreviewTemplates'
 import QuoteSaveManager from './components/QuoteSaveManager'
 import ClarificationsSection from './components/ClarificationsSection'
 import EquipmentForm from './components/EquipmentForm'
@@ -296,18 +292,6 @@ const App: React.FC = () => {
     logisticsData,
     equipmentData.equipmentRequirements
   )
-
-  const { subject: logisticsSubject, body: logisticsBody } =
-    generateLogisticsEmail(equipmentData, logisticsData)
-  const logisticsTemplate = `${logisticsSubject}\n\n${logisticsBody}`
-  const canEmailLogisticsTeam = Boolean(
-    logisticsData.shipmentType?.trim() &&
-      logisticsData.pickupZip?.trim() &&
-      logisticsData.deliveryZip?.trim()
-  )
-  const logisticsMailToLink = `mailto:Logistics@omegamorgan.com; MachineryLogistics@omegamorgan.com?subject=${encodeURIComponent(
-    logisticsSubject
-  )}&body=${encodeURIComponent(logisticsBody)}`
 
   const projectNameDisplay =
     equipmentData.projectName?.trim() || 'Untitled project'
@@ -743,33 +727,6 @@ const App: React.FC = () => {
               description="Instant client communication built from the details you capture."
               template={emailTemplate}
               templateType="email"
-            />
-            <TemplateCard
-              title="Logistics Email"
-              icon={Truck}
-              description="Send the move plan directly to the Omega Morgan logistics teams."
-              template={logisticsTemplate}
-              templateType="logistics"
-              actions={
-                <a
-                  href={canEmailLogisticsTeam ? logisticsMailToLink : undefined}
-                  onClick={event => {
-                    if (!canEmailLogisticsTeam) {
-                      event.preventDefault()
-                    }
-                  }}
-                  className={`inline-flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-semibold shadow-sm transition ${
-                    canEmailLogisticsTeam
-                      ? 'bg-accent text-black hover:bg-green-400'
-                      : 'cursor-not-allowed border border-accent/30 bg-surface-highlight/50 text-slate-400'
-                  }`}
-                  aria-disabled={!canEmailLogisticsTeam}
-                  tabIndex={canEmailLogisticsTeam ? 0 : -1}
-                >
-                  <Mail className="h-4 w-4" />
-                  {canEmailLogisticsTeam ? 'Email Team' : 'Add shipment details'}
-                </a>
-              }
             />
           </aside>
         </div>
