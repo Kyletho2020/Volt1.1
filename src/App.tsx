@@ -688,27 +688,21 @@ const App: React.FC = () => {
                 />
               </div>
               <div className={activeWorkspace === 'logistics' ? 'block' : 'hidden'}>
-                <div className="space-y-6">
-                  <LogisticsQuoteEmailCard
-                    equipmentData={equipmentData}
-                    logisticsData={logisticsData}
-                  />
-                  <LogisticsForm
-                    data={logisticsData}
-                    selectedPieces={selectedPieces}
-                    onFieldChange={handleLogisticsChange}
-                    onPieceChange={handlePieceChange}
-                    addPiece={addPiece}
-                    removePiece={removePiece}
-                    togglePieceSelection={togglePieceSelection}
-                    deleteSelectedPieces={deleteSelectedPieces}
-                    movePiece={movePiece}
-                    onOpenLogisticsExtractor={() => handleOpenExtractor('logistics')}
-                    canUseAI={hasApiKey}
-                    register={logisticsForm.register}
-                    errors={logisticsForm.formState.errors}
-                  />
-                </div>
+                <LogisticsForm
+                  data={logisticsData}
+                  selectedPieces={selectedPieces}
+                  onFieldChange={handleLogisticsChange}
+                  onPieceChange={handlePieceChange}
+                  addPiece={addPiece}
+                  removePiece={removePiece}
+                  togglePieceSelection={togglePieceSelection}
+                  deleteSelectedPieces={deleteSelectedPieces}
+                  movePiece={movePiece}
+                  onOpenLogisticsExtractor={() => handleOpenExtractor('logistics')}
+                  canUseAI={hasApiKey}
+                  register={logisticsForm.register}
+                  errors={logisticsForm.formState.errors}
+                />
               </div>
             </div>
           </section>
@@ -730,6 +724,13 @@ const App: React.FC = () => {
             />
           </aside>
         </div>
+
+        <section className="mt-12">
+          <LogisticsQuoteEmailCard
+            equipmentData={equipmentData}
+            logisticsData={logisticsData}
+          />
+        </section>
 
         <section className="mt-12 space-y-6">
           <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
