@@ -725,48 +725,50 @@ const App: React.FC = () => {
           </aside>
         </div>
 
-        <section className="mt-12">
-          <LogisticsQuoteEmailCard
-            equipmentData={equipmentData}
-            logisticsData={logisticsData}
-          />
-        </section>
+        <div className="mt-12 space-y-12">
+          <section>
+            <LogisticsQuoteEmailCard
+              equipmentData={equipmentData}
+              logisticsData={logisticsData}
+            />
+          </section>
 
-        <section className="mt-12 space-y-6">
-          <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
-            <div>
-              <span className="text-xs font-semibold uppercase tracking-[0.3em] text-accent">Reference Library</span>
-              <h2 className="mt-3 text-3xl font-semibold text-white">Clarifications</h2>
-              <p className="mt-2 text-sm text-slate-300">
-                Keep your standard terms aligned with Bolt 3.0’s refreshed quoting experience.
-              </p>
+          <section className="space-y-6">
+            <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+              <div>
+                <span className="text-xs font-semibold uppercase tracking-[0.3em] text-accent">Reference Library</span>
+                <h2 className="mt-3 text-3xl font-semibold text-white">Clarifications</h2>
+                <p className="mt-2 text-sm text-slate-300">
+                  Keep your standard terms aligned with Bolt 3.0’s refreshed quoting experience.
+                </p>
+              </div>
             </div>
-          </div>
 
-          <div className="grid gap-6 lg:grid-cols-2">
-            <ClarificationsSection
-              title="Machinery Moving"
-              initialItems={[
-                'Any change to the job will require approval in writing prior to completion of work.',
-                'Customer is to supply clear pathway for all items to be loaded onto trailers',
-                'Quote is based on no site visit and is not responsible for cracks in pavement or other unforeseen causes to not be able to perform work'
-              ]}
-            />
-            <ClarificationsSection
-              title="Crane"
-              initialItems={[
-                'Crew to take half hour meal break between 4 - 5 hour start of shift in yard.',
-                'Customer may work crew through first meal break and pay missed meal charge of $175 per crew member.',
-                '60 ton boom truck quoted and 6 and 8 hour minimums. 8 hour quoted for budget.',
-                'Quoted straight time and portal to portal.',
-                'Overtime overtime to be charged $65/hour.',
-                'Straight time is the first 8 hours worked between 5am - 6pm Monday through Friday including travel and dismantle.',
-                'Customer may work crew through meal with signature on work ticket and pay missed meal charge of $175 per crew member per missed meal.',
-                'Mandatory missed meal charge at 10 hours from start of shift.'
-              ]}
-            />
-          </div>
-        </section>
+            <div className="grid gap-6 lg:grid-cols-2">
+              <ClarificationsSection
+                title="Machinery Moving"
+                initialItems={[
+                  'Any change to the job will require approval in writing prior to completion of work.',
+                  'Customer is to supply clear pathway for all items to be loaded onto trailers',
+                  'Quote is based on no site visit and is not responsible for cracks in pavement or other unforeseen causes to not be able to perform work'
+                ]}
+              />
+              <ClarificationsSection
+                title="Crane"
+                initialItems={[
+                  'Crew to take half hour meal break between 4 - 5 hour start of shift in yard.',
+                  'Customer may work crew through first meal break and pay missed meal charge of $175 per crew member.',
+                  '60 ton boom truck quoted and 6 and 8 hour minimums. 8 hour quoted for budget.',
+                  'Quoted straight time and portal to portal.',
+                  'Overtime overtime to be charged $65/hour.',
+                  'Straight time is the first 8 hours worked between 5am - 6pm Monday through Friday including travel and dismantle.',
+                  'Customer may work crew through meal with signature on work ticket and pay missed meal charge of $175 per crew member per missed meal.',
+                  'Mandatory missed meal charge at 10 hours from start of shift.'
+                ]}
+              />
+            </div>
+          </section>
+        </div>
 
         <footer className="mt-16 border-t border-accent/10 pt-6 text-center text-xs text-slate-500">
           Crafted for Omega Morgan&apos;s Bolt 3.0 design language · Session ID: {sessionId}
