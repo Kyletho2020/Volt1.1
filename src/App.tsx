@@ -688,21 +688,29 @@ const App: React.FC = () => {
                 />
               </div>
               <div className={activeWorkspace === 'logistics' ? 'block' : 'hidden'}>
-                <LogisticsForm
-                  data={logisticsData}
-                  selectedPieces={selectedPieces}
-                  onFieldChange={handleLogisticsChange}
-                  onPieceChange={handlePieceChange}
-                  addPiece={addPiece}
-                  removePiece={removePiece}
-                  togglePieceSelection={togglePieceSelection}
-                  deleteSelectedPieces={deleteSelectedPieces}
-                  movePiece={movePiece}
-                  onOpenLogisticsExtractor={() => handleOpenExtractor('logistics')}
-                  canUseAI={hasApiKey}
-                  register={logisticsForm.register}
-                  errors={logisticsForm.formState.errors}
-                />
+                <div className="space-y-6">
+                  <LogisticsForm
+                    data={logisticsData}
+                    selectedPieces={selectedPieces}
+                    onFieldChange={handleLogisticsChange}
+                    onPieceChange={handlePieceChange}
+                    addPiece={addPiece}
+                    removePiece={removePiece}
+                    togglePieceSelection={togglePieceSelection}
+                    deleteSelectedPieces={deleteSelectedPieces}
+                    movePiece={movePiece}
+                    onOpenLogisticsExtractor={() => handleOpenExtractor('logistics')}
+                    canUseAI={hasApiKey}
+                    register={logisticsForm.register}
+                    errors={logisticsForm.formState.errors}
+                  />
+                  {logisticsData.shipmentType && (
+                    <LogisticsQuoteEmailCard
+                      equipmentData={equipmentData}
+                      logisticsData={logisticsData}
+                    />
+                  )}
+                </div>
               </div>
             </div>
           </section>
@@ -726,13 +734,6 @@ const App: React.FC = () => {
         </div>
 
         <div className="mt-12 space-y-12">
-          <section>
-            <LogisticsQuoteEmailCard
-              equipmentData={equipmentData}
-              logisticsData={logisticsData}
-            />
-          </section>
-
           <section className="space-y-6">
             <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
               <div>
