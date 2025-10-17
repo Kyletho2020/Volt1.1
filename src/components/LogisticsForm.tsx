@@ -56,11 +56,11 @@ const LogisticsForm: React.FC<LogisticsFormProps> = ({
   errors
 }) => {
   const containerClasses =
-    'relative overflow-hidden rounded-3xl border border-accent/25 bg-surface/80 p-6 shadow-[0_35px_120px_rgba(10,18,35,0.55)] backdrop-blur-xl'
+    'relative overflow-hidden rounded-2xl border border-accent/20 bg-surface/70 p-4 shadow-[0_18px_60px_rgba(10,18,35,0.45)] backdrop-blur'
   const inputClasses =
-    'px-3 py-2.5 bg-surface-highlight/70 border border-accent/25 rounded-xl text-sm text-white placeholder:text-slate-400 shadow-[0_10px_28px_rgba(8,16,28,0.45)] transition focus:border-accent focus:ring-2 focus:ring-accent/40'
+    'h-9 rounded-lg border border-accent/25 bg-surface-highlight/60 px-3 text-sm text-white placeholder:text-slate-400 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/30'
   const selectClasses =
-    'px-3 py-2.5 bg-surface-highlight/70 border border-accent/25 rounded-xl text-sm text-white focus:border-accent focus:ring-2 focus:ring-accent/40'
+    'h-9 rounded-lg border border-accent/25 bg-surface-highlight/60 px-3 text-sm text-white focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/30'
 
   const shipmentOptions = [
     { value: '', label: 'Select shipment type' },
@@ -110,193 +110,236 @@ const LogisticsForm: React.FC<LogisticsFormProps> = ({
   return (
     <div className={containerClasses}>
       <div className="pointer-events-none absolute -bottom-32 -right-10 h-48 w-48 rounded-full bg-accent/25 blur-[120px] opacity-80" />
-      <div className="relative z-10 flex flex-col gap-6">
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+      <div className="relative z-10 flex flex-col gap-5">
+        <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
           <div className="flex items-center gap-3">
-            <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-accent/15 text-accent">
-              <Truck className="h-5 w-5" />
+            <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-accent/15 text-accent">
+              <Truck className="h-4 w-4" />
             </span>
             <div>
-              <h2 className="text-2xl font-semibold text-white">Logistics Quote</h2>
-              <p className="text-sm text-slate-300">
-                Track transport details, storage needs, and weights with Bolt 3.0 clarity.
-              </p>
+              <h2 className="text-lg font-semibold text-white">Shipment Items</h2>
+              <p className="text-xs text-slate-300">Add item details for accurate quote calculation.</p>
             </div>
           </div>
           <button
             type="button"
             onClick={onOpenLogisticsExtractor}
             disabled={!canUseAI}
-            className={`inline-flex items-center justify-center rounded-xl border px-3 py-2 text-xs font-medium transition ${
+            className={`inline-flex items-center justify-center gap-1 rounded-lg border px-3 py-1.5 text-[11px] font-medium transition ${
               canUseAI
                 ? 'border-accent/40 bg-accent-soft/40 text-accent hover:border-accent hover:bg-accent/15 hover:text-white'
                 : 'border-accent/15 bg-surface/40 text-slate-500/80 cursor-not-allowed'
             }`}
           >
-            <Bot className="mr-2 h-3.5 w-3.5" />
+            <Bot className="h-3 w-3" />
             Logistics AI
           </button>
         </div>
 
-        <div className="space-y-6">
-          <div>
-            <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <div className="flex items-center gap-2 text-sm font-semibold text-white">
-                <Package className="h-4 w-4 text-accent" />
-                Items to Transport
+        <div className="space-y-5">
+          <div className="rounded-xl border border-accent/20 bg-surface-highlight/40 px-3 py-3">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="flex items-center gap-2 text-[13px] font-semibold text-white">
+                <Package className="h-3.5 w-3.5 text-accent" />
+                Shipment Items
               </div>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <button
                   onClick={deleteSelectedPieces}
                   disabled={selectedPieces.length === 0}
-                  className="inline-flex items-center gap-2 rounded-xl bg-red-600/80 px-3 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-red-700/90 disabled:cursor-not-allowed disabled:opacity-40"
+                  className="inline-flex items-center gap-1 rounded-lg bg-red-600/80 px-2.5 py-1.5 text-[11px] font-semibold text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-40"
                 >
-                  <Trash2 className="h-3.5 w-3.5" />
+                  <Trash2 className="h-3 w-3" />
                   Delete Selected
                 </button>
                 <button
                   onClick={addPiece}
-                  className="inline-flex items-center gap-2 rounded-xl bg-emerald-500 px-3 py-2 text-xs font-semibold text-black shadow-sm transition hover:bg-emerald-600"
+                  className="inline-flex items-center gap-1 rounded-lg bg-emerald-500 px-2.5 py-1.5 text-[11px] font-semibold text-black transition hover:bg-emerald-600"
                 >
-                  <Plus className="h-3.5 w-3.5" />
+                  <Plus className="h-3 w-3" />
                   Add Item
                 </button>
               </div>
             </div>
 
-            <div className="space-y-4 text-white">
-              <div className="rounded-2xl border border-white/10 bg-[#101010]/70 shadow-md">
-                <div className="divide-y divide-white/10">
-                  {(data.pieces ?? []).map((piece, index) => (
-                    <div
-                      key={piece.id}
-                      className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 transition hover:bg-white/5 first:rounded-t-2xl last:rounded-b-2xl"
-                    >
-                      <input
-                        type="checkbox"
-                        checked={selectedPieces.includes(piece.id)}
-                        onChange={() => togglePieceSelection(piece.id)}
-                        className="h-4 w-4 rounded border-accent/40 bg-transparent text-emerald-400 focus:ring-emerald-400"
-                      />
+            <div className="mt-3 space-y-2 text-white">
+              {(data.pieces ?? []).map((piece, index) => (
+                <div
+                  key={piece.id}
+                  className="rounded-lg border border-white/10 bg-surface/60 p-3 shadow-sm transition hover:border-white/20"
+                >
+                  <div className="flex flex-wrap items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={selectedPieces.includes(piece.id)}
+                      onChange={() => togglePieceSelection(piece.id)}
+                      className="h-4 w-4 rounded border-accent/40 bg-transparent text-emerald-400 focus:ring-emerald-400"
+                    />
+                    <span className="inline-flex h-6 min-w-[2rem] items-center justify-center rounded-md border border-accent/30 bg-accent/10 px-2 text-xs font-semibold uppercase tracking-wide text-accent/90">
+                      #{index + 1}
+                    </span>
+                    {(() => {
+                      const field = register(`pieces.${index}.description` as const)
+                      return (
+                        <div className="flex-1 min-w-[180px]">
+                          <input
+                            type="text"
+                            value={piece.description}
+                            onChange={(e) => {
+                              field.onChange(e)
+                              onPieceChange(index, 'description', e.target.value)
+                            }}
+                            className={`${inputClasses} w-full text-sm`}
+                            placeholder="Item description (e.g., Electronics box, Furniture)"
+                          />
+                          {errors.pieces?.[index]?.description && (
+                            <p className="mt-1 text-[11px] text-red-400">
+                              {String(errors.pieces[index]?.description?.message)}
+                            </p>
+                          )}
+                        </div>
+                      )
+                    })()}
 
-                      <div className="flex min-w-[10rem] flex-1 flex-col">
+                    <div className="ml-auto flex items-center gap-1">
+                      <button
+                        onClick={() => movePiece(index, index - 1)}
+                        disabled={index === 0}
+                        className="rounded-md p-1 text-slate-300 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
+                        title="Move up"
+                      >
+                        <ArrowUp className="h-3.5 w-3.5" />
+                      </button>
+                      <button
+                        onClick={() => movePiece(index, index + 1)}
+                        disabled={index === (data.pieces?.length ?? 0) - 1}
+                        className="rounded-md p-1 text-slate-300 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
+                        title="Move down"
+                      >
+                        <ArrowDown className="h-3.5 w-3.5" />
+                      </button>
+                      <button
+                        onClick={() => removePiece(piece.id)}
+                        className="rounded-md p-1 text-red-400 transition hover:bg-red-500/10"
+                        title="Remove item"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-6">
+                    <div>
+                      {(() => {
+                        const field = register(`pieces.${index}.quantity` as const)
+                        return (
+                          <>
+                            <label className="mb-1 block text-[11px] uppercase tracking-wide text-slate-400">Quantity</label>
+                            <input
+                              type="number"
+                              min="1"
+                              value={piece.quantity}
+                              onChange={(e) => {
+                                field.onChange(e)
+                                onPieceChange(index, 'quantity', parseInt(e.target.value) || 1)
+                              }}
+                              className={`${inputClasses} w-full text-center`}
+                              placeholder="0"
+                            />
+                            {errors.pieces?.[index]?.quantity && (
+                              <p className="mt-1 text-[11px] text-red-400">
+                                {String(errors.pieces[index]?.quantity?.message)}
+                              </p>
+                            )}
+                          </>
+                        )
+                      })()}
+                    </div>
+
+                    {(['length', 'width', 'height', 'weight'] as const).map((field) => (
+                      <div key={field}>
                         {(() => {
-                          const field = register(`pieces.${index}.description` as const)
+                          const fieldRegister = register(`pieces.${index}.${field}` as const)
+                          const rawValue = piece[field]
+                          const displayValue = typeof rawValue === 'number' ? rawValue.toString() : rawValue || ''
                           return (
                             <>
+                              <label className="mb-1 block text-[11px] uppercase tracking-wide text-slate-400">
+                                {field === 'weight'
+                                  ? 'Weight (lbs)'
+                                  : `${field.charAt(0).toUpperCase() + field.slice(1)} (in)`}
+                              </label>
                               <input
                                 type="text"
-                                value={piece.description}
+                                value={displayValue}
                                 onChange={(e) => {
-                                  field.onChange(e)
-                                  onPieceChange(index, 'description', e.target.value)
+                                  fieldRegister.onChange(e)
+                                  onPieceChange(index, field, e.target.value)
                                 }}
-                                className="w-full rounded-xl border border-white/10 bg-transparent px-3 py-2 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-emerald-400"
-                                placeholder="Description"
+                                className={`${inputClasses} w-full text-center`}
+                                placeholder={field === 'weight' ? '0' : '0"'}
                               />
-                              {errors.pieces?.[index]?.description && (
-                                <p className="mt-1 text-xs text-red-400">
-                                  {String(errors.pieces[index]?.description?.message)}
+                              {errors.pieces?.[index]?.[field] && (
+                                <p className="mt-1 text-[11px] text-red-400">
+                                  {String(errors.pieces[index]?.[field]?.message)}
                                 </p>
                               )}
                             </>
                           )
                         })()}
                       </div>
-
-                      <div className="flex w-16 flex-col">
-                        {(() => {
-                          const field = register(`pieces.${index}.quantity` as const)
-                          return (
-                            <>
-                              <input
-                                type="number"
-                                value={piece.quantity}
-                                onChange={(e) => {
-                                  field.onChange(e)
-                                  onPieceChange(index, 'quantity', parseInt(e.target.value) || 1)
-                                }}
-                                className="rounded-xl border border-white/10 bg-transparent py-2 text-center text-sm focus:outline-none focus:ring-1 focus:ring-emerald-400"
-                                placeholder="Qty"
-                                min="1"
-                              />
-                              {errors.pieces?.[index]?.quantity && (
-                                <p className="mt-1 text-xs text-red-400">
-                                  {String(errors.pieces[index]?.quantity?.message)}
-                                </p>
-                              )}
-                            </>
-                          )
-                        })()}
-                      </div>
-
-                      <div className="flex flex-wrap gap-2">
-                        {(['length', 'width', 'height', 'weight'] as const).map((field) => (
-                          <div key={field} className="flex w-20 flex-col">
-                            {(() => {
-                              const fieldRegister = register(`pieces.${index}.${field}` as const)
-                              const rawValue = piece[field]
-                              const displayValue =
-                                typeof rawValue === 'number' ? rawValue.toString() : rawValue || ''
-                              return (
-                                <>
-                                  <input
-                                    type="text"
-                                    value={displayValue}
-                                    onChange={(e) => {
-                                      fieldRegister.onChange(e)
-                                      onPieceChange(index, field, e.target.value)
-                                    }}
-                                    className="rounded-xl border border-white/10 bg-transparent px-3 py-2 text-center text-sm placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-emerald-400"
-                                    placeholder={field.charAt(0).toUpperCase() + field.slice(1)}
-                                  />
-                                  {errors.pieces?.[index]?.[field] && (
-                                    <p className="mt-1 text-xs text-red-400">
-                                      {String(errors.pieces[index]?.[field]?.message)}
-                                    </p>
-                                  )}
-                                </>
-                              )
-                            })()}
-                          </div>
-                        ))}
-                      </div>
-
-                      <div className="ml-auto flex flex-col gap-1">
-                        <button
-                          onClick={() => movePiece(index, index - 1)}
-                          disabled={index === 0}
-                          className="rounded-md bg-white/10 p-1 text-white transition hover:bg-white/20 disabled:cursor-not-allowed disabled:opacity-40"
-                        >
-                          <ArrowUp className="h-4 w-4" />
-                        </button>
-                        <button
-                          onClick={() => movePiece(index, index + 1)}
-                          disabled={index === (data.pieces?.length ?? 0) - 1}
-                          className="rounded-md bg-white/10 p-1 text-white transition hover:bg-white/20 disabled:cursor-not-allowed disabled:opacity-40"
-                        >
-                          <ArrowDown className="h-4 w-4" />
-                        </button>
-                        <button
-                          onClick={() => removePiece(piece.id)}
-                          className="rounded-md bg-red-600/70 p-1 text-white transition hover:bg-red-700"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                  {(data.pieces?.length ?? 0) === 0 && (
-                    <p className="px-4 py-6 text-sm text-slate-300">
-                      No items added yet. Click "Add Item" to start detailing the shipment.
-                    </p>
-                  )}
+                    ))}
+                  </div>
                 </div>
-              </div>
+              ))}
+              {(data.pieces?.length ?? 0) === 0 && (
+                <p className="rounded-lg border border-dashed border-white/15 bg-surface/40 px-4 py-6 text-center text-sm text-slate-300">
+                  No items added yet. Click <span className="font-semibold text-white">"Add Item"</span> to start detailing the shipment.
+                </p>
+              )}
             </div>
           </div>
 
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          {(() => {
+            const totalItems = (data.pieces ?? []).reduce((sum, piece) => sum + (Number(piece.quantity) || 0), 0)
+            const totalWeight = (data.pieces ?? []).reduce((sum, piece) => {
+              const qty = Number(piece.quantity) || 0
+              const weight = parseFloat(String(piece.weight).replace(/[^0-9.]/g, '')) || 0
+              return sum + qty * weight
+            }, 0)
+            const totalFootprint = (data.pieces ?? []).reduce((sum, piece) => {
+              const qty = Number(piece.quantity) || 0
+              const length = parseFloat(String(piece.length).replace(/[^0-9.]/g, '')) || 0
+              const width = parseFloat(String(piece.width).replace(/[^0-9.]/g, '')) || 0
+              const footprint = length * width
+              return sum + footprint * qty
+            }, 0)
+            const totalFootprintSqFt = totalFootprint / 144
+
+            return (
+              <div className="rounded-xl border border-accent/20 bg-surface-highlight/40 p-3">
+                <p className="mb-3 text-[13px] font-semibold uppercase tracking-[0.18em] text-slate-300">
+                  Shipment Summary
+                </p>
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                  <div className="rounded-lg border border-white/10 bg-surface/60 p-3">
+                    <p className="text-xs text-slate-400">Total Items</p>
+                    <p className="text-lg font-semibold text-white">{totalItems.toFixed(0)}</p>
+                  </div>
+                  <div className="rounded-lg border border-white/10 bg-surface/60 p-3">
+                    <p className="text-xs text-slate-400">Total Weight</p>
+                    <p className="text-lg font-semibold text-white">{totalWeight.toFixed(2)} lbs</p>
+                  </div>
+                  <div className="rounded-lg border border-white/10 bg-surface/60 p-3">
+                    <p className="text-xs text-slate-400">Total Floor Space</p>
+                    <p className="text-lg font-semibold text-white">{totalFootprintSqFt.toFixed(2)} sq ft</p>
+                  </div>
+                </div>
+              </div>
+            )
+          })()}
+
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
             <div>
               <label className="mb-1 block text-sm font-medium text-slate-200">Pickup Address</label>
               <input
