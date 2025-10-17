@@ -648,7 +648,7 @@ const App: React.FC = () => {
             <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.3em] text-accent">Workspace</p>
-                <h2 className="mt-3 text-3xl font-semibold text-white">Bolt 3.0 Builder</h2>
+                <h2 className="mt-3 text-3xl font-semibold text-white">Volt 1.1 Builder</h2>
                 <p className="mt-2 text-sm text-slate-300">
                   Toggle between equipment and logistics flows without losing context or data.
                 </p>
