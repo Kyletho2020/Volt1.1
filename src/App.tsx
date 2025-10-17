@@ -530,7 +530,7 @@ const App: React.FC = () => {
                 <p className="text-xs font-semibold uppercase tracking-[0.35em] text-accent">Command Center</p>
                 <h2 className="mt-3 text-2xl font-semibold text-white">Quote Controls</h2>
                 <p className="mt-2 text-sm text-slate-300">
-                  Kick off new projects, recall saved work, and orchestrate Bolt 3.0 extractions from one panel.
+                  Kick off new projects, recall saved work, and orchestrate AI extractions from one panel.
                 </p>
               </div>
 
