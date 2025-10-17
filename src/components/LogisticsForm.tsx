@@ -3,7 +3,6 @@ import {
   Truck,
   Package,
   Plus,
-  Minus,
   Trash2,
   ArrowUp,
   ArrowDown,
@@ -150,14 +149,14 @@ const LogisticsForm: React.FC<LogisticsFormProps> = ({
                 <button
                   onClick={deleteSelectedPieces}
                   disabled={selectedPieces.length === 0}
-                  className="inline-flex items-center gap-2 rounded-xl bg-red-500/90 px-3 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-red-500 disabled:cursor-not-allowed disabled:opacity-40"
+                  className="inline-flex items-center gap-2 rounded-xl bg-red-600/80 px-3 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-red-700/90 disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   <Trash2 className="h-3.5 w-3.5" />
                   Delete Selected
                 </button>
                 <button
                   onClick={addPiece}
-                  className="inline-flex items-center gap-2 rounded-xl bg-accent px-3 py-2 text-xs font-semibold text-black shadow-sm transition hover:bg-green-400"
+                  className="inline-flex items-center gap-2 rounded-xl bg-emerald-500 px-3 py-2 text-xs font-semibold text-black shadow-sm transition hover:bg-emerald-600"
                 >
                   <Plus className="h-3.5 w-3.5" />
                   Add Item
@@ -165,126 +164,135 @@ const LogisticsForm: React.FC<LogisticsFormProps> = ({
               </div>
             </div>
 
-            <div className="space-y-3">
-              {(data.pieces ?? []).map((piece, index) => (
-                <div
-                  key={piece.id}
-                  className="grid grid-cols-12 items-end gap-3 rounded-2xl border border-accent/20 bg-surface-highlight/70 p-4 shadow-[0_18px_36px_rgba(10,18,35,0.45)]"
-                >
-                  <div className="col-span-5 flex items-start gap-3">
-                    <input
-                      type="checkbox"
-                      checked={selectedPieces.includes(piece.id)}
-                      onChange={() => togglePieceSelection(piece.id)}
-                      className="mt-2 h-4 w-4 rounded border-accent/40 bg-transparent text-accent focus:ring-accent/40"
-                    />
-                    <div className="flex-1">
-                      {(() => {
-                        const field = register(`pieces.${index}.description` as const)
-                        return (
-                          <>
-                            <input
-                              type="text"
-                              value={piece.description}
-                              onChange={(e) => {
-                                field.onChange(e)
-                                onPieceChange(index, 'description', e.target.value)
-                              }}
-                              className={`w-full ${inputClasses}`}
-                              placeholder="Description"
-                            />
-                            {errors.pieces?.[index]?.description && (
-                              <p className="mt-1 text-xs text-red-400">
-                                {String(errors.pieces[index]?.description?.message)}
-                              </p>
-                            )}
-                          </>
-                        )
-                      })()}
-                    </div>
-                  </div>
-                  <div className="col-span-1">
-                    {(() => {
-                      const field = register(`pieces.${index}.quantity` as const)
-                      return (
-                        <>
-                          <input
-                            type="number"
-                            value={piece.quantity}
-                            onChange={(e) => {
-                              field.onChange(e)
-                              onPieceChange(index, 'quantity', parseInt(e.target.value) || 1)
-                            }}
-                            className={`${inputClasses} w-16 text-center`}
-                            placeholder="Qty"
-                            min="1"
-                          />
-                          {errors.pieces?.[index]?.quantity && (
-                            <p className="mt-1 text-xs text-red-400">
-                              {String(errors.pieces[index]?.quantity?.message)}
-                            </p>
-                          )}
-                        </>
-                      )
-                    })()}
-                  </div>
-                  <div className="col-span-5 grid grid-cols-4 gap-2">
-                    {(['length', 'width', 'height', 'weight'] as const).map((field) => (
-                      <div key={field}>
+            <div className="space-y-4 text-white">
+              <div className="rounded-2xl border border-white/10 bg-[#101010]/70 shadow-md">
+                <div className="divide-y divide-white/10">
+                  {(data.pieces ?? []).map((piece, index) => (
+                    <div
+                      key={piece.id}
+                      className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 transition hover:bg-white/5 first:rounded-t-2xl last:rounded-b-2xl"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedPieces.includes(piece.id)}
+                        onChange={() => togglePieceSelection(piece.id)}
+                        className="h-4 w-4 rounded border-accent/40 bg-transparent text-emerald-400 focus:ring-emerald-400"
+                      />
+
+                      <div className="flex min-w-[10rem] flex-1 flex-col">
                         {(() => {
-                          const fieldRegister = register(`pieces.${index}.${field}` as const)
-                          const rawValue = piece[field]
-                          const displayValue =
-                            typeof rawValue === 'number'
-                              ? rawValue.toString()
-                              : rawValue || ''
+                          const field = register(`pieces.${index}.description` as const)
                           return (
                             <>
                               <input
                                 type="text"
-                                value={displayValue}
+                                value={piece.description}
                                 onChange={(e) => {
-                                  fieldRegister.onChange(e)
-                                  onPieceChange(index, field, e.target.value)
+                                  field.onChange(e)
+                                  onPieceChange(index, 'description', e.target.value)
                                 }}
-                                className={`w-full ${inputClasses}`}
-                                placeholder={field.charAt(0).toUpperCase() + field.slice(1)}
+                                className="w-full rounded-xl border border-white/10 bg-transparent px-3 py-2 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-emerald-400"
+                                placeholder="Description"
                               />
-                              {errors.pieces?.[index]?.[field] && (
+                              {errors.pieces?.[index]?.description && (
                                 <p className="mt-1 text-xs text-red-400">
-                                  {String(errors.pieces[index]?.[field]?.message)}
+                                  {String(errors.pieces[index]?.description?.message)}
                                 </p>
                               )}
                             </>
                           )
                         })()}
                       </div>
-                    ))}
-                  </div>
-                  <div className="col-span-1 flex flex-col gap-1">
-                    <button
-                      onClick={() => movePiece(index, index - 1)}
-                      disabled={index === 0}
-                      className="flex items-center justify-center rounded-lg border border-accent/25 bg-accent-soft/40 p-2 text-accent transition hover:border-accent hover:bg-accent/15 hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
-                    >
-                      <ArrowUp className="h-4 w-4" />
-                    </button>
-                    <button
-                      onClick={() => movePiece(index, index + 1)}
-                      disabled={index === (data.pieces?.length ?? 0) - 1}
-                      className="flex items-center justify-center rounded-lg border border-accent/25 bg-accent-soft/40 p-2 text-accent transition hover:border-accent hover:bg-accent/15 hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
-                    >
-                      <ArrowDown className="h-4 w-4" />
-                    </button>
-                    <button
-                      onClick={() => removePiece(piece.id)}
-                      className="flex items-center justify-center rounded-lg bg-red-500/90 p-2 text-white transition hover:bg-red-500"
-                    >
-                      <Minus className="h-4 w-4" />
-                    </button>
-                  </div>
+
+                      <div className="flex w-16 flex-col">
+                        {(() => {
+                          const field = register(`pieces.${index}.quantity` as const)
+                          return (
+                            <>
+                              <input
+                                type="number"
+                                value={piece.quantity}
+                                onChange={(e) => {
+                                  field.onChange(e)
+                                  onPieceChange(index, 'quantity', parseInt(e.target.value) || 1)
+                                }}
+                                className="rounded-xl border border-white/10 bg-transparent py-2 text-center text-sm focus:outline-none focus:ring-1 focus:ring-emerald-400"
+                                placeholder="Qty"
+                                min="1"
+                              />
+                              {errors.pieces?.[index]?.quantity && (
+                                <p className="mt-1 text-xs text-red-400">
+                                  {String(errors.pieces[index]?.quantity?.message)}
+                                </p>
+                              )}
+                            </>
+                          )
+                        })()}
+                      </div>
+
+                      <div className="flex flex-wrap gap-2">
+                        {(['length', 'width', 'height', 'weight'] as const).map((field) => (
+                          <div key={field} className="flex w-20 flex-col">
+                            {(() => {
+                              const fieldRegister = register(`pieces.${index}.${field}` as const)
+                              const rawValue = piece[field]
+                              const displayValue =
+                                typeof rawValue === 'number' ? rawValue.toString() : rawValue || ''
+                              return (
+                                <>
+                                  <input
+                                    type="text"
+                                    value={displayValue}
+                                    onChange={(e) => {
+                                      fieldRegister.onChange(e)
+                                      onPieceChange(index, field, e.target.value)
+                                    }}
+                                    className="rounded-xl border border-white/10 bg-transparent px-3 py-2 text-center text-sm placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-emerald-400"
+                                    placeholder={field.charAt(0).toUpperCase() + field.slice(1)}
+                                  />
+                                  {errors.pieces?.[index]?.[field] && (
+                                    <p className="mt-1 text-xs text-red-400">
+                                      {String(errors.pieces[index]?.[field]?.message)}
+                                    </p>
+                                  )}
+                                </>
+                              )
+                            })()}
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="ml-auto flex flex-col gap-1">
+                        <button
+                          onClick={() => movePiece(index, index - 1)}
+                          disabled={index === 0}
+                          className="rounded-md bg-white/10 p-1 text-white transition hover:bg-white/20 disabled:cursor-not-allowed disabled:opacity-40"
+                        >
+                          <ArrowUp className="h-4 w-4" />
+                        </button>
+                        <button
+                          onClick={() => movePiece(index, index + 1)}
+                          disabled={index === (data.pieces?.length ?? 0) - 1}
+                          className="rounded-md bg-white/10 p-1 text-white transition hover:bg-white/20 disabled:cursor-not-allowed disabled:opacity-40"
+                        >
+                          <ArrowDown className="h-4 w-4" />
+                        </button>
+                        <button
+                          onClick={() => removePiece(piece.id)}
+                          className="rounded-md bg-red-600/70 p-1 text-white transition hover:bg-red-700"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                  {(data.pieces?.length ?? 0) === 0 && (
+                    <p className="px-4 py-6 text-sm text-slate-300">
+                      No items added yet. Click "Add Item" to start detailing the shipment.
+                    </p>
+                  )}
                 </div>
-              ))}
+              </div>
             </div>
           </div>
 
