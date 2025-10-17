@@ -47,7 +47,7 @@ const HubSpotContactSearch: React.FC<HubSpotContactSearchProps> = ({ onSelectCon
   return (
     <div className="mb-6 rounded-2xl border border-accent/20 bg-surface-highlight/70 p-5 shadow-[0_28px_60px_rgba(10,18,35,0.5)] backdrop-blur-xl">
       <h3 className="text-lg font-semibold text-white">HubSpot Contact Search</h3>
-      <p className="mb-4 text-sm text-slate-400">Search HubSpot and instantly load project contacts into the Bolt workspace.</p>
+      <p className="mb-4 text-sm text-slate-400">Search HubSpot and instantly load project contacts into the Volt workspace.</p>
       <form onSubmit={handleSubmit} className="space-y-3">
         <div className="flex flex-col gap-2 sm:flex-row">
           <input
