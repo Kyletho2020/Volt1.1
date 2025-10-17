@@ -771,7 +771,7 @@ const App: React.FC = () => {
         </div>
 
         <footer className="mt-16 border-t border-accent/10 pt-6 text-center text-xs text-slate-500">
-          Crafted for Omega Morgan&apos;s Bolt 3.0 design language · Session ID: {sessionId}
+          Crafted for Omega Morgan&apos;s Volt 1.1 design language · Session ID: {sessionId}
         </footer>
       </main>
 
