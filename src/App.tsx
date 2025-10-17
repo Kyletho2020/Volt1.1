@@ -485,8 +485,7 @@ const App: React.FC = () => {
                 Volt 1.1 Operations Hub
               </h1>
               <p className="mt-3 max-w-2xl text-base text-slate-300 sm:text-lg">
-                Manage the complete Omega Morgan quoting workflow from a single, responsive workspace.
-                Pair the Bolt 3.0 aesthetics with AI-assisted tools to keep every proposal accurate and fast.
+                Kyle is awesome! Keep being amazing and dont forget to smile!
               </p>
             </div>
             <div className="grid w-full max-w-xl grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
