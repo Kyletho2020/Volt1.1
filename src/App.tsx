@@ -739,7 +739,7 @@ const App: React.FC = () => {
                 <span className="text-xs font-semibold uppercase tracking-[0.3em] text-accent">Reference Library</span>
                 <h2 className="mt-3 text-3xl font-semibold text-white">Clarifications</h2>
                 <p className="mt-2 text-sm text-slate-300">
-                  Keep your standard terms aligned with Bolt 3.0’s refreshed quoting experience.
+                  Keep your standard terms aligned with Volt's refreshed quoting experience.
                 </p>
               </div>
             </div>
