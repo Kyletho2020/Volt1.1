@@ -9,7 +9,8 @@ import {
   Mail,
   Save,
   RefreshCcw,
-  Truck
+  Truck,
+  Send
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { useSessionId } from './hooks/useSessionId'
@@ -403,6 +404,26 @@ const App: React.FC = () => {
     }
   }
 
+  const launchEmailDraft = () => {
+    if (typeof window === 'undefined') {
+      return
+    }
+
+    const recipient = equipmentData.email?.trim() || ''
+    const [subjectLine, ...bodyLines] = emailTemplate.split('\n')
+    const subject = subjectLine?.trim() || 'Quote Details'
+    const body = bodyLines.join('\n').replace(/^\n+/, '')
+
+    const queryParts = [
+      subject ? `subject=${encodeURIComponent(subject)}` : '',
+      body ? `body=${encodeURIComponent(body)}` : ''
+    ].filter(Boolean)
+
+    const mailtoLink = `mailto:${recipient}${queryParts.length ? `?${queryParts.join('&')}` : ''}`
+
+    window.location.href = mailtoLink
+  }
+
   interface TemplateCardProps {
     title: string
     icon: LucideIcon
@@ -728,6 +749,21 @@ const App: React.FC = () => {
               description="Instant client communication built from the details you capture."
               template={emailTemplate}
               templateType="email"
+              actions={
+                <button
+                  type="button"
+                  onClick={launchEmailDraft}
+                  disabled={!equipmentData.email?.trim()}
+                  className={`inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-xs font-medium transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent/60 ${
+                    equipmentData.email?.trim()
+                      ? 'border-accent/25 bg-accent-soft/40 text-slate-100 hover:border-accent hover:bg-accent/15 hover:text-white'
+                      : 'cursor-not-allowed border-accent/10 bg-surface/40 text-slate-500'
+                  }`}
+                >
+                  <Send className="h-4 w-4" />
+                  Draft Email
+                </button>
+              }
             />
           </aside>
         </div>
