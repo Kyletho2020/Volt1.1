@@ -479,7 +479,7 @@ const App: React.FC = () => {
           <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
             <div>
               <span className="inline-flex items-center gap-2 rounded-full border border-accent/30 bg-accent-soft/40 px-4 py-1 text-xs font-semibold uppercase tracking-[0.35em] text-accent">
-                Bolt 3.0 System
+                Volt 1.1 System
               </span>
               <h1 className="mt-6 text-4xl font-semibold tracking-tight text-white sm:text-5xl">
                 Volt 1.1 Operations Hub
