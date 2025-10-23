@@ -301,10 +301,6 @@ export const generateLogisticsEmail = (
 
   const truckType = logisticsData.truckType || '[truck type requested]'
 
-  const contactName = equipmentData.contactName?.trim() || ''
-  const companyName = equipmentData.companyName?.trim() || ''
-  const signatureLines = [contactName, companyName].filter(Boolean).join('\n')
-
   const normalizedStorageLocation = normalizeStorageLocation(
     logisticsData.storageLocation
   )
@@ -346,9 +342,7 @@ export const generateLogisticsEmail = (
 
   const subject = `Truck request for ${shipmentCode} – ${pickupZip} to ${deliveryZip}`
 
-  const body = `Hello,\n\nI'm reaching out to request a logistics quote for an upcoming project. Please see the load and transport details below:\n\nNumber of Pieces: ${numberOfPieces}\n\nPiece Dimensions & Weights (L x W x H):\n${pieceDetails}\n\nTotal Load Weight: ${totalWeight}\n\nPick-Up Location: ${pickupLocation}\n\nDelivery/Set Location: ${deliveryLocation}\n\nTruck Type Requested: ${truckType}\n\nShipment Type: ${shipmentType}\n${storageSection}Please let me know if you need any additional information or documents to complete the quote. Looking forward to your response.\n\nBest regards,${
-    signatureLines ? `\n${signatureLines}` : ''
-  }`
+  const body = `Hello,\n\nI'm reaching out to request a logistics quote for an upcoming project. Please see the load and transport details below:\n\nNumber of Pieces: ${numberOfPieces}\n\nPiece Dimensions & Weights (L x W x H):\n${pieceDetails}\n\nTotal Load Weight: ${totalWeight}\n\nPick-Up Location: ${pickupLocation}\n\nDelivery/Set Location: ${deliveryLocation}\n\nTruck Type Requested: ${truckType}\n\nShipment Type: ${shipmentType}\n${storageSection}Please let me know if you need any additional information or documents to complete the quote. Looking forward to your response.\n\nBest regards,\nKyle Thornton   Sales Representative\nMain: (425) 243-1967  Mobile: (253) 878-6796\n4403 Russel Rd Suite #108, Mulkilteo, WA\nKyle.Thornton@omegamorgan.com | omegamorgan.com\nA PART OF THE OMEGA MORGAN GROUP OF COMPANIES\n               \nCONFIDENTIALITY NOTICE: This email and any attachments are for the exclusive and confidential use for the intended recipient. If you are not the intended recipient, please do not read, distribute or take action in reliance upon this message. If you have received this in error, please notify us immediately by return email and promptly delete this message and its attachments from your computer system.\n`
 
   return { subject, body }
 }
