@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useMemo, useState } from 'react'
 import {
   Truck,
   Package,
@@ -6,7 +6,9 @@ import {
   Trash2,
   ArrowUp,
   ArrowDown,
-  Bot
+  Bot,
+  Copy,
+  CheckCircle
 } from 'lucide-react'
 import { UseFormRegister, FieldErrors } from 'react-hook-form'
 import type { LogisticsData, LogisticsPiece } from '../types'
@@ -106,6 +108,62 @@ const LogisticsForm: React.FC<LogisticsFormProps> = ({
     currency: 'USD'
   })
   const storageCostLabel = storageCost !== null ? currencyFormatter.format(storageCost) : '--'
+
+  const formatLocation = (
+    address?: string,
+    city?: string,
+    state?: string,
+    zip?: string
+  ) =>
+    [address, city, state, zip]
+      .map(part => part?.trim())
+      .filter(Boolean)
+      .join(', ')
+
+  const pickupLocation = useMemo(
+    () => formatLocation(data.pickupAddress, data.pickupCity, data.pickupState, data.pickupZip),
+    [data.pickupAddress, data.pickupCity, data.pickupState, data.pickupZip]
+  )
+
+  const deliveryLocation = useMemo(
+    () =>
+      formatLocation(
+        data.deliveryAddress,
+        data.deliveryCity,
+        data.deliveryState,
+        data.deliveryZip
+      ),
+    [data.deliveryAddress, data.deliveryCity, data.deliveryState, data.deliveryZip]
+  )
+
+  const formatField = (value: string | undefined, placeholder: string) =>
+    value && value.trim().length > 0 ? value.trim() : placeholder
+
+  const logisticsEmailSnippet = useMemo(
+    () =>
+      [
+        `Pick-Up Location: ${formatField(pickupLocation, '[Add pick-up location]')}`,
+        '',
+        `Delivery/Set Location: ${formatField(deliveryLocation, '[Add delivery location]')}`,
+        '',
+        `Truck Type Requested: ${formatField(data.truckType, '[Select truck type]')}`,
+        '',
+        `Shipment Type: ${formatField(data.shipmentType, '[Select shipment type]')}`
+      ].join('\n'),
+    [pickupLocation, deliveryLocation, data.truckType, data.shipmentType]
+  )
+
+  const [snippetCopied, setSnippetCopied] = useState(false)
+
+  const handleSnippetCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(logisticsEmailSnippet)
+      setSnippetCopied(true)
+      setTimeout(() => setSnippetCopied(false), 2000)
+    } catch (error) {
+      console.error('Failed to copy logistics snippet:', error)
+    }
+  }
 
   return (
     <div className={containerClasses}>
@@ -494,6 +552,41 @@ const LogisticsForm: React.FC<LogisticsFormProps> = ({
                 <p className="mt-1 text-xs text-red-400">{String(errors.truckType.message)}</p>
               )}
             </div>
+          </div>
+
+          <div className="rounded-2xl border border-accent/25 bg-surface-highlight/60 p-4 shadow-[0_18px_36px_rgba(10,18,35,0.45)]">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-sm font-medium text-slate-100">Logistics Email Snippet</p>
+                <p className="text-xs text-slate-400">
+                  Quickly copy the core shipment details for the logistics quote email template.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={handleSnippetCopy}
+                className={`inline-flex items-center gap-2 rounded-lg border px-3 py-1.5 text-[11px] font-semibold transition ${
+                  snippetCopied
+                    ? 'border-accent/60 bg-accent-soft/50 text-accent'
+                    : 'border-accent/25 bg-surface/40 text-slate-100 hover:border-accent hover:bg-accent/15 hover:text-white'
+                }`}
+              >
+                {snippetCopied ? (
+                  <>
+                    <CheckCircle className="h-3.5 w-3.5" />
+                    Copied
+                  </>
+                ) : (
+                  <>
+                    <Copy className="h-3.5 w-3.5" />
+                    Copy Fields
+                  </>
+                )}
+              </button>
+            </div>
+            <pre className="mt-3 whitespace-pre-wrap rounded-xl border border-accent/20 bg-surface/60 p-3 text-xs text-slate-200">
+              {logisticsEmailSnippet}
+            </pre>
           </div>
 
           <div className="rounded-2xl border border-accent/25 bg-surface-highlight/60 p-4 shadow-[0_18px_36px_rgba(10,18,35,0.45)]">
