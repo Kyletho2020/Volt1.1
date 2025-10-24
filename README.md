@@ -18,6 +18,9 @@ VITE_SUPABASE_ANON_KEY=your-anon-key
 VITE_SUPABASE_MANUAL_KEY=your-service-role-key
 VITE_API_KEY_ENCRYPTION_KEY=base64-encoded-32-byte-key
 API_KEY_ENCRYPTION_KEY=base64-encoded-32-byte-key
+VITE_HUBSPOT_PORTAL_ID=your-hubspot-portal-id
+# Optional: override if your HubSpot account uses a different region such as eu1 or ap1
+VITE_HUBSPOT_REGION=na1
 ```
 
 Start the development server:
