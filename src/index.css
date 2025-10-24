@@ -15,6 +15,12 @@
     background-attachment: fixed;
   }
 
+  input,
+  textarea,
+  select {
+    @apply text-slate-900;
+  }
+
   h1,
   h2,
   h3,
