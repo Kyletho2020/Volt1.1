@@ -118,6 +118,9 @@ const HubSpotChatWidget: React.FC = () => {
 
     if (widget?.open) {
       widget.open()
+      setIsWidgetReady(true)
+      setIsLoading(false)
+      pendingOpenRef.current = false
       return
     }
 
@@ -139,6 +142,14 @@ const HubSpotChatWidget: React.FC = () => {
             window.clearInterval(intervalId)
             loadCheckIntervalRef.current = null
           }
+
+          if (pendingOpenRef.current) {
+            pendingOpenRef.current = false
+            candidateWidget.open()
+          }
+
+          setIsWidgetReady(true)
+          setIsLoading(false)
         }
       }, 400)
     }
