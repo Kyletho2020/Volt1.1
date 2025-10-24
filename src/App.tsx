@@ -34,6 +34,7 @@ import { createLogisticsPiece } from './lib/logisticsPieces'
 import { parseAddressParts } from './lib/address'
 import { HubSpotContact } from './services/hubspotService'
 import { QuoteService } from './services/quoteService'
+import HubSpotChatWidget from './components/HubSpotChatWidget'
 
 type TemplateType = 'email' | 'scope' | 'logistics'
 
@@ -494,6 +495,8 @@ const App: React.FC = () => {
       <div className="absolute inset-0 -z-20 bg-[radial-gradient(circle_at_82%_12%,rgba(56,189,248,0.18),transparent_62%)]" />
       <div className="absolute -top-48 -left-48 -z-10 h-[28rem] w-[28rem] rounded-full bg-accent/30 blur-[150px] opacity-80" />
       <div className="absolute -bottom-40 right-[-6rem] -z-10 h-[26rem] w-[26rem] rounded-full bg-sky-500/25 blur-[160px] opacity-70" />
+
+      <HubSpotChatWidget />
 
       <header className="relative z-10 border-b border-accent/10">
         <div className="mx-auto flex max-w-7xl flex-col gap-8 px-4 py-10 sm:px-6 lg:px-8">
