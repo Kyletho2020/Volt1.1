@@ -498,7 +498,7 @@ const App: React.FC = () => {
       <div className="absolute -top-48 -left-48 -z-10 h-[28rem] w-[28rem] rounded-full bg-accent/30 blur-[150px] opacity-80" />
       <div className="absolute -bottom-40 right-[-6rem] -z-10 h-[26rem] w-[26rem] rounded-full bg-sky-500/25 blur-[160px] opacity-70" />
 
-      <HubSpotAIChatbot onContactSelected={handleSelectHubSpotContact} />
+      <HubSpotAIChatbot onContactSelected={handleSelectHubSpotContact} sessionId={sessionId} />
 
       {assistantSelectedContact && (
         <div className="fixed bottom-32 right-6 z-30 max-w-xs rounded-lg border border-accent/20 bg-accent/10 p-4 backdrop-blur">
