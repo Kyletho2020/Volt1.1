@@ -30,6 +30,7 @@ export class HubSpotService {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${this.SUPABASE_ANON_KEY}`,
+        'apikey': this.SUPABASE_ANON_KEY,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ name, partial }),
@@ -53,6 +54,7 @@ export class HubSpotService {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${this.SUPABASE_ANON_KEY}`,
+        'apikey': this.SUPABASE_ANON_KEY,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ id, properties: payload }),
