@@ -280,7 +280,7 @@ Current HubSpot capabilities available to user.`
             <button
               type="submit"
               disabled={isLoading || !input.trim()}
-              className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-accent px-3 py-2 text-sm font-semibold text-black transition hover:bg-emerald-400 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-accent px-3 py-2 text-sm font-semibold text-slate-950 transition hover:bg-emerald-400 hover:text-slate-900 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Send className="h-4 w-4" />
               Send
@@ -292,7 +292,7 @@ Current HubSpot capabilities available to user.`
       <button
         type="button"
         onClick={() => setIsOpen((prev) => !prev)}
-        className="rounded-full bg-accent p-4 text-black shadow-lg hover:bg-emerald-400 transition duration-300 hover:scale-110"
+        className="rounded-full bg-accent p-4 text-slate-950 shadow-lg hover:bg-emerald-400 hover:text-slate-900 transition duration-300 hover:scale-110"
       >
         <MessageCircle className="h-6 w-6" />
       </button>

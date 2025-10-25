@@ -60,7 +60,7 @@ const HubSpotContactSearch: React.FC<HubSpotContactSearchProps> = ({ onSelectCon
           <button
             type="submit"
             disabled={loading}
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-black shadow-sm transition hover:bg-green-400 disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-slate-950 shadow-sm transition hover:bg-green-400 hover:text-slate-900 disabled:cursor-not-allowed disabled:opacity-60"
           >
             <Search className="h-4 w-4" />
             {loading ? 'Searching…' : 'Search'}
