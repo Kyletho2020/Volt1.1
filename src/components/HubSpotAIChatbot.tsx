@@ -15,6 +15,12 @@ interface HubSpotAIChatbotProps {
   onContactSelected?: (contact: HubSpotContact) => void
 }
 
+type AssistantTool = 'search_contact' | 'get_contact' | 'create_contact' | 'update_contact'
+
+type AssistantCommand =
+  | { type: 'response'; message: string }
+  | { type: 'tool'; tool: AssistantTool; message?: string; parameters?: Record<string, unknown> }
+
 const HubSpotAIChatbot: React.FC<HubSpotAIChatbotProps> = ({ onContactSelected }) => {
   const [isOpen, setIsOpen] = useState(false)
   const [messages, setMessages] = useState<Message[]>([
@@ -54,43 +60,96 @@ const HubSpotAIChatbot: React.FC<HubSpotAIChatbotProps> = ({ onContactSelected }
     return undefined
   }, [isOpen])
 
-  const generateLocalResponse = (userMessage: string): string => {
+  const generateLocalResponse = (userMessage: string): AssistantCommand => {
     const lower = userMessage.toLowerCase()
 
     if (lower.includes('search') || lower.includes('find')) {
       const nameMatch = userMessage.match(/(?:search|find)\s+(?:for\s+)?(?:contact\s+)?(.+?)(?:\?|$)/i)
       if (nameMatch) {
-        return `I'll search for ${nameMatch[1]} in HubSpot. Let me find that contact for you...`
+        return {
+          type: 'tool',
+          tool: 'search_contact',
+          message: `I'll search HubSpot for ${nameMatch[1].trim()}.`,
+          parameters: { query: nameMatch[1].trim() }
+        }
       }
+      return { type: 'response', message: "I can search HubSpot contacts for you. Let me know the person's name." }
     }
 
     if (lower.includes('create') || lower.includes('add')) {
-      return 'I can help you create a new contact or deal. What information would you like to add?'
+      return {
+        type: 'response',
+        message: 'Sure—share the contact details (name, email, phone, company) and I can add them to HubSpot.'
+      }
     }
 
     if (lower.includes('update') || lower.includes('change')) {
-      return 'I can update contact information for you. Which contact would you like to modify?'
+      return {
+        type: 'response',
+        message: 'Happy to help update a contact. Tell me which contact and the fields you want changed.'
+      }
     }
 
-    if (lower.includes('deal')) {
-      return 'I can help you manage deals. Would you like to create a new deal or update an existing one?'
+    return {
+      type: 'response',
+      message:
+        "I'm here to help with HubSpot contacts—searching, viewing details, creating new records, or updating existing ones."
     }
-
-    if (lower.includes('company')) {
-      return 'I can help with company information. What would you like to do?'
-    }
-
-    if (lower.includes('task') || lower.includes('activity')) {
-      return 'I can create tasks and activities for you. What would you like to schedule?'
-    }
-
-    return `I understand you're asking about ${userMessage.substring(0, 30)}... I can help with contacts, deals, companies, and more. Be specific, and I'll assist!`
   }
 
-  const callAI = async (userMessage: string, conversationHistory: Message[]): Promise<string> => {
+  const parseAssistantCommand = (raw: unknown): AssistantCommand | null => {
+    if (!raw || typeof raw !== 'object') {
+      return null
+    }
+
+    const maybeType = (raw as { type?: unknown }).type
+    const maybeMessage = (raw as { message?: unknown }).message
+    const maybeParameters = (raw as { parameters?: unknown }).parameters
+
+    if (maybeType === 'tool') {
+      const tool = (raw as { tool?: unknown }).tool
+      if (typeof tool === 'string' && ['search_contact', 'get_contact', 'create_contact', 'update_contact'].includes(tool)) {
+        return {
+          type: 'tool',
+          tool: tool as AssistantTool,
+          message: typeof maybeMessage === 'string' ? maybeMessage : undefined,
+          parameters:
+            maybeParameters && typeof maybeParameters === 'object'
+              ? (maybeParameters as Record<string, unknown>)
+              : undefined
+        }
+      }
+    }
+
+    if (maybeType === 'response' && typeof maybeMessage === 'string') {
+      return { type: 'response', message: maybeMessage }
+    }
+
+    if (typeof maybeMessage === 'string') {
+      return { type: 'response', message: maybeMessage }
+    }
+
+    return null
+  }
+
+  const callAI = async (userMessage: string, conversationHistory: Message[]): Promise<AssistantCommand> => {
     if (!USE_OPENAI) {
       return generateLocalResponse(userMessage)
     }
+
+    const systemPrompt = `You are an embedded HubSpot assistant inside a quoting application. Always respond with a pure JSON object matching this schema:
+{
+  "type": "response" | "tool",
+  "message": string (optional but recommended),
+  "tool": "search_contact" | "get_contact" | "create_contact" | "update_contact" (required when type is "tool"),
+  "parameters": object with the inputs for the tool (optional).
+}
+Never include markdown or additional commentary outside of the JSON. Available actions:
+- search_contact: parameters { "query": string } to find contacts by name. Use partial matching if needed.
+- get_contact: parameters { "id"?: string, "email"?: string } to retrieve full details.
+- create_contact: parameters may include "name", "firstName", "lastName", "email", "phone", "companyName", and address fields. Ask for missing required details before calling.
+- update_contact: parameters should specify "id" or "email" along with "updates" (object of fields such as firstName, lastName, email, phone, address info). Request clarification if details are missing.
+If a direct answer is more appropriate, return {"type":"response","message":"..."}.`
 
     try {
       const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -102,17 +161,7 @@ const HubSpotAIChatbot: React.FC<HubSpotAIChatbotProps> = ({ onContactSelected }
         body: JSON.stringify({
           model: 'gpt-3.5-turbo',
           messages: [
-            {
-              role: 'system',
-              content: `You are a helpful HubSpot Assistant. You can help users with:
-- Searching for contacts (respond with JSON: {"action": "search_contact", "name": "full name"})
-- Getting contact details
-- Managing deals and companies
-- Creating tasks and activities
-- Updating contact information
-Always be friendly and professional. If the user asks about a contact, respond with the JSON format above and the assistant will search it.
-Current HubSpot capabilities available to user.`
-            },
+            { role: 'system', content: systemPrompt },
             ...conversationHistory.map((msg) => ({
               role: msg.role,
               content: msg.content
@@ -122,8 +171,8 @@ Current HubSpot capabilities available to user.`
               content: userMessage
             }
           ],
-          temperature: 0.7,
-          max_tokens: 500
+          temperature: 0.4,
+          max_tokens: 700
         })
       })
 
@@ -133,47 +182,293 @@ Current HubSpot capabilities available to user.`
       }
 
       const data = await response.json()
-      return data.choices?.[0]?.message?.content || 'Sorry, I could not understand that.'
+      const rawContent = data.choices?.[0]?.message?.content
+      if (!rawContent) {
+        return generateLocalResponse(userMessage)
+      }
+
+      try {
+        const parsed = JSON.parse(rawContent)
+        const command = parseAssistantCommand(parsed)
+        if (command) {
+          return command
+        }
+      } catch (err) {
+        console.warn('Failed to parse AI JSON response:', err)
+      }
+
+      if (typeof rawContent === 'string') {
+        return { type: 'response', message: rawContent }
+      }
+
+      return generateLocalResponse(userMessage)
     } catch (err) {
       console.error('AI API error:', err)
       return generateLocalResponse(userMessage)
     }
   }
 
-  const handleSearchContact = async (contactName: string) => {
-    try {
-      const contacts = await HubSpotService.searchContactsByName(contactName, true)
-      if (contacts.length > 0) {
-        const contact = contacts[0]
-        const contactInfo = `Found: ${contact.firstName} ${contact.lastName}\nEmail: ${contact.email || 'N/A'}\nPhone: ${contact.phone || 'N/A'}\nCompany: ${contact.companyName || 'N/A'}`
+  const formatContact = (contact: HubSpotContact): string => {
+    const name = [contact.firstName, contact.lastName].filter(Boolean).join(' ') || 'Unnamed contact'
+    const details = [`Name: ${name}`, `Email: ${contact.email || 'N/A'}`, `Phone: ${contact.phone || 'N/A'}`]
+    if (contact.companyName) {
+      details.push(`Company: ${contact.companyName}`)
+    }
+    if (contact.contactAddress) {
+      details.push(`Address: ${contact.contactAddress}`)
+    }
+    return details.join('\n')
+  }
 
-        onContactSelected?.(contact)
-        return contactInfo
+  const getStringParam = (source: Record<string, unknown> | undefined, keys: string[]): string => {
+    if (!source) return ''
+    for (const key of keys) {
+      const value = source[key]
+      if (typeof value === 'string' && value.trim()) {
+        return value.trim()
       }
-      return `No contacts found for "${contactName}". Try searching with a different name.`
+    }
+    return ''
+  }
+
+  const splitName = (value: string): { firstName?: string; lastName?: string } => {
+    const parts = value.trim().split(/\s+/).filter(Boolean)
+    if (parts.length === 0) {
+      return {}
+    }
+    if (parts.length === 1) {
+      return { firstName: parts[0] }
+    }
+    const firstName = parts.shift() ?? ''
+    const lastName = parts.join(' ')
+    return { firstName, lastName }
+  }
+
+  const executeSearchContact = async (query: string): Promise<string> => {
+    try {
+      const contacts = await HubSpotService.searchContactsByName(query, true)
+      if (contacts.length === 0) {
+        return `I couldn't find any contacts that match "${query}".`
+      }
+
+      if (contacts.length === 1) {
+        const [contact] = contacts
+        onContactSelected?.(contact)
+        return `Here's what I found for "${query}":\n\n${formatContact(contact)}`
+      }
+
+      const summary = contacts
+        .slice(0, 3)
+        .map((contact, index) => `${index + 1}. ${formatContact(contact)}`)
+        .join('\n\n')
+
+      const additional = contacts.length > 3 ? `\n\nShowing the first 3 of ${contacts.length} matches.` : ''
+      return `I found ${contacts.length} contacts that might match "${query}":\n\n${summary}${additional}\n\nLet me know which contact you'd like to load or update.`
     } catch (err) {
       console.error('Search error:', err)
-      return 'Failed to search HubSpot. Please try again.'
+      return 'I ran into an issue searching HubSpot. Please try again.'
     }
   }
 
-  const parseAICommand = async (aiResponse: string, userMessage: string) => {
+  const executeGetContactDetails = async (parameters: Record<string, unknown> | undefined): Promise<string> => {
+    const id = getStringParam(parameters, ['id', 'contactId'])
+    const email = getStringParam(parameters, ['email'])
+
+    if (!id && !email) {
+      return 'Please share a HubSpot contact ID or email so I can look it up.'
+    }
+
     try {
-      const parsed = JSON.parse(aiResponse) as { action?: string; name?: string }
-      if (parsed.action === 'search_contact' && parsed.name) {
-        return handleSearchContact(parsed.name)
+      const contact = await HubSpotService.getContactDetails({ id, email })
+      if (!contact) {
+        return "I couldn't find a matching contact in HubSpot."
       }
-    } catch {
-      const lower = aiResponse.toLowerCase()
-      if (lower.includes('search') || lower.includes('find')) {
-        const nameMatch = userMessage.match(/(?:search|find)\s+(?:for\s+)?(?:contact\s+)?(.+?)(?:\?|$)/i)
-        if (nameMatch) {
-          return handleSearchContact(nameMatch[1])
-        }
+      onContactSelected?.(contact)
+      return `Here are the latest details:\n\n${formatContact(contact)}`
+    } catch (err) {
+      console.error('Contact lookup error:', err)
+      return 'I ran into an issue retrieving that contact.'
+    }
+  }
+
+  const executeCreateContact = async (parameters: Record<string, unknown> | undefined): Promise<string> => {
+    if (!parameters) {
+      return 'Please provide the new contact\'s name and any other details, and I\'ll add them to HubSpot.'
+    }
+
+    let firstName = getStringParam(parameters, ['firstName', 'firstname'])
+    let lastName = getStringParam(parameters, ['lastName', 'lastname'])
+    const fullName = getStringParam(parameters, ['name', 'fullName'])
+
+    if (fullName) {
+      const parts = splitName(fullName)
+      if (!firstName && parts.firstName) {
+        firstName = parts.firstName
+      }
+      if (!lastName && parts.lastName) {
+        lastName = parts.lastName
       }
     }
 
-    return aiResponse
+    if (!firstName && !lastName) {
+      return 'I need at least a first or last name to create the contact.'
+    }
+
+    const payload: Record<string, unknown> = {}
+    if (firstName) payload.firstName = firstName
+    if (lastName) payload.lastName = lastName
+
+    const email = getStringParam(parameters, ['email'])
+    if (email) payload.email = email
+
+    const phone = getStringParam(parameters, ['phone'])
+    if (phone) payload.phone = phone
+
+    const companyName = getStringParam(parameters, ['companyName', 'company'])
+    if (companyName) payload.companyName = companyName
+
+    const street = getStringParam(parameters, ['street', 'address', 'contactAddress'])
+    if (street) payload.contactAddress1 = street
+
+    const city = getStringParam(parameters, ['city', 'contactCity'])
+    if (city) payload.contactCity = city
+
+    const state = getStringParam(parameters, ['state', 'contactState'])
+    if (state) payload.contactState = state
+
+    const zip = getStringParam(parameters, ['zip', 'postalCode', 'contactZip'])
+    if (zip) payload.contactZip = zip
+
+    try {
+      const contact = await HubSpotService.createContact(payload)
+      onContactSelected?.(contact)
+      return `Contact created successfully!\n\n${formatContact(contact)}`
+    } catch (err) {
+      console.error('Create contact error:', err)
+      const message = err instanceof Error ? err.message : 'Failed to create contact.'
+      return `I couldn't create that contact: ${message}`
+    }
+  }
+
+  const executeUpdateContact = async (parameters: Record<string, unknown> | undefined): Promise<string> => {
+    if (!parameters) {
+      return 'Let me know which contact you want to update and the new details.'
+    }
+
+    const id = getStringParam(parameters, ['id', 'contactId'])
+    const email = getStringParam(parameters, ['email'])
+
+    let contactId = id
+    if (!contactId && email) {
+      try {
+        const contact = await HubSpotService.getContactDetails({ email })
+        if (!contact) {
+          return `I couldn't find a contact with the email ${email}.`
+        }
+        contactId = contact.id
+        onContactSelected?.(contact)
+      } catch (err) {
+        console.error('Lookup before update failed:', err)
+        return 'I was unable to load that contact before updating it.'
+      }
+    }
+
+    if (!contactId) {
+      return 'Please provide a contact email or HubSpot ID so I know which record to update.'
+    }
+
+    const updates: Record<string, unknown> = {}
+    const updatesParam = parameters.updates
+    if (updatesParam && typeof updatesParam === 'object') {
+      Object.assign(updates, updatesParam as Record<string, unknown>)
+    }
+
+    const inlineKeys = [
+      'firstName',
+      'lastName',
+      'phone',
+      'email',
+      'address',
+      'contactAddress',
+      'contactAddress1',
+      'city',
+      'state',
+      'zip',
+      'contactCity',
+      'contactState',
+      'contactZip',
+      'companyName'
+    ]
+
+    for (const key of inlineKeys) {
+      if (key in updates) continue
+      const value = getStringParam(parameters, [key])
+      if (value) {
+        updates[key] = value
+      }
+    }
+
+    const street = getStringParam(parameters, ['street'])
+    if (street && !('contactAddress1' in updates)) {
+      updates.contactAddress1 = street
+    }
+
+    if (Object.keys(updates).length === 0) {
+      return 'I need the new information you want to apply before I can update the contact.'
+    }
+
+    try {
+      await HubSpotService.updateContact(contactId, updates)
+      const updated = await HubSpotService.getContactDetails({ id: contactId }).catch(() => null)
+      if (updated) {
+        onContactSelected?.(updated)
+        return `Contact updated successfully.\n\n${formatContact(updated)}`
+      }
+      return 'Contact updated successfully.'
+    } catch (err) {
+      console.error('Update contact error:', err)
+      const message = err instanceof Error ? err.message : 'Failed to update contact.'
+      return `I wasn't able to update that contact: ${message}`
+    }
+  }
+
+  const handleAssistantCommand = async (command: AssistantCommand): Promise<string> => {
+    if (command.type === 'response') {
+      return command.message || "I'm here to help with HubSpot contacts."
+    }
+
+    const prefix = command.message ? `${command.message.trim()}\n\n` : ''
+    const parameters = command.parameters
+
+    try {
+      switch (command.tool) {
+        case 'search_contact': {
+          const query = getStringParam(parameters, ['query', 'name', 'contact'])
+          if (!query) {
+            return `${prefix}I need a name to search for in HubSpot.`
+          }
+          const result = await executeSearchContact(query)
+          return `${prefix}${result}`.trim()
+        }
+        case 'get_contact': {
+          const result = await executeGetContactDetails(parameters)
+          return `${prefix}${result}`.trim()
+        }
+        case 'create_contact': {
+          const result = await executeCreateContact(parameters)
+          return `${prefix}${result}`.trim()
+        }
+        case 'update_contact': {
+          const result = await executeUpdateContact(parameters)
+          return `${prefix}${result}`.trim()
+        }
+        default:
+          return `${prefix}I don't have a way to handle that action yet.`.trim()
+      }
+    } catch (err) {
+      console.error('Assistant command error:', err)
+      return `${prefix}Something went wrong while completing that HubSpot task.`.trim()
+    }
   }
 
   const handleSendMessage = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -198,8 +493,8 @@ Current HubSpot capabilities available to user.`
     setIsLoading(true)
 
     try {
-      const aiResponse = await callAI(trimmedInput, previousMessages)
-      const resolvedResponse = await parseAICommand(aiResponse, trimmedInput)
+      const assistantCommand = await callAI(trimmedInput, previousMessages)
+      const resolvedResponse = await handleAssistantCommand(assistantCommand)
 
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
