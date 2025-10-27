@@ -56,7 +56,10 @@ const HubSpotAIChatbot: React.FC<HubSpotAIChatbotProps> = ({ onContactSelected, 
     return undefined
   }, [isOpen])
 
-  const callHubSpotAI = async (userMessage: string): Promise<string> => {
+  const callHubSpotAI = async (
+    userMessage: string,
+    conversationHistory: Message[]
+  ): Promise<string> => {
     try {
       if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
         return 'System error: Supabase not configured. Please check your environment variables.'
@@ -71,6 +74,11 @@ const HubSpotAIChatbot: React.FC<HubSpotAIChatbotProps> = ({ onContactSelected, 
       }
 
       // Call the Supabase edge function for HubSpot AI
+      const simplifiedHistory = conversationHistory.slice(-5).map(({ role, content }) => ({
+        role,
+        content
+      }))
+
       const response = await fetch(`${SUPABASE_URL}/functions/v1/hubspot-chat-ai`, {
         method: 'POST',
         headers: {
@@ -80,7 +88,7 @@ const HubSpotAIChatbot: React.FC<HubSpotAIChatbotProps> = ({ onContactSelected, 
         body: JSON.stringify({
           message: userMessage.trim(),
           sessionId: sessionId,
-          conversationHistory: messages.slice(-5)
+          conversationHistory: simplifiedHistory
         }),
       })
 
@@ -180,7 +188,8 @@ const HubSpotAIChatbot: React.FC<HubSpotAIChatbotProps> = ({ onContactSelected, 
       content: userMessage,
       timestamp: new Date()
     }
-    setMessages(prev => [...prev, userMsg])
+    const nextMessages = [...messages, userMsg]
+    setMessages(nextMessages)
     setIsLoading(true)
 
     try {
@@ -194,7 +203,7 @@ const HubSpotAIChatbot: React.FC<HubSpotAIChatbotProps> = ({ onContactSelected, 
         }
       }
 
-      const aiResponse = await callHubSpotAI(userMessage)
+      const aiResponse = await callHubSpotAI(userMessage, nextMessages)
 
       const assistantMsg: Message = {
         id: (Date.now() + 1).toString(),
