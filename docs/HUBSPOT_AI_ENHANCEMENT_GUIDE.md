@@ -98,8 +98,9 @@ Make sure your `.env` file includes:
 # OpenAI Configuration
 VITE_OPENAI_API_KEY=your_openai_api_key_here
 
-# HubSpot Configuration (if not already set)
-VITE_HUBSPOT_API_KEY=your_hubspot_api_key_here
+# Supabase Configuration
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 ```
 
 ### 2. **Install Dependencies** (if needed)
@@ -221,7 +222,8 @@ await HubSpotService.getDeal(dealId)
 ### Issue: HubSpot Operations Fail
 
 **Solution:**
-- Verify `VITE_HUBSPOT_API_KEY` is configured
+- Confirm the HubSpot Supabase Edge Functions are deployed
+- Verify the `HUBSPOT_PRIVATE_APP_TOKEN` secret exists in Supabase
 - Check HubSpot account permissions
 - Ensure contact/deal exists before trying to update
 
