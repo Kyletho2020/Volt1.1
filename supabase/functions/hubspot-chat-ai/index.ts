@@ -1,4 +1,5 @@
 import { createClient } from 'npm:@supabase/supabase-js@2'
+import type { SupabaseClient } from 'npm:@supabase/supabase-js@2'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -145,6 +146,79 @@ const AVAILABLE_FUNCTIONS = [
   },
 ]
 
+const API_KEY_STORAGE_ID = 'c9f1ba25-04c8-4e36-b942-ff20dfa3d8b3'
+const API_KEY_ERROR_MESSAGE = 'OpenAI API key not configured. Please set up your API key first.'
+const textDecoder = new TextDecoder()
+
+function decodeBase64(value: string): Uint8Array {
+  return Uint8Array.from(atob(value), (char) => char.charCodeAt(0))
+}
+
+async function decryptStoredKey(encryptedKey: string, encryptionKeyB64: string): Promise<string> {
+  const [ivB64, cipherB64] = encryptedKey.split(':')
+  if (!ivB64 || !cipherB64) {
+    throw new Error('Invalid encrypted key format')
+  }
+
+  const cryptoKey = await crypto.subtle.importKey(
+    'raw',
+    decodeBase64(encryptionKeyB64),
+    { name: 'AES-GCM' },
+    false,
+    ['decrypt']
+  )
+
+  const decryptedBuffer = await crypto.subtle.decrypt(
+    { name: 'AES-GCM', iv: decodeBase64(ivB64) },
+    cryptoKey,
+    decodeBase64(cipherB64)
+  )
+
+  return textDecoder.decode(new Uint8Array(decryptedBuffer))
+}
+
+async function resolveOpenAIApiKey(supabaseClient: SupabaseClient): Promise<string> {
+  const apiKeyFromEnv = Deno.env.get('OPENAI_API_KEY')
+  if (apiKeyFromEnv?.startsWith('sk-')) {
+    return apiKeyFromEnv
+  }
+
+  const encryptionKeyB64 = Deno.env.get('API_KEY_ENCRYPTION_KEY')
+  if (!encryptionKeyB64) {
+    console.error('API_KEY_ENCRYPTION_KEY environment variable is not configured')
+    throw new Error(API_KEY_ERROR_MESSAGE)
+  }
+
+  const { data, error } = await supabaseClient
+    .from('api_key_storage')
+    .select('encrypted_key')
+    .eq('id', API_KEY_STORAGE_ID)
+    .single()
+
+  if (error) {
+    console.error('Failed to fetch stored OpenAI API key:', error)
+    throw new Error(API_KEY_ERROR_MESSAGE)
+  }
+
+  if (!data?.encrypted_key) {
+    console.error('No stored OpenAI API key found for the configured key ID')
+    throw new Error(API_KEY_ERROR_MESSAGE)
+  }
+
+  try {
+    const decryptedKey = await decryptStoredKey(data.encrypted_key, encryptionKeyB64)
+    if (!decryptedKey.startsWith('sk-')) {
+      console.error('Decrypted OpenAI API key has an unexpected format')
+      throw new Error(API_KEY_ERROR_MESSAGE)
+    }
+
+    return decryptedKey
+  } catch (decryptError) {
+    console.error('Unable to decrypt stored OpenAI API key:', decryptError)
+    throw new Error(API_KEY_ERROR_MESSAGE)
+  }
+}
+
 async function callHubSpotFunction(
   functionName: string,
   args: Record<string, unknown>,
@@ -210,10 +284,7 @@ Deno.serve(async (req) => {
 
     console.log('Processing chat request:', { sessionId, messageLength: message.length })
 
-    const apiKey = Deno.env.get('OPENAI_API_KEY')
-    if (!apiKey) {
-      throw new Error('OpenAI API key not configured')
-    }
+    const apiKey = await resolveOpenAIApiKey(supabaseClient)
 
     const messages: OpenAIMessage[] = [
       { role: 'system', content: SYSTEM_PROMPT },
