@@ -8,8 +8,9 @@ Add to your `.env` file:
 # Required for AI capabilities
 VITE_OPENAI_API_KEY=sk-...your-openai-key...
 
-# Required for HubSpot integration
-VITE_HUBSPOT_API_KEY=...your-hubspot-api-key...
+# Supabase auth
+VITE_SUPABASE_URL=...your-supabase-url...
+VITE_SUPABASE_ANON_KEY=...your-supabase-anon-key...
 ```
 
 ## 2. Component Usage
@@ -81,7 +82,8 @@ function App() {
 - Try local fallback mode (works without API key)
 
 **HubSpot operations failing?**
-- Verify VITE_HUBSPOT_API_KEY is set
+- Make sure the Supabase Edge Functions are deployed
+- Verify the `HUBSPOT_PRIVATE_APP_TOKEN` secret is configured in Supabase
 - Check HubSpot account permissions
 - Ensure contact/record exists before updating
 
@@ -110,12 +112,11 @@ The chatbot uses Tailwind CSS classes. Customize colors and sizes in the compone
 2. Create new secret key
 3. Copy and paste into `.env`
 
-### Get HubSpot API Key
+### Configure HubSpot Private App Token
 1. Go to HubSpot app settings
 2. Navigate to "Integrations" → "Private apps"
-3. Create new private app
-4. Generate access token
-5. Copy and paste into `.env`
+3. Create or reuse the private app that powers your other assistants
+4. Copy the access token and store it as `HUBSPOT_PRIVATE_APP_TOKEN` in your Supabase project secrets
 
 ## 8. Performance Tips
 

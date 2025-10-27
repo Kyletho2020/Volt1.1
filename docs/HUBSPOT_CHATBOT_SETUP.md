@@ -55,7 +55,6 @@ serve(async (req) => {
 
     // Get API keys from environment
     const openaiApiKey = Deno.env.get("OPENAI_API_KEY")
-    const hubspotApiKey = Deno.env.get("HUBSPOT_API_KEY")
 
     if (!openaiApiKey) {
       console.error("Missing OPENAI_API_KEY")
@@ -124,7 +123,7 @@ Add to your Supabase project secrets:
 
 ```bash
 OPENAI_API_KEY=sk-...your-openai-key...
-HUBSPOT_API_KEY=...your-hubspot-api-key...
+HUBSPOT_PRIVATE_APP_TOKEN=...your-hubspot-private-app-token...
 ```
 
 ### 3. Deploy Edge Function
