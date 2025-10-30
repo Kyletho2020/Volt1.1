@@ -34,7 +34,6 @@ import { createLogisticsPiece } from './lib/logisticsPieces'
 import { parseAddressParts } from './lib/address'
 import { HubSpotContact } from './services/hubspotService'
 import { QuoteService } from './services/quoteService'
-import HubSpotAIChatbot from './components/HubSpotAIChatbot'
 
 type TemplateType = 'email' | 'scope' | 'logistics'
 
@@ -100,7 +99,6 @@ const App: React.FC = () => {
   const [isQuickSaving, setIsQuickSaving] = useState(false)
   const [quickSaveMessage, setQuickSaveMessage] = useState<string | null>(null)
   const [quickSaveState, setQuickSaveState] = useState<'idle' | 'success' | 'error'>('idle')
-  const [assistantSelectedContact, setAssistantSelectedContact] = useState<HubSpotContact | null>(null)
 
   const handleOpenExtractor = (mode: 'all' | 'logistics' | 'scope') => {
     setExtractorMode(mode)
@@ -142,7 +140,6 @@ const App: React.FC = () => {
 
   const handleSelectHubSpotContact = (contact: HubSpotContact) => {
     baseHandleSelectHubSpotContact(contact)
-    setAssistantSelectedContact(contact)
     setLogisticsData(prev => ({
       ...prev,
       pickupAddress: contact.contactAddress1 || contact.companyAddress1 || prev.pickupAddress,
@@ -497,19 +494,6 @@ const App: React.FC = () => {
       <div className="absolute inset-0 -z-20 bg-[radial-gradient(circle_at_82%_12%,rgba(56,189,248,0.18),transparent_62%)]" />
       <div className="absolute -top-48 -left-48 -z-10 h-[28rem] w-[28rem] rounded-full bg-accent/30 blur-[150px] opacity-80" />
       <div className="absolute -bottom-40 right-[-6rem] -z-10 h-[26rem] w-[26rem] rounded-full bg-sky-500/25 blur-[160px] opacity-70" />
-
-      <HubSpotAIChatbot onContactSelected={handleSelectHubSpotContact} sessionId={sessionId} />
-
-      {assistantSelectedContact && (
-        <div className="fixed bottom-32 right-6 z-30 max-w-xs rounded-lg border border-accent/20 bg-accent/10 p-4 backdrop-blur">
-          <p className="text-sm font-semibold text-white">
-            {assistantSelectedContact.firstName} {assistantSelectedContact.lastName}
-          </p>
-          {assistantSelectedContact.email ? (
-            <p className="text-xs text-slate-300">{assistantSelectedContact.email}</p>
-          ) : null}
-        </div>
-      )}
 
       <header className="relative z-10 border-b border-accent/10">
         <div className="mx-auto flex max-w-7xl flex-col gap-8 px-4 py-10 sm:px-6 lg:px-8">
