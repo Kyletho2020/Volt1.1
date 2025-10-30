@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Avatar,
   Box,
@@ -14,11 +14,14 @@ import {
   TextArea,
   Tooltip,
 } from '@hubspot/ui-extensions';
-
-type BreezeCrmCardAppProps = {
-  context: any;
-  actions: any;
-};
+import {
+  createChatSocket,
+  createCrmRecord,
+  sendPromptRequest,
+  updateCrmRecord,
+  type CrmRecordStatus,
+} from '../../../services/sidebarChatService';
+import { useSessionId } from '../../../hooks/useSessionId';
 
 type TranscriptRole = 'assistant' | 'user';
 
@@ -27,6 +30,42 @@ type TranscriptMessage = {
   role: TranscriptRole;
   content: string;
   timestamp: string;
+};
+
+type HubSpotExtensionProperties = Record<string, unknown>;
+
+type TranscriptHistoryEntry = {
+  id?: string;
+  role?: TranscriptRole;
+  content?: string;
+  timestamp?: string;
+};
+
+type HubSpotExtensionContext = {
+  object?: {
+    id?: string;
+    objectTypeId?: string;
+    properties?: HubSpotExtensionProperties;
+  };
+  objectId?: string;
+  objectTypeId?: string;
+  record?: {
+    id?: string;
+    objectTypeId?: string;
+    properties?: HubSpotExtensionProperties;
+  };
+  properties?: HubSpotExtensionProperties;
+  extensionData?: {
+    transcriptHistory?: TranscriptHistoryEntry[];
+    sessionId?: string;
+    crmRecordId?: string;
+    crmRecordStatus?: CrmRecordStatus;
+  };
+  user?: {
+    firstName?: string;
+    email?: string;
+    id?: string;
+  };
 };
 
 type PropertyConfig = {
@@ -58,40 +97,65 @@ const seededTranscript: TranscriptMessage[] = [
     id: 'intro',
     role: 'assistant',
     content:
-      'Hey there! I\'m Breeze — your HubSpot AI copilot. Ask me to review this record, enrich missing details, or draft a follow-up.',
+      "Hey there! I'm Breeze — your HubSpot AI copilot. Ask me to review this record, enrich missing details, or draft a follow-up.",
     timestamp: new Date().toISOString(),
   },
   {
     id: 'user-followup',
     role: 'user',
-    content: 'Can you summarize what\'s missing on this contact record?',
+    content: "Can you summarize what's missing on this contact record?",
     timestamp: new Date().toISOString(),
   },
   {
     id: 'assistant-gap',
     role: 'assistant',
     content:
-      'Looks like we are missing a confirmed phone number and title. I can add what we discussed on the call below — just hit save when you\'re ready.',
+      "Looks like we are missing a confirmed phone number and title. I can add what we discussed on the call below — just hit save when you're ready.",
     timestamp: new Date().toISOString(),
   },
 ];
 
-const BreezeCrmCardApp: React.FC<BreezeCrmCardAppProps> = ({ context, actions }) => {
-  const objectProperties =
-    context?.object?.properties ?? context?.record?.properties ?? context?.properties ?? {};
+type BreezeCrmCardAppProps = {
+  context: HubSpotExtensionContext;
+  actions?: Record<string, unknown>;
+};
 
-  const objectId = context?.objectId ?? context?.record?.id ?? context?.object?.id;
-  const objectTypeId =
-    context?.objectTypeId ?? context?.record?.objectTypeId ?? context?.object?.objectTypeId;
+const BreezeCrmCardApp: React.FC<BreezeCrmCardAppProps> = ({ context }) => {
+  const objectProperties: HubSpotExtensionProperties = useMemo(() => {
+    const base =
+      context.object?.properties ??
+      context.record?.properties ??
+      context.properties ??
+      {};
 
+    return (base ?? {}) as HubSpotExtensionProperties;
+  }, [context.object?.properties, context.record?.properties, context.properties]);
+
+  const objectId = context.objectId ?? context.record?.id ?? context.object?.id;
+  const objectTypeId = context.objectTypeId ?? context.record?.objectTypeId ?? context.object?.objectTypeId;
+
+  const fallbackSessionId = useSessionId();
+  const [sessionId, setSessionId] = useState<string | null>(
+    context?.extensionData?.sessionId ?? null,
+  );
+  const [crmRecordId, setCrmRecordId] = useState<string | null>(
+    context?.extensionData?.crmRecordId ?? null,
+  );
+  const [crmRecordStatus, setCrmRecordStatus] = useState<CrmRecordStatus | null>(
+    context?.extensionData?.crmRecordStatus ?? null,
+  );
   const [messages, setMessages] = useState<TranscriptMessage[]>(() => {
-    const incoming: TranscriptMessage[] =
-      context?.extensionData?.transcriptHistory?.map((entry: any, index: number) => ({
+    const history = context.extensionData?.transcriptHistory ?? [];
+    const incoming: TranscriptMessage[] = history.map((entry, index) => {
+      const role: TranscriptRole = entry.role === 'user' ? 'user' : 'assistant';
+
+      return {
         id: entry.id ?? `incoming-${index}`,
-        role: entry.role ?? 'assistant',
+        role,
         content: entry.content ?? '',
         timestamp: entry.timestamp ?? new Date().toISOString(),
-      })) ?? [];
+      };
+    });
 
     return incoming.length > 0 ? incoming : seededTranscript;
   });
@@ -118,29 +182,251 @@ const BreezeCrmCardApp: React.FC<BreezeCrmCardAppProps> = ({ context, actions })
   const [isSaving, setIsSaving] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isStreaming, setIsStreaming] = useState(false);
+  const socketRef = useRef<WebSocket | null>(null);
+  const pendingMessagesRef = useRef<Map<string, string>>(new Map());
 
-  const handleSend = () => {
+  useEffect(() => {
+    if (!sessionId && fallbackSessionId) {
+      setSessionId(fallbackSessionId);
+    }
+  }, [fallbackSessionId, sessionId]);
+
+  const stableSessionId = useMemo(
+    () => sessionId ?? fallbackSessionId ?? null,
+    [sessionId, fallbackSessionId],
+  );
+
+  useEffect(() => {
+    if (!stableSessionId) {
+      return;
+    }
+
+    const existingSocket = socketRef.current;
+    if (
+      existingSocket &&
+      (existingSocket.readyState === WebSocket.OPEN ||
+        existingSocket.readyState === WebSocket.CONNECTING)
+    ) {
+      return;
+    }
+
+    try {
+      const socket = createChatSocket(stableSessionId);
+      socketRef.current = socket;
+
+      socket.onopen = () => {
+      };
+
+      socket.onerror = (event) => {
+        console.error('Chat socket error', event);
+        socket.close();
+      };
+
+      socket.onclose = () => {
+        if (socketRef.current === socket) {
+          socketRef.current = null;
+        }
+      };
+
+      socket.onmessage = (event) => {
+        try {
+          const parsed = JSON.parse(event.data);
+          handleSocketMessage(parsed);
+        } catch (error) {
+          console.error('Failed to parse chat socket payload', error);
+        }
+      };
+
+      return () => {
+        socket.close();
+      };
+    } catch (error) {
+      console.error('Unable to establish chat socket', error);
+    }
+  }, [stableSessionId, handleSocketMessage]);
+
+  const handleSocketMessage = useCallback(
+    (payload: unknown) => {
+      if (!payload || typeof payload !== 'object') {
+        return;
+      }
+
+      const envelope = payload as Record<string, unknown>;
+      const type = typeof envelope.type === 'string' ? envelope.type : undefined;
+      const nonceValue = envelope.nonce;
+      const incomingSessionId = typeof envelope.sessionId === 'string' ? envelope.sessionId : undefined;
+
+      if (incomingSessionId && incomingSessionId.trim().length > 0 && incomingSessionId !== sessionId) {
+        setSessionId(incomingSessionId);
+      }
+
+      const nonceKey =
+        typeof nonceValue === 'string'
+          ? nonceValue
+          : typeof nonceValue === 'number'
+            ? String(nonceValue)
+            : null;
+
+      const placeholderId = nonceKey ? pendingMessagesRef.current.get(nonceKey) ?? null : null;
+
+      const finalizeMessage = (content: string) => {
+        if (placeholderId && nonceKey) {
+          pendingMessagesRef.current.delete(nonceKey);
+          setMessages((prev) =>
+            prev.map((message) =>
+              message.id === placeholderId
+                ? {
+                    ...message,
+                    content,
+                    timestamp: new Date().toISOString(),
+                  }
+                : message,
+            ),
+          );
+        } else {
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: `assistant-${Date.now()}`,
+              role: 'assistant',
+              content,
+              timestamp: new Date().toISOString(),
+            },
+          ]);
+        }
+      };
+
+      if (type === 'ack') {
+        return;
+      }
+
+      if (type === 'response') {
+        const replyText =
+          typeof envelope.reply === 'string' && envelope.reply.trim().length > 0
+            ? envelope.reply
+            : 'I did not receive a response, but I am still here if you need anything else.';
+        finalizeMessage(replyText);
+        setIsStreaming(false);
+        return;
+      }
+
+      if (type === 'error') {
+        const errorMessage =
+          typeof envelope.message === 'string' && envelope.message.length > 0
+            ? envelope.message
+            : 'Something went wrong while processing that request.';
+        finalizeMessage(`I hit a snag: ${errorMessage}`);
+        setError(errorMessage);
+        setIsStreaming(false);
+      }
+    },
+    [sessionId],
+  );
+
+  const handleSend = async () => {
     if (!draft.trim()) {
       return;
     }
 
+    const trimmed = draft.trim();
+    const nonce = `assistant-${Date.now()}`;
+
     const nextMessage: TranscriptMessage = {
       id: `draft-${Date.now()}`,
       role: 'user',
-      content: draft.trim(),
+      content: trimmed,
       timestamp: new Date().toISOString(),
     };
 
     const acknowledgement: TranscriptMessage = {
-      id: `assistant-${Date.now()}`,
+      id: nonce,
       role: 'assistant',
       content:
-        'On it! I\'ll prep those updates. Confirm or tweak the properties below and hit Save to sync everything with HubSpot.',
+        "On it! I'm reviewing the record and will draft the updates in just a second.",
       timestamp: new Date().toISOString(),
     };
 
     setMessages((prev) => [...prev, nextMessage, acknowledgement]);
     setDraft('');
+    setFeedback(null);
+    setError(null);
+    setIsStreaming(true);
+
+    const metadataPayload: Record<string, unknown> = {
+      objectId: objectId ?? null,
+      objectTypeId: objectTypeId ?? null,
+      stagedProperties: properties,
+    };
+
+    const outboundSessionId = sessionId ?? stableSessionId ?? undefined;
+
+    const sendWithSocket = () => {
+      const socket = socketRef.current;
+      if (!socket || socket.readyState !== WebSocket.OPEN) {
+        return false;
+      }
+
+      pendingMessagesRef.current.set(nonce, nonce);
+      socket.send(
+        JSON.stringify({
+          type: 'prompt',
+          sessionId: outboundSessionId,
+          message: trimmed,
+          metadata: metadataPayload,
+          nonce,
+        }),
+      );
+      return true;
+    };
+
+    if (sendWithSocket()) {
+      return;
+    }
+
+    try {
+      const response = await sendPromptRequest({
+        sessionId: outboundSessionId,
+        message: trimmed,
+        metadata: metadataPayload,
+      });
+
+      if (response.sessionId && response.sessionId !== sessionId) {
+        setSessionId(response.sessionId);
+      }
+
+      setMessages((prev) =>
+        prev.map((message) =>
+          message.id === nonce
+            ? {
+                ...message,
+                content:
+                  response.reply?.length > 0
+                    ? response.reply
+                    : 'I did not receive a response, but I am still here if you need anything else.',
+                timestamp: new Date().toISOString(),
+              }
+            : message,
+        ),
+      );
+    } catch (err: unknown) {
+      const messageText =
+        err instanceof Error ? err.message : 'Failed to reach the assistant. Please try again.';
+      setMessages((prev) =>
+        prev.map((message) =>
+          message.id === nonce
+            ? {
+                ...message,
+                content: `I ran into an error: ${messageText}`,
+                timestamp: new Date().toISOString(),
+              }
+            : message,
+        ),
+      );
+      setError(messageText);
+    } finally {
+      setIsStreaming(false);
+    }
   };
 
   const handlePropertyChange = (key: string, value: string) => {
@@ -193,52 +479,126 @@ const BreezeCrmCardApp: React.FC<BreezeCrmCardAppProps> = ({ context, actions })
   const handleSaveProperties = async () => {
     setIsSaving(true);
     setError(null);
-    setFeedback(null);
+    setFeedback('Syncing updates with HubSpot...');
 
     const propertiesToPersist: Record<string, string> = {};
 
     Object.entries(properties).forEach(([key, value]) => {
-      if (value !== undefined && value !== null && value !== '') {
+      if (value !== undefined && value !== null && String(value).trim() !== '') {
         propertiesToPersist[key] = value;
       }
     });
 
-    if (!objectId || !objectTypeId) {
-      setError('Unable to determine the current CRM record.');
+    if (!objectTypeId) {
+      setError('Unable to determine the current CRM object type.');
       setIsSaving(false);
       return;
     }
 
-    try {
-      const crmActions = actions?.crm ?? {};
-      const updateProperties =
-        crmActions?.properties?.update ?? crmActions?.updateProperties ?? crmActions?.record?.update;
+    if (Object.keys(propertiesToPersist).length === 0) {
+      setFeedback('Add at least one property update before saving.');
+      setIsSaving(false);
+      return;
+    }
 
-      if (typeof updateProperties !== 'function') {
-        throw new Error('CRM update actions are unavailable in this context.');
+    const confirmationId = `crm-sync-${Date.now()}`;
+    setMessages((prev) => [
+      ...prev,
+      {
+        id: confirmationId,
+        role: 'assistant',
+        content: "Perfect! I'm syncing those updates with HubSpot right now.",
+        timestamp: new Date().toISOString(),
+      },
+    ]);
+
+    const metadataPayload: Record<string, unknown> = {
+      source: 'hubspot-sidebar',
+      requestedBy: context?.user?.email ?? context?.user?.id ?? null,
+      newPropertyKeys,
+    };
+
+    try {
+      let record = null;
+
+      if (crmRecordId) {
+        record = await updateCrmRecord(crmRecordId, {
+          objectId: objectId ?? null,
+          properties: propertiesToPersist,
+          metadata: metadataPayload,
+        });
+      } else {
+        record = await createCrmRecord({
+          objectTypeId,
+          objectId: objectId ?? null,
+          properties: propertiesToPersist,
+          metadata: metadataPayload,
+        });
+        setCrmRecordId(record.id);
       }
 
-      await updateProperties({
-        objectId,
-        objectTypeId,
-        properties: propertiesToPersist,
-      });
+      setCrmRecordStatus(record.status);
 
-      setFeedback('CRM record updated with the latest Breeze suggestions.');
-      setError(null);
-
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: `confirmation-${Date.now()}`,
-          role: 'assistant',
-          content: 'All set! I published those updates to HubSpot. Need me to log a follow-up task?',
-          timestamp: new Date().toISOString(),
-        },
-      ]);
+      if (record.status === 'synced') {
+        setFeedback('CRM record synced with HubSpot successfully.');
+        setMessages((prev) =>
+          prev.map((message) =>
+            message.id === confirmationId
+              ? {
+                  ...message,
+                  content:
+                    "All set! I published those updates to HubSpot. Want me to prep anything else?",
+                  timestamp: new Date().toISOString(),
+                }
+              : message,
+          ),
+        );
+      } else if (record.status === 'failed') {
+        const failureMessage = record.error ?? 'HubSpot rejected the update.';
+        setFeedback('Saved your changes, but HubSpot returned an error.');
+        setError(failureMessage);
+        setMessages((prev) =>
+          prev.map((message) =>
+            message.id === confirmationId
+              ? {
+                  ...message,
+                  content: `I tried to sync with HubSpot but hit an error: ${failureMessage}`,
+                  timestamp: new Date().toISOString(),
+                }
+              : message,
+          ),
+        );
+      } else {
+        setFeedback("Saved your updates. I'll keep working on the HubSpot sync.");
+        setMessages((prev) =>
+          prev.map((message) =>
+            message.id === confirmationId
+              ? {
+                  ...message,
+                  content:
+                    "Saved those updates locally. I'll keep nudging HubSpot until everything is published.",
+                  timestamp: new Date().toISOString(),
+                }
+              : message,
+          ),
+        );
+      }
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Failed to update HubSpot properties.';
       setError(message);
+      setFeedback(null);
+      setCrmRecordStatus('failed');
+      setMessages((prev) =>
+        prev.map((note) =>
+          note.id === confirmationId
+            ? {
+                ...note,
+                content: `I couldn't sync those updates: ${message}`,
+                timestamp: new Date().toISOString(),
+              }
+            : note,
+        ),
+      );
     } finally {
       setIsSaving(false);
     }
@@ -253,6 +613,17 @@ const BreezeCrmCardApp: React.FC<BreezeCrmCardAppProps> = ({ context, actions })
       return [...basePropertyConfig, ...dynamicEntries];
     },
     [customDefinitions],
+  );
+
+  const readyValueCount = useMemo(
+    () =>
+      Object.values(properties).filter((value) => {
+        if (value === undefined || value === null) {
+          return false;
+        }
+        return String(value).trim().length > 0;
+      }).length,
+    [properties],
   );
 
   return (
@@ -381,7 +752,8 @@ const BreezeCrmCardApp: React.FC<BreezeCrmCardAppProps> = ({ context, actions })
               variant="primary"
               onClick={handleSend}
               icon={<Icon name="send" />}
-              disabled={!draft.trim()}
+              disabled={!draft.trim() || isStreaming}
+              loading={isStreaming}
             >
               Send to Breeze
             </Button>
@@ -400,9 +772,23 @@ const BreezeCrmCardApp: React.FC<BreezeCrmCardAppProps> = ({ context, actions })
             <Text variant="heading-sm" color="white">
               CRM property updates
             </Text>
-            <Tag variant="outline" color="green">
-              {Object.values(properties).filter(Boolean).length} values ready
-            </Tag>
+            <Flex align="center" style={{ columnGap: '8px', rowGap: '8px', flexWrap: 'wrap' }}>
+              <Tag variant="outline" color="green">
+                {readyValueCount} values ready
+              </Tag>
+              {crmRecordStatus && (
+                <Tag
+                  variant="outline"
+                  color={crmRecordStatus === 'synced' ? 'green' : crmRecordStatus === 'failed' ? 'red' : 'blue'}
+                >
+                  {crmRecordStatus === 'synced'
+                    ? 'HubSpot synced'
+                    : crmRecordStatus === 'failed'
+                      ? 'Needs retry'
+                      : 'Sync pending'}
+                </Tag>
+              )}
+            </Flex>
           </Flex>
 
           <Stack style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>

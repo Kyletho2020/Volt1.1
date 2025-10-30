@@ -1,7 +1,10 @@
 import express from 'express'
+import { createServer } from 'http'
 import { env } from './env.js'
 import chatRoutes from './routes/chatRoutes.js'
 import hubspotRoutes from './routes/hubspotRoutes.js'
+import crmRoutes from './routes/crmRoutes.js'
+import { registerChatGateway } from './services/chatGateway.js'
 
 const app = express()
 
@@ -13,6 +16,7 @@ app.get('/health', (_req, res) => {
 
 app.use('/api/chat', chatRoutes)
 app.use('/api/hubspot', hubspotRoutes)
+app.use('/api/crm', crmRoutes)
 
 app.use(
   // eslint-disable-next-line no-unused-vars
@@ -23,10 +27,15 @@ app.use(
   }
 )
 
+const server = createServer(app)
+
+registerChatGateway(server)
+
 if (env.NODE_ENV !== 'test') {
-  app.listen(env.PORT, () => {
+  server.listen(env.PORT, () => {
     console.log(`Service listening on port ${env.PORT}`)
   })
 }
 
+export { server }
 export default app
