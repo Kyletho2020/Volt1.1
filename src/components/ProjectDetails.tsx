@@ -151,7 +151,7 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({
         <button
           type="button"
           onClick={clearSection}
-          className="inline-flex items-center gap-2 rounded-xl border border-accent/30 bg-accent-soft/40 px-3 py-2 text-sm font-medium text-accent transition hover:border-accent hover:bg-accent/10 hover:text-accent"
+          className="inline-flex items-center gap-2 rounded-xl border border-accent/30 bg-accent-soft/40 px-3 py-2 text-sm font-medium text-accent transition hover:border-accent hover:bg-accent/10 hover:text-white"
         >
           <X className="h-4 w-4" />
           Clear Section
@@ -165,7 +165,7 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({
           type="button"
           onClick={handleSaveContact}
           disabled={Object.keys(pendingUpdates).length === 0}
-          className="mb-2 inline-flex items-center gap-2 rounded-xl bg-accent px-3 py-2 text-sm font-semibold text-slate-950 shadow-sm transition hover:bg-green-400 hover:text-slate-900 disabled:cursor-not-allowed disabled:opacity-60"
+          className="mb-2 inline-flex items-center gap-2 rounded-xl bg-accent px-3 py-2 text-sm font-semibold text-black shadow-sm transition hover:bg-green-400 disabled:cursor-not-allowed disabled:opacity-60"
         >
           <Save className="h-4 w-4" />
           Save to HubSpot

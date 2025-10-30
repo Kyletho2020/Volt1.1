@@ -18,36 +18,7 @@ VITE_SUPABASE_ANON_KEY=your-anon-key
 VITE_SUPABASE_MANUAL_KEY=your-service-role-key
 VITE_API_KEY_ENCRYPTION_KEY=base64-encoded-32-byte-key
 API_KEY_ENCRYPTION_KEY=base64-encoded-32-byte-key
-VITE_HUBSPOT_PORTAL_ID=your-hubspot-portal-id
-# Optional: override if your HubSpot account uses a different region such as eu1 or ap1
-VITE_HUBSPOT_REGION=na1
-# Optional: local development tokens used by Supabase Edge Functions
-OPENAI_API_KEY=your-openai-api-key
-HUBSPOT_PRIVATE_APP_TOKEN=your-hubspot-private-app-token
 ```
-
-### Secure credential storage
-
-For deployed environments, Supabase Edge Functions read the HubSpot token and LLM credentials from Supabase Secrets instead of the
-`.env` file. Set or update the secrets with the Supabase CLI:
-
-```bash
-supabase secrets set \
-  OPENAI_API_KEY="sk-your-openai-api-key" \
-  HUBSPOT_PRIVATE_APP_TOKEN="your-hubspot-private-app-token"
-```
-
-Policies for managing these credentials:
-
-- **Rotation cadence:** Issue new HubSpot private app tokens and LLM API keys at least every 90 days, or immediately after staff
-  changes or suspected compromise.
-- **Rotation process:** Generate the new credential, update the Supabase secret with the CLI command above, redeploy the relevant
-  Edge Functions, and only then revoke the old credential from HubSpot or the LLM provider.
-- **Emergency revocation:** Run `supabase secrets unset HUBSPOT_PRIVATE_APP_TOKEN OPENAI_API_KEY` to remove compromised values,
-  redeploy the functions, and revoke the credential directly in HubSpot or the LLM provider dashboard.
-- **Least privilege:** Create dedicated credentials scoped only to the operations required by this application.
-
-Commit the `.env` file to `.gitignore` (already configured) and never store production secrets in the repository history.
 
 Start the development server:
 
