@@ -11,6 +11,8 @@
     "test": "vitest"
   },
   "dependencies": {
+    "@hubspot/ui-extensions": "^0.9.5",
+    "@hubspot/ui-extensions-react": "^0.9.5",
     "@supabase/supabase-js": "^2.51.0",
     "express": "^5.1.0",
     "lucide-react": "^0.344.0",
