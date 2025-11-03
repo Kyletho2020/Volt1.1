@@ -46,6 +46,7 @@ const trailerOptions = ['Dovetail', 'Flatbed', 'Lowboy', 'Step Deck']
 
 const additionalEquipmentOptions = [
   'Material Handler',
+  'Spreader Bar',
   '1-ton Gantry',
   '5-ton Gantry',
   "8'x20' Metal Plate",
