@@ -104,7 +104,7 @@ export const generateEmailTemplate = (
   const siteAddress = equipmentData.siteAddress || '[site address]'
   const scopeOfWork = equipmentData.scopeOfWork || '[Scope of Work]'
 
-  return `Quote - ${projectName}\n\nDear ${contactFirstName},\n\nI hope this email finds you well. Thank you for considering Omega Morgan for the scope of work attached and summarized below.\n\nPROJECT DETAILS:\n• Project Name: ${projectName}\n• Site Contact: ${contactFirstName}\n• Project Location: ${siteAddress}\n\nSCOPE OF WORK:\n\n${scopeOfWork}\n\nThank you for your time and consideration. I look forward to hearing from you soon.\n\nBest regards,`
+  return `Quote - ${projectName}\n\nHello ${contactFirstName},\n\nI hope this email finds you well. Thank you for considering Omega Morgan for the scope of work attached and summarized below.\n\nPROJECT DETAILS:\n• Project Name: ${projectName}\n• Site Contact: ${contactFirstName}\n• Project Location: ${siteAddress}\n\nSCOPE OF WORK:\n\n${scopeOfWork}\n\nThank you for your time and consideration. I look forward to hearing from you soon.\n\nBest regards,`
 }
 
 export const generateScopeTemplate = (
