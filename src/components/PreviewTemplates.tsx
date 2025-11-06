@@ -97,14 +97,14 @@ export const generateEmailTemplate = (
   _equipmentRequirements: any
 ) => {
   const projectName = equipmentData.projectName || '[project name]'
-  const contactName = equipmentData.contactName || '[site contact]'
+  const contactName = equipmentData.contactName || '[Site Contact]'
   const contactFirstName = equipmentData.contactName
     ? equipmentData.contactName.trim().split(/\s+/)[0]
     : contactName
   const siteAddress = equipmentData.siteAddress || '[site address]'
   const scopeOfWork = equipmentData.scopeOfWork || '[Scope of Work]'
 
-  return `Quote - ${projectName}\n\nHello ${contactFirstName},\n\nI hope this email finds you well. Thank you for considering Omega Morgan for the scope of work attached and summarized below.\n\nPROJECT DETAILS:\n• Project Name: ${projectName}\n• Site Contact: ${contactFirstName}\n• Project Location: ${siteAddress}\n\nSCOPE OF WORK:\n\n${scopeOfWork}\n\nThank you for your time and consideration. I look forward to hearing from you soon.\n\nBest regards,`
+  return `Quote - ${projectName}\n\nHello ${contactFirstName},\n\nI hope this email finds you well. Thank you for considering Omega Morgan for the scope of work attached and summarized below.\n\nPROJECT DETAILS:\n• Project Name: ${projectName}\n• Site Contact: ${contactName}\n• Project Location: ${siteAddress}\n\nSCOPE OF WORK:\n${scopeOfWork}\n\nTo move forward, we'll just need the Mobile or credit account form completed along with the signed quote. Once we have those, we can get everything scheduled.\n\nThank you for your time and consideration. I look forward to hearing from you soon.\n\nBest regards,`
 }
 
 export const generateScopeTemplate = (
