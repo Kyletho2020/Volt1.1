@@ -133,7 +133,7 @@ const buildEquipmentItems = (
 
   return [
     crewDescription,
-    'gear truck and trailer',
+    'Gear truck and trailer',
     ...forklifts.map((item: any) =>
       formatEquipmentItem(item.quantity, item.name)
     ),
