@@ -89,12 +89,86 @@ const parseWeight = (value: any) => {
   return numericValue
 }
 
+const safeArray = (value: any) => (Array.isArray(value) ? value : [])
+
+const formatEquipmentItem = (quantity: number, name: string) => {
+  const normalizedName = normalizeEquipmentName(name)
+  const needsPlural =
+    quantity > 1 && !normalizedName.toLowerCase().endsWith('s')
+
+  return quantity > 1
+    ? `${quantity} ${needsPlural ? `${normalizedName}s` : normalizedName}`
+    : normalizedName
+}
+
+const ensureTrailerDescriptor = (name: string) =>
+  name.toLowerCase().includes('trailer') ? name : `${name} trailer`
+
+const buildEquipmentItems = (
+  equipmentRequirements: any,
+  includeCrew: boolean
+) => {
+  if (!equipmentRequirements) {
+    return []
+  }
+
+  const crewSize = equipmentRequirements.crewSize || ''
+  const forklifts = safeArray(equipmentRequirements.forklifts).filter(
+    (item: any) => item.quantity > 0
+  )
+  const tractors = safeArray(equipmentRequirements.tractors).filter(
+    (item: any) => item.quantity > 0
+  )
+  const trailers = safeArray(equipmentRequirements.trailers).filter(
+    (item: any) => item.quantity > 0
+  )
+  const additionalEquipment = safeArray(
+    equipmentRequirements.additionalEquipment
+  ).filter((item: any) => item.quantity > 0)
+
+  const crewDescription =
+    includeCrew && crewSize
+      ? `${crewSize === '8' ? 'an' : 'a'} ${crewSize}-man crew`
+      : ''
+
+  return [
+    crewDescription,
+    'gear truck and trailer',
+    ...forklifts.map((item: any) =>
+      formatEquipmentItem(item.quantity, item.name)
+    ),
+    ...tractors.map((item: any) =>
+      formatEquipmentItem(item.quantity, item.name)
+    ),
+    ...trailers.map((item: any) =>
+      formatEquipmentItem(item.quantity, ensureTrailerDescriptor(item.name))
+    ),
+    ...additionalEquipment.map((item: any) =>
+      formatEquipmentItem(item.quantity, item.name)
+    )
+  ].filter(Boolean)
+}
+
+const formatEquipmentList = (items: string[]) => {
+  if (items.length === 0) return ''
+  if (items.length === 1) return items[0]
+  if (items.length === 2) return `${items[0]} and ${items[1]}`
+  return `${items.slice(0, -1).join(', ')} and ${items[items.length - 1]}`
+}
+
+const buildEquipmentSummary = (
+  equipmentRequirements: any,
+  options: { includeCrew?: boolean } = {}
+) => {
+  const includeCrew = options.includeCrew ?? true
+  const items = buildEquipmentItems(equipmentRequirements, includeCrew)
+  return formatEquipmentList(items)
+}
+
 export const generateEmailTemplate = (
   equipmentData: any,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _logisticsData: any,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  _equipmentRequirements: any
+  equipmentRequirements: any
 ) => {
   const projectName = equipmentData.projectName || '[project name]'
   const contactName = equipmentData.contactName || '[Site Contact]'
@@ -103,8 +177,14 @@ export const generateEmailTemplate = (
     : contactName
   const siteAddress = equipmentData.siteAddress || '[site address]'
   const scopeOfWork = equipmentData.scopeOfWork || '[Scope of Work]'
+  const equipmentSummary =
+    buildEquipmentSummary(equipmentRequirements, { includeCrew: false }) ||
+    '[Equipment List]'
+  const crewSizeDescription = equipmentRequirements?.crewSize
+    ? `${equipmentRequirements.crewSize}-person crew`
+    : '[Crew Size]'
 
-  return `Quote - ${projectName}\n\nHello ${contactFirstName},\n\nI hope this email finds you well. Thank you for considering Omega Morgan for the scope of work attached and summarized below.\n\nPROJECT DETAILS:\n• Project Name: ${projectName}\n• Site Contact: ${contactName}\n• Project Location: ${siteAddress}\n\nSCOPE OF WORK:\n${scopeOfWork}\n\nTo move forward, we'll just need the Mobile or credit account form completed along with the signed quote. Once we have those, we can get everything scheduled.\n\nThank you for your time and consideration. I look forward to hearing from you soon.\n\nBest regards,`
+  return `Quote - ${projectName}\n\nHello ${contactFirstName},\n\nI hope this email finds you well. Thank you for considering Omega Morgan for the scope of work attached and summarized below.\n\nPROJECT DETAILS:\n• Project Name: ${projectName}\n• Site Contact: ${contactName}\n• Project Location: ${siteAddress}\n- Omega Morgan Supplied Equipment: ${equipmentSummary}\n- Omega Morgan crew size: ${crewSizeDescription}\n\nSCOPE OF WORK:\n${scopeOfWork}\n\nTo move forward, we'll just need the Mobile or credit account form completed along with the signed quote. Once we have those, we can get everything scheduled.\n\nThank you for your time and consideration. I look forward to hearing from you soon.\n\nBest regards,`
 }
 
 export const generateScopeTemplate = (
@@ -118,52 +198,7 @@ export const generateScopeTemplate = (
   const shopLocation = equipmentData.shopLocation || '[Shop]'
   const scopeOfWork = equipmentData.scopeOfWork || ''
 
-  const crewSize = equipmentRequirements.crewSize || ''
-  const forklifts = (equipmentRequirements.forklifts || []).filter((f: any) => f.quantity > 0)
-  const tractors = (equipmentRequirements.tractors || []).filter((t: any) => t.quantity > 0)
-  const trailers = (equipmentRequirements.trailers || []).filter((t: any) => t.quantity > 0)
-  const additionalEquipment = (equipmentRequirements.additionalEquipment || []).filter(
-    (item: any) => item.quantity > 0
-  )
-
-  const formatEquipmentItem = (quantity: number, name: string) => {
-    const normalizedName = normalizeEquipmentName(name)
-    const needsPlural =
-      quantity > 1 && !normalizedName.toLowerCase().endsWith('s')
-    return quantity > 1
-      ? `${quantity} ${needsPlural ? `${normalizedName}s` : normalizedName}`
-      : normalizedName
-  }
-
-  const crewDescription = crewSize
-    ? `${crewSize === '8' ? 'an' : 'a'} ${crewSize}-man crew`
-    : ''
-
-  const equipmentItems = [
-    crewDescription,
-    'gear truck and trailer',
-    ...forklifts.map((f: any) => formatEquipmentItem(f.quantity, f.name)),
-    ...tractors.map((t: any) => formatEquipmentItem(t.quantity, t.name)),
-    ...trailers.map((t: any) =>
-      formatEquipmentItem(
-        t.quantity,
-        t.name.toLowerCase().includes('trailer')
-          ? t.name
-          : `${t.name} trailer`
-      )
-    ),
-    ...additionalEquipment.map((item: any) => formatEquipmentItem(item.quantity, item.name))
-  ].filter(Boolean)
-
-  const equipmentSummary = (() => {
-    if (equipmentItems.length === 0) return ''
-    if (equipmentItems.length === 1) return equipmentItems[0]
-    if (equipmentItems.length === 2)
-      return `${equipmentItems[0]} and ${equipmentItems[1]}`
-    return `${equipmentItems.slice(0, -1).join(', ')} and ${
-      equipmentItems[equipmentItems.length - 1]
-    }`
-  })()
+  const equipmentSummary = buildEquipmentSummary(equipmentRequirements)
 
   const storageLine = logisticsData.includeStorage
     ? `Storage: ${
