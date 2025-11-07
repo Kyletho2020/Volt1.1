@@ -184,7 +184,7 @@ export const generateEmailTemplate = (
     ? `${equipmentRequirements.crewSize}-person crew`
     : '[Crew Size]'
 
-  return `Hello ${contactFirstName},\n\nI hope this email finds you well. Thank you for considering Omega Morgan for the scope of work attached and summarized below.\n\nPROJECT DETAILS:\n• Project Name: ${projectName}\n• Site Contact: ${contactName}\n• Project Location: ${siteAddress}\n• Omega Morgan Supplied Equipment: ${equipmentSummary}\n• Omega Morgan crew size: ${crewSizeDescription}\n\nSCOPE OF WORK:\n${scopeOfWork}\n\nTo move forward, we'll just need the Mobile or credit account form completed along with the signed quote. Once we have those, we can get everything scheduled.\n\nThank you for your time and consideration. I look forward to hearing from you soon.\n\nBest regards,`
+  return `Hello ${contactFirstName},\n\nThank you for partnering with Omega Morgan on the upcoming work at ${siteAddress}. Our team is looking forward to supporting you and ensuring everything moves smoothly. Below is a quick summary of the plan we discussed.\n\nPROJECT OVERVIEW\n• Project Name: ${projectName}\n• Site Contact: ${contactName}\n• Location: ${siteAddress}\n• Omega Morgan Equipment: ${equipmentSummary}\n• Crew on Site: ${crewSizeDescription}\n\nWORK PLAN\n${scopeOfWork}\n\nNEXT STEPS\nTo lock in the schedule, please return the completed Mobile or credit account form along with the signed quote. If any questions come up in the meantime, feel free to reach out and I'll be glad to help.\n\nWe appreciate the opportunity to work with you and your team.\n\nBest regards,`
 }
 
 export const generateScopeTemplate = (
