@@ -428,8 +428,8 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({
                   field.onChange(e)
                   handleFieldChange('scopeOfWork', e.target.value)
                 }}
-                rows={3}
-                className={`w-full resize-none ${inputClasses}`}
+                rows={4}
+                className={`w-full resize-y min-h-[120px] ${inputClasses}`}
                 placeholder="Describe scope of work"
               />
               {errors.scopeOfWork && (
