@@ -10,7 +10,8 @@ import {
   Save,
   Copy,
   CheckCircle,
-  Bot
+  Bot,
+  Mail
 } from 'lucide-react'
 import HubSpotContactSearch from './HubSpotContactSearch'
 import { HubSpotContact, HubSpotService } from '../services/hubspotService'
@@ -319,6 +320,34 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({
             )
           })()}
         </div>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-white mb-2">
+          <Mail className="w-4 h-4 inline mr-1" />
+          Contact Email
+        </label>
+        {(() => {
+          const field = register('email')
+          return (
+            <>
+              <input
+                type="email"
+                value={data.email || ''}
+                onChange={(e) => {
+                  field.onChange(e)
+                  handleFieldChange('email', e.target.value)
+                }}
+                className={`w-full ${inputClasses}`}
+                placeholder="name@example.com"
+                autoComplete="email"
+              />
+              {errors.email && (
+                <p className="text-red-500 text-xs mt-1">{String(errors.email.message)}</p>
+              )}
+            </>
+          )
+        })()}
       </div>
 
       <div>
