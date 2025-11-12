@@ -20,7 +20,10 @@ const readLocalQuotes = (): SavedQuote[] => {
     if (!Array.isArray(parsed)) {
       return []
     }
-    return parsed as SavedQuote[]
+    return (parsed as Partial<SavedQuote>[]).map(quote => ({
+      ...quote,
+      email: quote.email ?? null
+    })) as SavedQuote[]
   } catch (error) {
     console.error('Failed to read local quotes store:', error)
     return []
@@ -52,6 +55,7 @@ export interface QuoteListItem {
   project_name: string | null
   company_name: string | null
   contact_name: string | null
+  email: string | null
   created_at: string
   updated_at: string
 }
@@ -62,6 +66,7 @@ export interface SavedQuote {
   project_name: string | null
   company_name: string | null
   contact_name: string | null
+  email: string | null
   site_phone: string | null
   shop_location: string | null
   site_address: string | null
@@ -117,6 +122,7 @@ export class QuoteService {
       project_name: equipmentData.projectName || null,
       company_name: equipmentData.companyName || null,
       contact_name: equipmentData.contactName || null,
+      email: equipmentData.email || null,
       site_phone: equipmentData.sitePhone || null,
       shop_location: equipmentData.shopLocation || null,
       site_address: equipmentData.siteAddress || null,
@@ -177,6 +183,7 @@ export class QuoteService {
         project_name: quoteData.project_name,
         company_name: quoteData.company_name,
         contact_name: quoteData.contact_name,
+        email: quoteData.email,
         site_phone: quoteData.site_phone,
         shop_location: quoteData.shop_location,
         site_address: quoteData.site_address,
@@ -229,12 +236,13 @@ export class QuoteService {
       return quotes
         .sort((a, b) => b.updated_at.localeCompare(a.updated_at))
         .slice(0, 50)
-        .map(({ id, quote_number, project_name, company_name, contact_name, created_at, updated_at }) => ({
+        .map(({ id, quote_number, project_name, company_name, contact_name, email, created_at, updated_at }) => ({
           id,
           quote_number,
           project_name,
           company_name,
           contact_name,
+          email: email ?? null,
           created_at,
           updated_at
         }))
@@ -243,7 +251,7 @@ export class QuoteService {
     try {
       const { data, error } = await supabase!
         .from('quotes')
-        .select('id, quote_number, project_name, company_name, contact_name, created_at, updated_at')
+        .select('id, quote_number, project_name, company_name, contact_name, email, created_at, updated_at')
         .order('updated_at', { ascending: false })
         .limit(50)
 
@@ -251,7 +259,10 @@ export class QuoteService {
         throw new Error(error.message)
       }
 
-      return data || []
+      return (data || []).map(item => ({
+        ...item,
+        email: item.email ?? null
+      }))
     } catch (error) {
       console.error('Error listing quotes:', error)
       return []
@@ -316,19 +327,21 @@ export class QuoteService {
             quote.quote_number,
             quote.project_name || '',
             quote.company_name || '',
-            quote.contact_name || ''
+            quote.contact_name || '',
+            quote.email || ''
           ]
 
           return values.some(value => value.toLowerCase().includes(lowerTerm))
         })
         .sort((a, b) => b.updated_at.localeCompare(a.updated_at))
         .slice(0, 20)
-        .map(({ id, quote_number, project_name, company_name, contact_name, created_at, updated_at }) => ({
+        .map(({ id, quote_number, project_name, company_name, contact_name, email, created_at, updated_at }) => ({
           id,
           quote_number,
           project_name,
           company_name,
           contact_name,
+          email: email ?? null,
           created_at,
           updated_at
         }))
@@ -337,8 +350,8 @@ export class QuoteService {
     try {
       const { data, error } = await supabase!
         .from('quotes')
-        .select('id, quote_number, project_name, company_name, contact_name, created_at, updated_at')
-        .or(`quote_number.ilike.%${searchTerm}%,project_name.ilike.%${searchTerm}%,company_name.ilike.%${searchTerm}%,contact_name.ilike.%${searchTerm}%`)
+        .select('id, quote_number, project_name, company_name, contact_name, email, created_at, updated_at')
+        .or(`quote_number.ilike.%${searchTerm}%,project_name.ilike.%${searchTerm}%,company_name.ilike.%${searchTerm}%,contact_name.ilike.%${searchTerm}%,email.ilike.%${searchTerm}%`)
         .order('updated_at', { ascending: false })
         .limit(20)
 
@@ -346,7 +359,10 @@ export class QuoteService {
         throw new Error(error.message)
       }
 
-      return data || []
+      return (data || []).map(item => ({
+        ...item,
+        email: item.email ?? null
+      }))
     } catch (error) {
       console.error('Error searching quotes:', error)
       return []

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useEffect } from 'react'
-import { Archive, Search, Trash2, Download, Save, X, Calendar, Building, User, FileText, Loader, CheckCircle, AlertCircle, Plus } from 'lucide-react'
+import { Archive, Search, Trash2, Download, Save, X, Calendar, Building, User, FileText, Loader, CheckCircle, AlertCircle, Plus, Mail } from 'lucide-react'
 import { QuoteService, QuoteListItem } from '../services/quoteService'
 
 interface QuoteHistoryModalProps {
@@ -155,7 +155,7 @@ const QuoteHistoryModal: React.FC<QuoteHistoryModalProps> = ({
           shopLocation: quote.shop_location || 'Shop',
           siteAddress: quote.site_address || '',
           scopeOfWork: quote.scope_of_work || '',
-          email: '',
+          email: quote.email || '',
         }
 
         const defaultRequirements = {
@@ -308,6 +308,10 @@ const QuoteHistoryModal: React.FC<QuoteHistoryModalProps> = ({
                     <User className="w-4 h-4 mr-2" />
                     <span>{currentEquipmentData.contactName || 'No contact'}</span>
                   </div>
+                  <div className="flex items-center">
+                    <Mail className="w-4 h-4 mr-2" />
+                    <span>{currentEquipmentData.email || 'No email provided'}</span>
+                  </div>
                 </div>
               </div>
 
@@ -407,6 +411,15 @@ const QuoteHistoryModal: React.FC<QuoteHistoryModalProps> = ({
                               <User className="w-3 h-3 text-gray-400 mr-2 flex-shrink-0" />
                               <span className="text-sm text-gray-300 truncate">
                                 {quote.company_name}
+                              </span>
+                            </div>
+                          )}
+
+                          {quote.email && (
+                            <div className="flex items-center mb-1">
+                              <Mail className="w-3 h-3 text-gray-400 mr-2 flex-shrink-0" />
+                              <span className="text-sm text-gray-300 truncate">
+                                {quote.email}
                               </span>
                             </div>
                           )}
