@@ -18,7 +18,12 @@ VITE_SUPABASE_ANON_KEY=your-anon-key
 VITE_SUPABASE_MANUAL_KEY=your-service-role-key
 VITE_API_KEY_ENCRYPTION_KEY=base64-encoded-32-byte-key
 API_KEY_ENCRYPTION_KEY=base64-encoded-32-byte-key
+VITE_HUBSPOT_PORTAL_ID=your-hubspot-portal-id
+# Optional: override if your HubSpot account uses a different region such as eu1 or ap1
+VITE_HUBSPOT_REGION=na1
 ```
+
+You can find your HubSpot portal (account) ID by signing in to HubSpot, clicking your account name in the top-right corner, and looking for the numeric **Portal ID** in the dropdown or by visiting **Settings → Account Defaults** where it is listed near the top of the page.
 
 Start the development server:
 
