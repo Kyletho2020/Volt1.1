@@ -56,6 +56,7 @@ const App: React.FC = () => {
     handleLogisticsChange,
     handlePieceChange,
     addPiece,
+    duplicatePiece,
     removePiece,
     togglePieceSelection,
     deleteSelectedPieces,
@@ -715,6 +716,7 @@ const App: React.FC = () => {
                     onFieldChange={handleLogisticsChange}
                     onPieceChange={handlePieceChange}
                     addPiece={addPiece}
+                    duplicatePiece={duplicatePiece}
                     removePiece={removePiece}
                     togglePieceSelection={togglePieceSelection}
                     deleteSelectedPieces={deleteSelectedPieces}

@@ -6,7 +6,9 @@ import {
   Trash2,
   ArrowUp,
   ArrowDown,
-  Bot
+  Bot,
+  Copy,
+  Info
 } from 'lucide-react'
 import { UseFormRegister, FieldErrors } from 'react-hook-form'
 import type { LogisticsData, LogisticsPiece } from '../types'
@@ -30,6 +32,7 @@ interface LogisticsFormProps {
     value: string | number
   ) => void
   addPiece: () => void
+  duplicatePiece: (pieceId: string) => void
   removePiece: (pieceId: string) => void
   togglePieceSelection: (pieceId: string) => void
   deleteSelectedPieces: () => void
@@ -46,6 +49,7 @@ const LogisticsForm: React.FC<LogisticsFormProps> = ({
   onFieldChange,
   onPieceChange,
   addPiece,
+  duplicatePiece,
   removePiece,
   togglePieceSelection,
   deleteSelectedPieces,
@@ -55,6 +59,7 @@ const LogisticsForm: React.FC<LogisticsFormProps> = ({
   register,
   errors
 }) => {
+  const [showApproximateInfo, setShowApproximateInfo] = React.useState(false)
   const containerClasses =
     'relative overflow-hidden rounded-2xl border border-accent/20 bg-surface/70 p-4 shadow-[0_18px_60px_rgba(10,18,35,0.45)] backdrop-blur'
   const inputClasses =
@@ -145,6 +150,18 @@ const LogisticsForm: React.FC<LogisticsFormProps> = ({
               </div>
               <div className="flex flex-wrap items-center gap-2">
                 <button
+                  type="button"
+                  onClick={() => setShowApproximateInfo(prev => !prev)}
+                  className={`inline-flex items-center gap-1 rounded-lg border px-2.5 py-1.5 text-[11px] font-semibold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent/50 ${
+                    showApproximateInfo
+                      ? 'border-accent/30 bg-accent/10 text-accent'
+                      : 'border-accent/20 bg-surface/50 text-slate-200 hover:border-accent/40 hover:text-white'
+                  }`}
+                >
+                  <Info className="h-3 w-3" />
+                  {showApproximateInfo ? 'Hide Approx. Notice' : 'Approx. Notice'}
+                </button>
+                <button
                   onClick={deleteSelectedPieces}
                   disabled={selectedPieces.length === 0}
                   className="inline-flex items-center gap-1 rounded-lg bg-red-600/80 px-2.5 py-1.5 text-[11px] font-semibold text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-40"
@@ -161,6 +178,15 @@ const LogisticsForm: React.FC<LogisticsFormProps> = ({
                 </button>
               </div>
             </div>
+
+            {showApproximateInfo && (
+              <div className="mt-3 rounded-lg border border-accent/25 bg-accent/10 p-3 text-[12px] text-accent">
+                <p className="font-medium uppercase tracking-[0.2em] text-accent/80">Approximate Measurements</p>
+                <p className="mt-1 text-xs leading-relaxed text-accent/90">
+                  The listed weights and dimensions are estimates for planning purposes and may be refined after on-site verification. Coordinate with your logistics specialist to validate critical handling requirements.
+                </p>
+              </div>
+            )}
 
             <div className="mt-3 space-y-2 text-white">
               {(data.pieces ?? []).map((piece, index) => (
@@ -217,6 +243,13 @@ const LogisticsForm: React.FC<LogisticsFormProps> = ({
                         title="Move down"
                       >
                         <ArrowDown className="h-3.5 w-3.5" />
+                      </button>
+                      <button
+                        onClick={() => duplicatePiece(piece.id)}
+                        className="rounded-md p-1 text-emerald-300 transition hover:bg-emerald-400/10"
+                        title="Duplicate item"
+                      >
+                        <Copy className="h-3.5 w-3.5" />
                       </button>
                       <button
                         onClick={() => removePiece(piece.id)}
