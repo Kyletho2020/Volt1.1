@@ -39,6 +39,7 @@ test('LogisticsForm renders Logistics Quote heading', () => {
       onFieldChange={() => {}}
       onPieceChange={() => {}}
       addPiece={() => {}}
+      duplicatePiece={() => {}}
       removePiece={() => {}}
       togglePieceSelection={() => {}}
       deleteSelectedPieces={() => {}}

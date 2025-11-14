@@ -78,6 +78,26 @@ export const useLogisticsForm = () => {
     }));
   };
 
+  const duplicatePiece = (pieceId: string) => {
+    setLogisticsData(prev => {
+      const pieces = prev.pieces ? [...prev.pieces] : [];
+      const index = pieces.findIndex(piece => piece.id === pieceId);
+
+      if (index === -1) {
+        return prev;
+      }
+
+      const { id: _ignored, ...pieceData } = pieces[index];
+      const duplicatedPiece = createLogisticsPiece(pieceData);
+      pieces.splice(index + 1, 0, duplicatedPiece);
+
+      return {
+        ...prev,
+        pieces
+      };
+    });
+  };
+
   const removePiece = (pieceId: string) => {
     setLogisticsData(prev => {
       if (!prev.pieces || prev.pieces.length <= 1) {
@@ -154,6 +174,7 @@ export const useLogisticsForm = () => {
     handleLogisticsChange,
     handlePieceChange,
     addPiece,
+    duplicatePiece,
     removePiece,
     togglePieceSelection,
     deleteSelectedPieces,
