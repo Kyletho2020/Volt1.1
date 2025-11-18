@@ -42,7 +42,7 @@ const forkliftOptions = [
 
 const tractorOptions = ['3-axle tractor', '4-axle tractor', 'Rollback']
 
-const trailerOptions = ['Dovetail', 'Flatbed', 'Lowboy', 'Step Deck']
+const trailerOptions = ['Dovetail', 'Flatbed', 'Lowboy', 'Step Deck', 'Curtain Trailer']
 
 const additionalEquipmentOptions = [
   'Material Handler',
