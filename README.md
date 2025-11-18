@@ -90,6 +90,7 @@ Encryption produces a value formatted as `iv:ciphertext`, where both parts are B
 - Flatbed
 - Lowboy
 - Step Deck
+- Curtain Trailer
 
 ### Material Handling & Rigging
 
