@@ -24,7 +24,6 @@ export interface LogisticsPiece {
 
 export interface LogisticsData {
   pieces?: LogisticsPiece[]
-  dimensionUnit?: 'in' | 'ft'
   pickupAddress?: string
   pickupCity?: string
   pickupState?: string
