@@ -59,7 +59,80 @@ const LogisticsForm: React.FC<LogisticsFormProps> = ({
   register,
   errors
 }) => {
-  const [showApproximateInfo, setShowApproximateInfo] = React.useState(false)
+  const [approximateLabelEnabled, setApproximateLabelEnabled] = React.useState(false)
+  const [dimensionUnit, setDimensionUnit] = React.useState<'in' | 'ft'>('in')
+
+  const APPROX_PATTERN = /\s*\(approx\.\)$/i
+
+  const stripApproxSuffix = (value: string) => value.replace(APPROX_PATTERN, '').trim()
+
+  const titleCase = (value: string) =>
+    value
+      .toLowerCase()
+      .replace(/\b([a-z])/g, (_, char) => char.toUpperCase())
+
+  const applyApproxSuffix = (value: string) =>
+    value ? `${value} (approx.)` : value
+
+  const formatDescriptionValue = (rawValue: string) => {
+    const normalizedWhitespace = rawValue.replace(/\s+/g, ' ').trim()
+    const withoutApprox = stripApproxSuffix(normalizedWhitespace)
+    const capitalized = titleCase(withoutApprox)
+    return approximateLabelEnabled ? applyApproxSuffix(capitalized) : capitalized
+  }
+
+  const parseMeasurement = (value: string | number | undefined) => {
+    if (typeof value === 'number') return value
+    if (!value) return null
+    const sanitized = value.replace(/[^0-9.-]/g, '')
+    const parsed = parseFloat(sanitized)
+    return Number.isFinite(parsed) ? parsed : null
+  }
+
+  const formatMeasurement = (value: number) => {
+    if (!Number.isFinite(value)) return ''
+    const fixed = value % 1 === 0 ? value.toFixed(0) : value.toFixed(2)
+    return fixed.replace(/\.0+$/, '').replace(/(\.\d*[1-9])0+$/, '$1')
+  }
+
+  const handleDimensionUnitChange = (unit: 'in' | 'ft') => {
+    if (unit === dimensionUnit) return
+    const factor = unit === 'ft' ? 1 / 12 : 12
+
+    data.pieces?.forEach((piece, pieceIndex) => {
+      ;(['length', 'width', 'height'] as const).forEach(field => {
+        const numericValue = parseMeasurement(piece[field])
+        if (numericValue === null) return
+        const convertedValue = numericValue * factor
+        const formattedValue = formatMeasurement(convertedValue)
+        onPieceChange(pieceIndex, field, formattedValue)
+      })
+    })
+
+    setDimensionUnit(unit)
+  }
+
+  const toggleApproximateLabels = () => {
+    setApproximateLabelEnabled(prev => {
+      const next = !prev
+      data.pieces?.forEach((piece, index) => {
+        const baseDescription = stripApproxSuffix(piece.description || '')
+        const capitalized = titleCase(baseDescription)
+        const updatedDescription = next
+          ? applyApproxSuffix(capitalized)
+          : capitalized
+        onPieceChange(index, 'description', updatedDescription)
+      })
+      return next
+    })
+  }
+
+  const createSyntheticEvent = (
+    name: string,
+    value: string
+  ): React.ChangeEvent<HTMLInputElement> => ({
+    target: { name, value }
+  } as React.ChangeEvent<HTMLInputElement>)
   const containerClasses =
     'relative overflow-hidden rounded-2xl border border-accent/20 bg-surface/70 p-4 shadow-[0_18px_60px_rgba(10,18,35,0.45)] backdrop-blur'
   const inputClasses =
@@ -151,16 +224,37 @@ const LogisticsForm: React.FC<LogisticsFormProps> = ({
               <div className="flex flex-wrap items-center gap-2">
                 <button
                   type="button"
-                  onClick={() => setShowApproximateInfo(prev => !prev)}
+                  onClick={toggleApproximateLabels}
                   className={`inline-flex items-center gap-1 rounded-lg border px-2.5 py-1.5 text-[11px] font-semibold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent/50 ${
-                    showApproximateInfo
+                    approximateLabelEnabled
                       ? 'border-accent/30 bg-accent/10 text-accent'
                       : 'border-accent/20 bg-surface/50 text-slate-200 hover:border-accent/40 hover:text-white'
                   }`}
+                  aria-pressed={approximateLabelEnabled}
                 >
                   <Info className="h-3 w-3" />
-                  {showApproximateInfo ? 'Hide Approx. Notice' : 'Approx. Notice'}
+                  {approximateLabelEnabled ? 'Remove Approx.' : 'Add Approx.'}
                 </button>
+                <div className="flex items-center rounded-lg border border-accent/20 bg-surface/60 text-[11px] font-semibold text-slate-200">
+                  <span className="px-2 py-1 text-[10px] uppercase tracking-[0.2em] text-slate-400">
+                    Dimensions
+                  </span>
+                  {(['in', 'ft'] as const).map(unit => (
+                    <button
+                      key={unit}
+                      type="button"
+                      onClick={() => handleDimensionUnitChange(unit)}
+                      className={`px-2.5 py-1 transition ${
+                        dimensionUnit === unit
+                          ? 'bg-accent/20 text-accent'
+                          : 'text-slate-300 hover:text-white'
+                      }`}
+                      aria-pressed={dimensionUnit === unit}
+                    >
+                      {unit === 'in' ? 'Inches' : 'Feet'}
+                    </button>
+                  ))}
+                </div>
                 <button
                   onClick={deleteSelectedPieces}
                   disabled={selectedPieces.length === 0}
@@ -179,13 +273,10 @@ const LogisticsForm: React.FC<LogisticsFormProps> = ({
               </div>
             </div>
 
-            {showApproximateInfo && (
-              <div className="mt-3 rounded-lg border border-accent/25 bg-accent/10 p-3 text-[12px] text-accent">
-                <p className="font-medium uppercase tracking-[0.2em] text-accent/80">Approximate Measurements</p>
-                <p className="mt-1 text-xs leading-relaxed text-accent/90">
-                  The listed weights and dimensions are estimates for planning purposes and may be refined after on-site verification. Coordinate with your logistics specialist to validate critical handling requirements.
-                </p>
-              </div>
+            {approximateLabelEnabled && (
+              <p className="mt-2 text-[11px] text-accent/80">
+                Item names are now tagged with <span className="font-semibold">(approx.)</span> to highlight estimated measurements.
+              </p>
             )}
 
             <div className="mt-3 space-y-2 text-white">
@@ -205,19 +296,20 @@ const LogisticsForm: React.FC<LogisticsFormProps> = ({
                       #{index + 1}
                     </span>
                     {(() => {
-                      const field = register(`pieces.${index}.description` as const)
-                      return (
-                        <div className="flex-1 min-w-[180px]">
-                          <input
-                            type="text"
-                            value={piece.description}
-                            onChange={(e) => {
-                              field.onChange(e)
-                              onPieceChange(index, 'description', e.target.value)
-                            }}
-                            className={`${inputClasses} w-full text-sm`}
-                            placeholder="Item description (e.g., Electronics box, Furniture)"
-                          />
+                          const field = register(`pieces.${index}.description` as const)
+                          return (
+                            <div className="flex-1 min-w-[180px]">
+                              <input
+                                type="text"
+                                value={piece.description}
+                                onChange={(e) => {
+                                  const formattedValue = formatDescriptionValue(e.target.value)
+                                  field.onChange(createSyntheticEvent(field.name, formattedValue))
+                                  onPieceChange(index, 'description', formattedValue)
+                                }}
+                                className={`${inputClasses} w-full text-sm`}
+                                placeholder="Item description (e.g., Electronics box, Furniture)"
+                              />
                           {errors.pieces?.[index]?.description && (
                             <p className="mt-1 text-[11px] text-red-400">
                               {String(errors.pieces[index]?.description?.message)}
@@ -300,7 +392,7 @@ const LogisticsForm: React.FC<LogisticsFormProps> = ({
                               <label className="mb-1 block text-[11px] uppercase tracking-wide text-slate-400">
                                 {field === 'weight'
                                   ? 'Weight (lbs)'
-                                  : `${field.charAt(0).toUpperCase() + field.slice(1)} (in)`}
+                                  : `${field.charAt(0).toUpperCase() + field.slice(1)} (${dimensionUnit === 'in' ? 'in' : 'ft'})`}
                               </label>
                               <input
                                 type="text"
@@ -310,7 +402,11 @@ const LogisticsForm: React.FC<LogisticsFormProps> = ({
                                   onPieceChange(index, field, e.target.value)
                                 }}
                                 className={`${inputClasses} w-full text-center`}
-                                placeholder={field === 'weight' ? '0' : '0"'}
+                                placeholder={field === 'weight'
+                                  ? '0'
+                                  : dimensionUnit === 'in'
+                                    ? '0"'
+                                    : '0 ft'}
                               />
                               {errors.pieces?.[index]?.[field] && (
                                 <p className="mt-1 text-[11px] text-red-400">
@@ -342,9 +438,11 @@ const LogisticsForm: React.FC<LogisticsFormProps> = ({
             }, 0)
             const totalFootprint = (data.pieces ?? []).reduce((sum, piece) => {
               const qty = Number(piece.quantity) || 0
-              const length = parseFloat(String(piece.length).replace(/[^0-9.]/g, '')) || 0
-              const width = parseFloat(String(piece.width).replace(/[^0-9.]/g, '')) || 0
-              const footprint = length * width
+              const lengthRaw = parseFloat(String(piece.length).replace(/[^0-9.]/g, '')) || 0
+              const widthRaw = parseFloat(String(piece.width).replace(/[^0-9.]/g, '')) || 0
+              const lengthInches = dimensionUnit === 'ft' ? lengthRaw * 12 : lengthRaw
+              const widthInches = dimensionUnit === 'ft' ? widthRaw * 12 : widthRaw
+              const footprint = lengthInches * widthInches
               return sum + footprint * qty
             }, 0)
             const totalFootprintSqFt = totalFootprint / 144
