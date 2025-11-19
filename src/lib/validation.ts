@@ -32,6 +32,10 @@ export const equipmentSchema = yup.object({
 
 export const logisticsSchema = yup.object({
   pieces: yup.array().of(pieceSchema).min(1, 'At least one piece is required'),
+  dimensionUnit: yup
+    .string()
+    .oneOf(['in', 'ft'])
+    .default('in'),
   pickupAddress: yup.string().required('Pickup address is required'),
   pickupCity: yup.string().required('Pickup city is required'),
   pickupState: yup.string().required('Pickup state is required'),
