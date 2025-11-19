@@ -1,11 +1,17 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { LogisticsData } from '../types';
 import { createLogisticsPiece, normalizePieces } from '../lib/logisticsPieces';
+import {
+  convertPiecesDimensions,
+  normalizeDimensionUnit,
+  type DimensionUnit
+} from '../lib/dimensions';
 
 export const useLogisticsForm = () => {
   const initialLogisticsData = useMemo<LogisticsData>(
     () => ({
       pieces: [createLogisticsPiece()],
+      dimensionUnit: 'in',
       pickupAddress: '',
       pickupCity: '',
       pickupState: '',
@@ -36,6 +42,7 @@ export const useLogisticsForm = () => {
 
         return {
           ...nextState,
+          dimensionUnit: normalizeDimensionUnit(nextState.dimensionUnit),
           pieces: normalizePieces(nextState.pieces)
         };
       });
@@ -165,6 +172,21 @@ export const useLogisticsForm = () => {
     });
   };
 
+  const changeDimensionUnit = (unit: DimensionUnit) => {
+    setLogisticsData(prev => {
+      const currentUnit = normalizeDimensionUnit(prev.dimensionUnit);
+      if (currentUnit === unit) {
+        return prev;
+      }
+
+      return {
+        ...prev,
+        dimensionUnit: unit,
+        pieces: convertPiecesDimensions(prev.pieces, currentUnit, unit)
+      };
+    });
+  };
+
   return {
     logisticsData,
     setLogisticsData,
@@ -178,7 +200,8 @@ export const useLogisticsForm = () => {
     removePiece,
     togglePieceSelection,
     deleteSelectedPieces,
-    movePiece
+    movePiece,
+    changeDimensionUnit
   };
 };
 

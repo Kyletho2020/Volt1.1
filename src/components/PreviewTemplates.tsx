@@ -7,6 +7,11 @@ import {
   normalizeStorageLocation,
   type StorageLocation
 } from '../lib/storage'
+import {
+  formatDimensionWithUnit,
+  getDimensionUnitLabel,
+  normalizeDimensionUnit
+} from '../lib/dimensions'
 
 const PROPER_EQUIPMENT_TERMS = new Set([
   'versalift',
@@ -211,6 +216,7 @@ export const generateScopeTemplate = (
     : ''
 
   const logisticsSection = storageLine ? `\n${storageLine}` : '\n'
+  const dimensionUnit = normalizeDimensionUnit(logisticsData.dimensionUnit)
 
   const itemsSection =
     logisticsData.pieces && logisticsData.pieces.length > 0
@@ -219,9 +225,9 @@ export const generateScopeTemplate = (
             (piece: any) =>
               `• (Qty: ${piece.quantity || 1}) ${
                 piece.description || '[Item Description]'
-              } - ${piece.length || '[L]'}"L x ${piece.width || '[W]'}"W x ${
-                piece.height || '[H]'
-              }"H, ${formatWeight(piece.weight, 'Weight Not listed')}`
+              } - ${formatDimensionWithUnit(piece.length, dimensionUnit, '[L]')}L x ${formatDimensionWithUnit(piece.width, dimensionUnit, '[W]')}W x ${
+                formatDimensionWithUnit(piece.height, dimensionUnit, '[H]')
+              }H, ${formatWeight(piece.weight, 'Weight Not listed')}`
           )
           .join('\n')}\n`
       : ''
@@ -255,6 +261,8 @@ export const generateLogisticsEmail = (
   const deliveryZip = logisticsData.deliveryZip?.trim() || '[delivery ZIP]'
 
   const pieces = Array.isArray(logisticsData.pieces) ? logisticsData.pieces : []
+  const dimensionUnit = normalizeDimensionUnit(logisticsData.dimensionUnit)
+  const dimensionUnitLabel = getDimensionUnitLabel(dimensionUnit)
   const totalPiecesCount = pieces.length
     ? pieces.reduce(
         (sum: number, piece: any) => sum + (piece.quantity || 1),
@@ -272,9 +280,15 @@ export const generateLogisticsEmail = (
           const description = piece.description
             ? `${piece.description} – `
             : ''
-          const dimensions = `${piece.length || '[L]'}" x ${
-            piece.width || '[W]'
-          }" x ${piece.height || '[H]'}"`
+          const dimensions = `${formatDimensionWithUnit(
+            piece.length,
+            dimensionUnit,
+            '[L]'
+          )} x ${formatDimensionWithUnit(
+            piece.width,
+            dimensionUnit,
+            '[W]'
+          )} x ${formatDimensionWithUnit(piece.height, dimensionUnit, '[H]')}`
           const weightValue = formatWeight(piece.weight, 'Weight not listed')
           const normalizedWeight =
             weightValue.toLowerCase() === 'weight not listed'
@@ -381,7 +395,7 @@ export const generateLogisticsEmail = (
 
   const subject = `Truck request for ${shipmentCode} – ${pickupZip} to ${deliveryZip}`
 
-  const body = `Hello,\n\nI'm reaching out to request a logistics quote for an upcoming project. Please see the load and transport details below:\n\nNumber of Pieces: ${numberOfPieces}\n\nPiece Dimensions & Weights (L x W x H):\n${pieceDetails}\n\nTotal Load Weight: ${totalWeight}\n\nPick-Up Location: ${pickupLocation}\n\nDelivery/Set Location: ${deliveryLocation}\n\nTruck Type Requested: ${truckType}\n\nShipment Type: ${shipmentType}\n${storageSection}Please let me know if you need any additional information or documents to complete the quote. Looking forward to your response.\n\nBest regards, 
+  const body = `Hello,\n\nI'm reaching out to request a logistics quote for an upcoming project. Please see the load and transport details below:\n\nNumber of Pieces: ${numberOfPieces}\n\nPiece Dimensions & Weights (L x W x H in ${dimensionUnitLabel}):\n${pieceDetails}\n\nTotal Load Weight: ${totalWeight}\n\nPick-Up Location: ${pickupLocation}\n\nDelivery/Set Location: ${deliveryLocation}\n\nTruck Type Requested: ${truckType}\n\nShipment Type: ${shipmentType}\n${storageSection}Please let me know if you need any additional information or documents to complete the quote. Looking forward to your response.\n\nBest regards, 
   `
 
   return { subject, body }
