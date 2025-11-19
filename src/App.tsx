@@ -55,7 +55,6 @@ const App: React.FC = () => {
     initialLogisticsData,
     handleLogisticsChange,
     handlePieceChange,
-    changeDimensionUnit,
     addPiece,
     duplicatePiece,
     removePiece,
@@ -716,7 +715,6 @@ const App: React.FC = () => {
                     selectedPieces={selectedPieces}
                     onFieldChange={handleLogisticsChange}
                     onPieceChange={handlePieceChange}
-                    onDimensionUnitChange={changeDimensionUnit}
                     addPiece={addPiece}
                     duplicatePiece={duplicatePiece}
                     removePiece={removePiece}

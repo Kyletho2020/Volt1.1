@@ -18,10 +18,6 @@ import {
   normalizeStorageLocation,
   type StorageLocation
 } from '../lib/storage'
-import {
-  getDimensionPlaceholder,
-  getDimensionUnitLabel
-} from '../lib/dimensions'
 
 interface LogisticsFormProps {
   data: LogisticsData
@@ -35,7 +31,6 @@ interface LogisticsFormProps {
     field: keyof LogisticsPiece,
     value: string | number
   ) => void
-  onDimensionUnitChange: (unit: 'in' | 'ft') => void
   addPiece: () => void
   duplicatePiece: (pieceId: string) => void
   removePiece: (pieceId: string) => void
@@ -53,7 +48,6 @@ const LogisticsForm: React.FC<LogisticsFormProps> = ({
   selectedPieces,
   onFieldChange,
   onPieceChange,
-  onDimensionUnitChange,
   addPiece,
   duplicatePiece,
   removePiece,
@@ -73,7 +67,6 @@ const LogisticsForm: React.FC<LogisticsFormProps> = ({
   const selectClasses =
     'h-9 rounded-lg border border-accent/25 bg-surface-highlight/60 px-3 text-sm text-white focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/30'
 
-  const dimensionUnit = data.dimensionUnit ?? 'in'
   const shipmentOptions = [
     { value: '', label: 'Select shipment type' },
     { value: 'LTL (Less Than Truckload)', label: 'LTL (Less Than Truckload)' },
@@ -118,8 +111,6 @@ const LogisticsForm: React.FC<LogisticsFormProps> = ({
     currency: 'USD'
   })
   const storageCostLabel = storageCost !== null ? currencyFormatter.format(storageCost) : '--'
-  const dimensionUnitLabel = getDimensionUnitLabel(dimensionUnit)
-  const dimensionPlaceholder = getDimensionPlaceholder(dimensionUnit)
 
   return (
     <div className={containerClasses}>
@@ -158,22 +149,6 @@ const LogisticsForm: React.FC<LogisticsFormProps> = ({
                 Shipment Items
               </div>
               <div className="flex flex-wrap items-center gap-2">
-                <div className="flex items-center gap-1 rounded-lg border border-accent/20 bg-surface/40 p-1 text-[11px] font-semibold text-slate-200">
-                  {(['in', 'ft'] as const).map(unit => (
-                    <button
-                      key={unit}
-                      type="button"
-                      onClick={() => onDimensionUnitChange(unit)}
-                      className={`rounded-md px-2 py-1 transition ${
-                        dimensionUnit === unit
-                          ? 'bg-accent/80 text-black'
-                          : 'text-slate-300 hover:text-white'
-                      }`}
-                    >
-                      {unit === 'in' ? 'Inches' : 'Feet'}
-                    </button>
-                  ))}
-                </div>
                 <button
                   type="button"
                   onClick={() => setShowApproximateInfo(prev => !prev)}
@@ -325,7 +300,7 @@ const LogisticsForm: React.FC<LogisticsFormProps> = ({
                               <label className="mb-1 block text-[11px] uppercase tracking-wide text-slate-400">
                                 {field === 'weight'
                                   ? 'Weight (lbs)'
-                                  : `${field.charAt(0).toUpperCase() + field.slice(1)} (${dimensionUnitLabel})`}
+                                  : `${field.charAt(0).toUpperCase() + field.slice(1)} (in)`}
                               </label>
                               <input
                                 type="text"
@@ -335,7 +310,7 @@ const LogisticsForm: React.FC<LogisticsFormProps> = ({
                                   onPieceChange(index, field, e.target.value)
                                 }}
                                 className={`${inputClasses} w-full text-center`}
-                                placeholder={field === 'weight' ? '0' : dimensionPlaceholder}
+                                placeholder={field === 'weight' ? '0' : '0"'}
                               />
                               {errors.pieces?.[index]?.[field] && (
                                 <p className="mt-1 text-[11px] text-red-400">
@@ -365,14 +340,14 @@ const LogisticsForm: React.FC<LogisticsFormProps> = ({
               const weight = parseFloat(String(piece.weight).replace(/[^0-9.]/g, '')) || 0
               return sum + qty * weight
             }, 0)
-            const totalFootprintSqFt = (data.pieces ?? []).reduce((sum, piece) => {
+            const totalFootprint = (data.pieces ?? []).reduce((sum, piece) => {
               const qty = Number(piece.quantity) || 0
               const length = parseFloat(String(piece.length).replace(/[^0-9.]/g, '')) || 0
               const width = parseFloat(String(piece.width).replace(/[^0-9.]/g, '')) || 0
-              const footprintSqFt =
-                dimensionUnit === 'ft' ? length * width : (length * width) / 144
-              return sum + footprintSqFt * qty
+              const footprint = length * width
+              return sum + footprint * qty
             }, 0)
+            const totalFootprintSqFt = totalFootprint / 144
 
             return (
               <div className="rounded-xl border border-accent/20 bg-surface-highlight/40 p-3">
@@ -675,4 +650,3 @@ const LogisticsForm: React.FC<LogisticsFormProps> = ({
 }
 
 export default LogisticsForm
-          <input type="hidden" value={dimensionUnit} {...register('dimensionUnit')} />
