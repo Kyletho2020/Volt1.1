@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert';
 import React from 'react';
 import { renderToString } from 'react-dom/server';
-import LogisticsForm from '../LogisticsForm';
+import LogisticsForm, { formatDescriptionInputValue } from '../LogisticsForm';
 
 test('LogisticsForm renders Logistics Quote heading', () => {
   const data = {
@@ -50,4 +50,12 @@ test('LogisticsForm renders Logistics Quote heading', () => {
   );
 
   assert.ok(html.includes('Logistics Quote'));
+});
+
+test('formatDescriptionInputValue preserves trailing spaces for active input', () => {
+  const valueWithTrailingSpace = formatDescriptionInputValue('steel ', { approximateLabelEnabled: false });
+  assert.strictEqual(valueWithTrailingSpace, 'Steel ');
+
+  const trimmedValue = formatDescriptionInputValue('steel beam', { approximateLabelEnabled: false });
+  assert.strictEqual(trimmedValue, 'Steel Beam');
 });
