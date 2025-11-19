@@ -19,6 +19,38 @@ import {
   type StorageLocation
 } from '../lib/storage'
 
+const APPROX_PATTERN = /\s*\(approx\.\)$/i
+
+const stripApproxSuffix = (value: string) => value.replace(APPROX_PATTERN, '').trim()
+
+const titleCase = (value: string) =>
+  value
+    .toLowerCase()
+    .replace(/\b([a-z])/g, (_, char) => char.toUpperCase())
+
+const applyApproxSuffix = (value: string) =>
+  value ? `${value} (approx.)` : value
+
+export const formatDescriptionInputValue = (
+  rawValue: string,
+  options: { approximateLabelEnabled: boolean }
+) => {
+  const hasTrailingSpace = /\s$/.test(rawValue)
+  const normalizedWhitespace = rawValue.replace(/\s+/g, ' ').trim()
+  const withoutApprox = stripApproxSuffix(normalizedWhitespace)
+  const capitalized = titleCase(withoutApprox)
+  const withApprox = options.approximateLabelEnabled ? applyApproxSuffix(capitalized) : capitalized
+
+  if (hasTrailingSpace) {
+    if (withApprox) {
+      return `${withApprox} `
+    }
+    return ' '
+  }
+
+  return withApprox
+}
+
 interface LogisticsFormProps {
   data: LogisticsData
   selectedPieces: string[]
@@ -62,24 +94,13 @@ const LogisticsForm: React.FC<LogisticsFormProps> = ({
   const [approximateLabelEnabled, setApproximateLabelEnabled] = React.useState(false)
   const [dimensionUnit, setDimensionUnit] = React.useState<'in' | 'ft'>('in')
 
-  const APPROX_PATTERN = /\s*\(approx\.\)$/i
-
-  const stripApproxSuffix = (value: string) => value.replace(APPROX_PATTERN, '').trim()
-
-  const titleCase = (value: string) =>
-    value
-      .toLowerCase()
-      .replace(/\b([a-z])/g, (_, char) => char.toUpperCase())
-
-  const applyApproxSuffix = (value: string) =>
-    value ? `${value} (approx.)` : value
-
-  const formatDescriptionValue = (rawValue: string) => {
-    const normalizedWhitespace = rawValue.replace(/\s+/g, ' ').trim()
-    const withoutApprox = stripApproxSuffix(normalizedWhitespace)
-    const capitalized = titleCase(withoutApprox)
-    return approximateLabelEnabled ? applyApproxSuffix(capitalized) : capitalized
-  }
+  const formatDescriptionValue = React.useCallback(
+    (rawValue: string) =>
+      formatDescriptionInputValue(rawValue, {
+        approximateLabelEnabled
+      }),
+    [approximateLabelEnabled]
+  )
 
   const parseMeasurement = (value: string | number | undefined) => {
     if (typeof value === 'number') return value
