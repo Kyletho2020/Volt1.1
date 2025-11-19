@@ -19,9 +19,13 @@ import {
   type StorageLocation
 } from '../lib/storage'
 
-const APPROX_PATTERN = /\s*\(approx\.\)$/i
+const APPROX_PATTERN = /\s*\(approx\.\)/gi
 
-const stripApproxSuffix = (value: string) => value.replace(APPROX_PATTERN, '').trim()
+const stripApproxSuffix = (value: string) =>
+  value
+    .replace(APPROX_PATTERN, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
 
 const titleCase = (value: string) =>
   value
