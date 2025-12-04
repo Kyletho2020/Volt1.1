@@ -39,6 +39,7 @@ export interface LogisticsData {
   storageSqFt?: string
   shipment?: Record<string, unknown> | null
   storage?: Record<string, unknown> | null
+  dimensionUnit?: 'in' | 'ft'
 }
 
 export interface ExtractionResult {
