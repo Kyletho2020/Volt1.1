@@ -197,6 +197,23 @@ export const generateScopeTemplate = (
   const phone = equipmentData.sitePhone || '[Site Phone]'
   const shopLocation = equipmentData.shopLocation || '[Shop]'
   const scopeOfWork = equipmentData.scopeOfWork || ''
+  const dimensionUnit = logisticsData.dimensionUnit === 'ft' ? 'ft' : 'in'
+  const dimensionSymbol = dimensionUnit === 'ft' ? "'" : '"'
+
+  const formatDimension = (value: string | number | undefined, placeholder: string) => {
+    if (value === null || value === undefined) {
+      return `${placeholder}${dimensionSymbol}`
+    }
+
+    const rawValue = typeof value === 'string' ? value : String(value)
+    const cleanedValue = rawValue
+      .replace(/\s*(?:inches?|in|feet|ft)\b/gi, '')
+      .replace(/["']+$/g, '')
+      .trim()
+
+    const displayValue = cleanedValue || placeholder
+    return `${displayValue}${dimensionSymbol}`
+  }
 
   const equipmentSummary = buildEquipmentSummary(equipmentRequirements)
 
@@ -219,9 +236,12 @@ export const generateScopeTemplate = (
             (piece: any) =>
               `• (Qty: ${piece.quantity || 1}) ${
                 piece.description || '[Item Description]'
-              } - ${piece.length || '[L]'}"L x ${piece.width || '[W]'}"W x ${
-                piece.height || '[H]'
-              }"H, ${formatWeight(piece.weight, 'Weight Not listed')}`
+              } - ${formatDimension(piece.length, '[L]')}L x ${
+                formatDimension(piece.width, '[W]')
+              }W x ${formatDimension(piece.height, '[H]')}H, ${formatWeight(
+                piece.weight,
+                'Weight Not listed'
+              )}`
           )
           .join('\n')}\n`
       : ''

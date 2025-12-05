@@ -96,7 +96,13 @@ const LogisticsForm: React.FC<LogisticsFormProps> = ({
   errors
 }) => {
   const [approximateLabelEnabled, setApproximateLabelEnabled] = React.useState(false)
-  const [dimensionUnit, setDimensionUnit] = React.useState<'in' | 'ft'>('in')
+  const [dimensionUnit, setDimensionUnit] = React.useState<'in' | 'ft'>(
+    data.dimensionUnit || 'in'
+  )
+
+  React.useEffect(() => {
+    setDimensionUnit(data.dimensionUnit || 'in')
+  }, [data.dimensionUnit])
 
   const formatDescriptionValue = React.useCallback(
     (rawValue: string) =>
@@ -135,6 +141,7 @@ const LogisticsForm: React.FC<LogisticsFormProps> = ({
     })
 
     setDimensionUnit(unit)
+    onFieldChange('dimensionUnit', unit)
   }
 
   const toggleApproximateLabels = () => {

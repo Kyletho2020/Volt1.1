@@ -18,7 +18,8 @@ export const useLogisticsForm = () => {
       truckType: '',
       includeStorage: false,
       storageLocation: '',
-      storageSqFt: ''
+      storageSqFt: '',
+      dimensionUnit: 'in'
     }),
     []
   );
@@ -36,7 +37,8 @@ export const useLogisticsForm = () => {
 
         return {
           ...nextState,
-          pieces: normalizePieces(nextState.pieces)
+          pieces: normalizePieces(nextState.pieces),
+          dimensionUnit: nextState.dimensionUnit || 'in'
         };
       });
     },
