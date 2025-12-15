@@ -166,14 +166,14 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({
           type="button"
           onClick={handleSaveContact}
           disabled={Object.keys(pendingUpdates).length === 0}
-          className="mb-2 inline-flex items-center gap-2 rounded-xl bg-accent px-3 py-2 text-sm font-semibold text-black shadow-sm transition hover:bg-green-400 disabled:cursor-not-allowed disabled:opacity-60"
+          className="mb-2 inline-flex items-center gap-2 rounded-xl bg-accent px-3 py-2 text-sm font-semibold text-black shadow-sm transition hover:bg-sky-300 disabled:cursor-not-allowed disabled:opacity-60"
         >
           <Save className="h-4 w-4" />
           Save to HubSpot
         </button>
       )}
 
-      {updateMessage && <p className="text-sm text-green-400">{updateMessage}</p>}
+      {updateMessage && <p className="text-sm text-accent">{updateMessage}</p>}
       {updateError && <p className="text-sm text-red-400">{updateError}</p>}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
