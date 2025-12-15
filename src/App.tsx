@@ -490,53 +490,73 @@ const App: React.FC = () => {
 
   return (
     <div className="relative min-h-screen overflow-hidden text-white">
-      <div className="absolute inset-0 -z-40 bg-[linear-gradient(140deg,#03060f_0%,#09152a_48%,#02040a_100%)]" />
-      <div className="absolute inset-0 -z-30 bg-[radial-gradient(circle_at_16%_20%,rgba(28,255,135,0.18),transparent_58%)]" />
-      <div className="absolute inset-0 -z-20 bg-[radial-gradient(circle_at_82%_12%,rgba(56,189,248,0.18),transparent_62%)]" />
-      <div className="absolute -top-48 -left-48 -z-10 h-[28rem] w-[28rem] rounded-full bg-accent/30 blur-[150px] opacity-80" />
-      <div className="absolute -bottom-40 right-[-6rem] -z-10 h-[26rem] w-[26rem] rounded-full bg-sky-500/25 blur-[160px] opacity-70" />
+      <div className="absolute inset-0 -z-40 bg-[linear-gradient(160deg,#0b0f24_0%,#0b122c_45%,#0a1026_100%)]" />
+      <div className="absolute inset-0 -z-30 bg-[radial-gradient(circle_at_18%_18%,rgba(139,123,255,0.24),transparent_42%)]" />
+      <div className="absolute inset-0 -z-20 bg-[radial-gradient(circle_at_82%_12%,rgba(88,210,255,0.2),transparent_52%)]" />
+      <div className="absolute -top-56 -left-52 -z-10 h-[30rem] w-[30rem] rounded-full bg-accent/35 blur-[180px] opacity-90" />
+      <div className="absolute -bottom-52 right-[-6rem] -z-10 h-[28rem] w-[28rem] rounded-full bg-sky-500/25 blur-[170px] opacity-70" />
+      <div className="absolute inset-x-0 top-64 -z-10 h-[18rem] bg-[radial-gradient(circle_at_50%_0%,rgba(139,123,255,0.16),transparent_60%)]" />
 
       <header className="relative z-10 border-b border-accent/10">
-        <div className="mx-auto flex max-w-7xl flex-col gap-8 px-4 py-10 sm:px-6 lg:px-8">
-          <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-            <div>
-              <span className="inline-flex items-center gap-2 rounded-full border border-accent/30 bg-accent-soft/40 px-4 py-1 text-xs font-semibold uppercase tracking-[0.35em] text-accent">
-                Volt 1.1 System
-              </span>
-              <h1 className="mt-6 text-4xl font-semibold tracking-tight text-white sm:text-5xl">
-                Volt 1.1 Operations Hub
-              </h1>
-              <p className="mt-3 max-w-2xl text-base text-slate-300 sm:text-lg">
-                Kyle is awesome! Keep being amazing and dont forget to smile!
-              </p>
-            </div>
-            <div className="grid w-full max-w-xl grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              <div className={statCardClass}>
-                <span className="text-xs uppercase tracking-[0.28em] text-slate-400">Project</span>
-                <p className="mt-2 truncate text-lg font-semibold text-white" title={projectNameDisplay}>
-                  {projectNameDisplay}
+        <div className="mx-auto flex max-w-7xl flex-col gap-8 px-4 pb-12 pt-10 sm:px-6 lg:px-8">
+          <div className="relative overflow-hidden rounded-3xl border border-accent/15 bg-surface/70 px-6 py-8 shadow-[0_35px_120px_rgba(9,14,32,0.7)] backdrop-blur-xl sm:px-10 lg:py-12">
+            <div className="absolute inset-x-12 -top-32 h-48 rounded-full bg-[radial-gradient(circle_at_center,rgba(139,123,255,0.14),transparent_55%)]" />
+            <div className="absolute -bottom-16 -right-8 h-48 w-48 rounded-full bg-[radial-gradient(circle_at_center,rgba(85,224,255,0.16),transparent_55%)] blur-3xl" />
+            <div className="relative flex flex-col gap-10 lg:flex-row lg:items-center lg:justify-between">
+              <div className="max-w-2xl space-y-4">
+                <span className="inline-flex items-center gap-2 rounded-full border border-accent/40 bg-accent-soft/40 px-4 py-1 text-[11px] font-semibold uppercase tracking-[0.35em] text-accent">
+                  Volt 1.1
+                </span>
+                <h1 className="text-4xl font-semibold leading-tight tracking-tight text-white sm:text-5xl">
+                  Where Tasks Flow, Teams Sync, and Time Works for You
+                </h1>
+                <p className="max-w-2xl text-base text-slate-200 sm:text-lg">
+                  Smart, powerful features built to elevate your productivity and give your team more time to focus on the work that matters.
                 </p>
-                <p className="mt-3 text-xs text-slate-400">
-                  {hasScopeContent ? 'Scope drafted' : 'Scope awaiting details'}
-                </p>
+                <div className="flex flex-wrap gap-3 text-sm text-slate-200">
+                  <span className="inline-flex items-center gap-2 rounded-2xl border border-accent/25 bg-surface-highlight/60 px-3 py-2">
+                    <Bot className="h-4 w-4 text-accent" />
+                    AI-powered extraction & guidance
+                  </span>
+                  <span className="inline-flex items-center gap-2 rounded-2xl border border-accent/25 bg-surface-highlight/60 px-3 py-2">
+                    <Send className="h-4 w-4 text-accent" />
+                    Instant quotes & clear handoffs
+                  </span>
+                  <span className="inline-flex items-center gap-2 rounded-2xl border border-accent/25 bg-surface-highlight/60 px-3 py-2">
+                    <FileText className="h-4 w-4 text-accent" />
+                    Beautiful scopes & outreach
+                  </span>
+                </div>
               </div>
-              <div className={statCardClass}>
-                <span className="text-xs uppercase tracking-[0.28em] text-slate-400">Client</span>
-                <p className="mt-2 truncate text-lg font-semibold text-white" title={companyDisplay}>
-                  {companyDisplay}
-                </p>
-                <p className="mt-3 truncate text-xs text-slate-400" title={contactDisplay}>
-                  Contact: {contactDisplay}
-                </p>
-              </div>
-              <div className={statCardClass}>
-                <span className="text-xs uppercase tracking-[0.28em] text-slate-400">Logistics</span>
-                <p className="mt-2 truncate text-lg font-semibold text-white" title={shipmentDisplay}>
-                  {shipmentDisplay}
-                </p>
-                <div className="mt-3 inline-flex items-center gap-2 rounded-full border border-accent/20 bg-accent/10 px-3 py-1 text-[11px] font-semibold text-accent">
-                  <Truck className="h-3.5 w-3.5" />
-                  {piecesCount} piece{piecesCount === 1 ? '' : 's'}
+
+              <div className="grid w-full max-w-xl grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                <div className={`${statCardClass} bg-[linear-gradient(180deg,rgba(139,123,255,0.12),rgba(15,22,45,0.9))]`}>
+                  <span className="text-xs uppercase tracking-[0.28em] text-slate-400">Project</span>
+                  <p className="mt-2 truncate text-lg font-semibold text-white" title={projectNameDisplay}>
+                    {projectNameDisplay}
+                  </p>
+                  <p className="mt-3 text-xs text-slate-400">
+                    {hasScopeContent ? 'Scope drafted' : 'Scope awaiting details'}
+                  </p>
+                </div>
+                <div className={`${statCardClass} bg-[linear-gradient(180deg,rgba(90,228,255,0.08),rgba(15,22,45,0.9))]`}>
+                  <span className="text-xs uppercase tracking-[0.28em] text-slate-400">Client</span>
+                  <p className="mt-2 truncate text-lg font-semibold text-white" title={companyDisplay}>
+                    {companyDisplay}
+                  </p>
+                  <p className="mt-3 truncate text-xs text-slate-400" title={contactDisplay}>
+                    Contact: {contactDisplay}
+                  </p>
+                </div>
+                <div className={`${statCardClass} bg-[linear-gradient(180deg,rgba(139,123,255,0.1),rgba(15,22,45,0.9))]`}>
+                  <span className="text-xs uppercase tracking-[0.28em] text-slate-400">Logistics</span>
+                  <p className="mt-2 truncate text-lg font-semibold text-white" title={shipmentDisplay}>
+                    {shipmentDisplay}
+                  </p>
+                  <div className="mt-3 inline-flex items-center gap-2 rounded-full border border-accent/20 bg-accent/10 px-3 py-1 text-[11px] font-semibold text-accent">
+                    <Truck className="h-3.5 w-3.5" />
+                    {piecesCount} piece{piecesCount === 1 ? '' : 's'}
+                  </div>
                 </div>
               </div>
             </div>
@@ -545,6 +565,77 @@ const App: React.FC = () => {
       </header>
 
       <main className="relative z-10 mx-auto w-full max-w-[1500px] px-4 pb-20 pt-12 sm:px-6 lg:px-8 xl:px-6 2xl:px-0">
+        <section className="mb-10 grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+          <div className="relative overflow-hidden rounded-3xl border border-accent/20 bg-surface/70 p-6 shadow-[0_30px_100px_rgba(8,12,28,0.75)] backdrop-blur-xl sm:p-8">
+            <div className="absolute inset-x-0 -top-24 h-40 bg-[radial-gradient(circle_at_50%_0%,rgba(139,123,255,0.14),transparent_55%)]" />
+            <div className="relative space-y-4">
+              <div className="flex items-center gap-3 text-sm text-slate-300">
+                <span className="flex h-9 w-9 items-center justify-center rounded-2xl bg-accent/15 text-accent">
+                  <Send className="h-4 w-4" />
+                </span>
+                <div>
+                  <p className="text-xs uppercase tracking-[0.28em] text-slate-400">Get Started Instantly</p>
+                  <p className="text-base font-semibold text-white">No setup required to launch your next quote.</p>
+                </div>
+              </div>
+              <p className="text-sm text-slate-200 sm:text-base">
+                Launch Volt 1.1 right away with guided AI suggestions, quicksave support, and seamless email templates so your team can execute without friction.
+              </p>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="rounded-2xl border border-accent/20 bg-surface-highlight/70 p-4">
+                  <p className="text-xs uppercase tracking-[0.25em] text-slate-400">Reason Users Choose Us</p>
+                  <p className="mt-2 text-lg font-semibold text-white">Reliable ops, transparent scopes, and live logistics.</p>
+                </div>
+                <div className="rounded-2xl border border-accent/20 bg-surface-highlight/70 p-4">
+                  <p className="text-xs uppercase tracking-[0.25em] text-slate-400">Start Your Journey</p>
+                  <p className="mt-2 text-lg font-semibold text-white">Build smarter tasks, sync teams, and send faster.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            {[{
+              title: 'Smart, powerful features built to elevate your productivity',
+              description: 'Auto-sync project details, scope templates, and logistics guidance for every shipment.',
+              icon: Bot
+            },
+            {
+              title: 'Still thinking? Find what you\'re looking for below',
+              description: 'Explore saved quotes, edit pieces, and keep your client outreach polished.',
+              icon: FileText
+            },
+            {
+              title: 'Honest, real-time logistics',
+              description: 'Track pieces, pickups, and delivery timelines with clarity.',
+              icon: Truck
+            },
+            {
+              title: 'Start now, no setup required',
+              description: 'Jump into Volt 1.1 and keep your work moving without waiting.',
+              icon: Send
+            }].map(card => {
+              const Icon = card.icon
+              return (
+                <div
+                  key={card.title}
+                  className="rounded-3xl border border-accent/15 bg-surface/80 p-5 shadow-[0_24px_80px_rgba(9,14,32,0.7)] backdrop-blur-xl"
+                >
+                  <div className="flex items-start gap-3">
+                    <span className="mt-1 flex h-10 w-10 items-center justify-center rounded-2xl bg-accent/15 text-accent">
+                      <Icon className="h-5 w-5" />
+                    </span>
+                    <div className="space-y-2">
+                      <p className="text-sm font-semibold text-white">{card.title}</p>
+                      <p className="text-xs text-slate-300">{card.description}</p>
+                    </div>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </section>
+
         <div className="grid gap-6 xl:grid-cols-[300px_minmax(0,1.35fr)_360px] 2xl:grid-cols-[320px_minmax(0,1.5fr)_400px]">
           <aside className="space-y-6">
             <div className="rounded-3xl border border-accent/20 bg-surface/70 p-6 shadow-[0_35px_120px_rgba(10,18,35,0.55)] backdrop-blur-xl">
