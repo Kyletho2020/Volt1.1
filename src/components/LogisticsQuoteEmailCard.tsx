@@ -57,7 +57,7 @@ const LogisticsQuoteEmailCard: React.FC<LogisticsQuoteEmailCardProps> = ({
           </div>
           <a
             href={mailtoHref}
-            className="inline-flex items-center gap-2 rounded-xl bg-accent px-4 py-2 text-xs font-semibold text-black shadow-sm transition hover:bg-green-400"
+            className="inline-flex items-center gap-2 rounded-xl bg-accent px-4 py-2 text-xs font-semibold text-black shadow-sm transition hover:bg-sky-300"
           >
             <Mail className="h-4 w-4" />
             Email Logistics Team

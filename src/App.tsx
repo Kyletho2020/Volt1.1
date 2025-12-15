@@ -490,18 +490,18 @@ const App: React.FC = () => {
 
   return (
     <div className="relative min-h-screen overflow-hidden text-white">
-      <div className="absolute inset-0 -z-40 bg-[linear-gradient(160deg,#0b0f24_0%,#0b122c_45%,#0a1026_100%)]" />
-      <div className="absolute inset-0 -z-30 bg-[radial-gradient(circle_at_18%_18%,rgba(139,123,255,0.24),transparent_42%)]" />
-      <div className="absolute inset-0 -z-20 bg-[radial-gradient(circle_at_82%_12%,rgba(88,210,255,0.2),transparent_52%)]" />
-      <div className="absolute -top-56 -left-52 -z-10 h-[30rem] w-[30rem] rounded-full bg-accent/35 blur-[180px] opacity-90" />
-      <div className="absolute -bottom-52 right-[-6rem] -z-10 h-[28rem] w-[28rem] rounded-full bg-sky-500/25 blur-[170px] opacity-70" />
-      <div className="absolute inset-x-0 top-64 -z-10 h-[18rem] bg-[radial-gradient(circle_at_50%_0%,rgba(139,123,255,0.16),transparent_60%)]" />
+      <div className="absolute inset-0 -z-40 bg-[linear-gradient(160deg,#0a111f_0%,#0b1528_45%,#091224_100%)]" />
+      <div className="absolute inset-0 -z-30 bg-[radial-gradient(circle_at_18%_18%,rgba(107,200,255,0.24),transparent_42%)]" />
+      <div className="absolute inset-0 -z-20 bg-[radial-gradient(circle_at_82%_12%,rgba(78,174,255,0.2),transparent_52%)]" />
+      <div className="absolute -top-56 -left-52 -z-10 h-[30rem] w-[30rem] rounded-full bg-sky-500/35 blur-[180px] opacity-90" />
+      <div className="absolute -bottom-52 right-[-6rem] -z-10 h-[28rem] w-[28rem] rounded-full bg-sky-400/25 blur-[170px] opacity-70" />
+      <div className="absolute inset-x-0 top-64 -z-10 h-[18rem] bg-[radial-gradient(circle_at_50%_0%,rgba(107,200,255,0.14),transparent_60%)]" />
 
       <header className="relative z-10 border-b border-accent/10">
         <div className="mx-auto flex max-w-7xl flex-col gap-8 px-4 pb-12 pt-10 sm:px-6 lg:px-8">
-          <div className="relative overflow-hidden rounded-3xl border border-accent/15 bg-surface/70 px-6 py-8 shadow-[0_35px_120px_rgba(9,14,32,0.7)] backdrop-blur-xl sm:px-10 lg:py-12">
-            <div className="absolute inset-x-12 -top-32 h-48 rounded-full bg-[radial-gradient(circle_at_center,rgba(139,123,255,0.14),transparent_55%)]" />
-            <div className="absolute -bottom-16 -right-8 h-48 w-48 rounded-full bg-[radial-gradient(circle_at_center,rgba(85,224,255,0.16),transparent_55%)] blur-3xl" />
+          <div className="relative overflow-hidden rounded-3xl border border-accent/15 bg-surface/70 px-6 py-8 shadow-[0_35px_120px_rgba(6,12,24,0.75)] backdrop-blur-xl sm:px-10 lg:py-12">
+            <div className="absolute inset-x-12 -top-32 h-48 rounded-full bg-[radial-gradient(circle_at_center,rgba(107,200,255,0.14),transparent_55%)]" />
+            <div className="absolute -bottom-16 -right-8 h-48 w-48 rounded-full bg-[radial-gradient(circle_at_center,rgba(92,178,255,0.18),transparent_55%)] blur-3xl" />
             <div className="relative flex flex-col gap-10 lg:flex-row lg:items-center lg:justify-between">
               <div className="max-w-2xl space-y-4">
                 <span className="inline-flex items-center gap-2 rounded-full border border-accent/40 bg-accent-soft/40 px-4 py-1 text-[11px] font-semibold uppercase tracking-[0.35em] text-accent">
@@ -516,7 +516,7 @@ const App: React.FC = () => {
               </div>
 
               <div className="grid w-full max-w-xl grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                <div className={`${statCardClass} bg-[linear-gradient(180deg,rgba(139,123,255,0.12),rgba(15,22,45,0.9))]`}>
+                <div className={`${statCardClass} bg-[linear-gradient(180deg,rgba(107,200,255,0.12),rgba(12,19,33,0.92))]`}>
                   <span className="text-xs uppercase tracking-[0.28em] text-slate-400">Project</span>
                   <p className="mt-2 truncate text-lg font-semibold text-white" title={projectNameDisplay}>
                     {projectNameDisplay}
@@ -525,7 +525,7 @@ const App: React.FC = () => {
                     {hasScopeContent ? 'Scope drafted' : 'Scope awaiting details'}
                   </p>
                 </div>
-                <div className={`${statCardClass} bg-[linear-gradient(180deg,rgba(90,228,255,0.08),rgba(15,22,45,0.9))]`}>
+                <div className={`${statCardClass} bg-[linear-gradient(180deg,rgba(83,172,255,0.12),rgba(12,19,33,0.92))]`}>
                   <span className="text-xs uppercase tracking-[0.28em] text-slate-400">Client</span>
                   <p className="mt-2 truncate text-lg font-semibold text-white" title={companyDisplay}>
                     {companyDisplay}
@@ -534,10 +534,10 @@ const App: React.FC = () => {
                     Contact: {contactDisplay}
                   </p>
                 </div>
-                <div className={`${statCardClass} bg-[linear-gradient(180deg,rgba(139,123,255,0.1),rgba(15,22,45,0.9))]`}>
-                  <span className="text-xs uppercase tracking-[0.28em] text-slate-400">Logistics</span>
-                  <p className="mt-2 truncate text-lg font-semibold text-white" title={shipmentDisplay}>
-                    {shipmentDisplay}
+                  <div className={`${statCardClass} bg-[linear-gradient(180deg,rgba(74,132,255,0.14),rgba(12,19,33,0.92))]`}>
+                    <span className="text-xs uppercase tracking-[0.28em] text-slate-400">Logistics</span>
+                    <p className="mt-2 truncate text-lg font-semibold text-white" title={shipmentDisplay}>
+                      {shipmentDisplay}
                   </p>
                   <div className="mt-3 inline-flex items-center gap-2 rounded-full border border-accent/20 bg-accent/10 px-3 py-1 text-[11px] font-semibold text-accent">
                     <Truck className="h-3.5 w-3.5" />
