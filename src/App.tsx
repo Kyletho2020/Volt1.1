@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { Suspense, lazy, useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 import {
   FileText,
@@ -15,17 +15,13 @@ import {
 import type { LucideIcon } from 'lucide-react'
 import { useSessionId } from './hooks/useSessionId'
 import { useApiKey } from './hooks/useApiKey'
-import AIExtractorModal from './components/AIExtractorModal'
 import { generateEmailTemplate, generateScopeTemplate } from './components/PreviewTemplates'
-import QuoteSaveManager from './components/QuoteSaveManager'
-import ClarificationsSection from './components/ClarificationsSection'
 import EquipmentForm from './components/EquipmentForm'
 import LogisticsForm from './components/LogisticsForm'
-import LogisticsQuoteEmailCard from './components/LogisticsQuoteEmailCard'
 import useEquipmentForm from './hooks/useEquipmentForm'
 import useLogisticsForm from './hooks/useLogisticsForm'
 import useModals from './hooks/useModals'
-import { EquipmentRequirements } from './components/EquipmentRequired'
+import type { EquipmentRequirements } from './components/EquipmentRequired'
 import { EquipmentData, LogisticsData } from './types'
 import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
@@ -34,6 +30,11 @@ import { createLogisticsPiece } from './lib/logisticsPieces'
 import { parseAddressParts } from './lib/address'
 import { HubSpotContact } from './services/hubspotService'
 import { QuoteService } from './services/quoteService'
+
+const AIExtractorModal = lazy(() => import('./components/AIExtractorModal'))
+const QuoteSaveManager = lazy(() => import('./components/QuoteSaveManager'))
+const ClarificationsSection = lazy(() => import('./components/ClarificationsSection'))
+const LogisticsQuoteEmailCard = lazy(() => import('./components/LogisticsQuoteEmailCard'))
 
 type TemplateType = 'email' | 'scope' | 'logistics'
 
@@ -733,10 +734,18 @@ const App: React.FC = () => {
                     errors={logisticsForm.formState.errors}
                   />
                   {logisticsData.shipmentType && (
-                    <LogisticsQuoteEmailCard
-                      equipmentData={equipmentData}
-                      logisticsData={logisticsData}
-                    />
+                    <Suspense
+                      fallback={
+                        <div className="rounded-2xl border border-accent/15 bg-surface/70 p-4 text-sm text-slate-300">
+                          Preparing logistics email…
+                        </div>
+                      }
+                    >
+                      <LogisticsQuoteEmailCard
+                        equipmentData={equipmentData}
+                        logisticsData={logisticsData}
+                      />
+                    </Suspense>
                   )}
                 </div>
               </div>
@@ -788,29 +797,42 @@ const App: React.FC = () => {
               </div>
             </div>
 
-            <div className="grid gap-6 lg:grid-cols-2">
-              <ClarificationsSection
-                title="Machinery Moving"
-                initialItems={[
-                  'Any change to the job will require approval in writing prior to completion of work.',
-                  'Customer is to supply clear pathway for all items to be loaded onto trailers',
-                  'Quote is based on no site visit and is not responsible for cracks in pavement or other unforeseen causes to not be able to perform work'
-                ]}
-              />
-              <ClarificationsSection
-                title="Crane"
-                initialItems={[
-                  'Crew to take half hour meal break between 4 - 5 hour start of shift in yard.',
-                  'Customer may work crew through first meal break and pay missed meal charge of $175 per crew member.',
-                  '60 ton boom truck quoted and 6 and 8 hour minimums. 8 hour quoted for budget.',
-                  'Quoted straight time and portal to portal.',
-                  'Overtime overtime to be charged $65/hour.',
-                  'Straight time is the first 8 hours worked between 5am - 6pm Monday through Friday including travel and dismantle.',
-                  'Customer may work crew through meal with signature on work ticket and pay missed meal charge of $175 per crew member per missed meal.',
-                  'Mandatory missed meal charge at 10 hours from start of shift.'
-                ]}
-              />
-            </div>
+            <Suspense
+              fallback={
+                <div className="grid gap-6 lg:grid-cols-2">
+                  {[0, 1].map(index => (
+                    <div
+                      key={index}
+                      className="h-40 rounded-3xl border border-accent/15 bg-surface/60 shadow-[0_35px_120px_rgba(10,18,35,0.55)]"
+                    />
+                  ))}
+                </div>
+              }
+            >
+              <div className="grid gap-6 lg:grid-cols-2">
+                <ClarificationsSection
+                  title="Machinery Moving"
+                  initialItems={[
+                    'Any change to the job will require approval in writing prior to completion of work.',
+                    'Customer is to supply clear pathway for all items to be loaded onto trailers',
+                    'Quote is based on no site visit and is not responsible for cracks in pavement or other unforeseen causes to not be able to perform work'
+                  ]}
+                />
+                <ClarificationsSection
+                  title="Crane"
+                  initialItems={[
+                    'Crew to take half hour meal break between 4 - 5 hour start of shift in yard.',
+                    'Customer may work crew through first meal break and pay missed meal charge of $175 per crew member.',
+                    '60 ton boom truck quoted and 6 and 8 hour minimums. 8 hour quoted for budget.',
+                    'Quoted straight time and portal to portal.',
+                    'Overtime overtime to be charged $65/hour.',
+                    'Straight time is the first 8 hours worked between 5am - 6pm Monday through Friday including travel and dismantle.',
+                    'Customer may work crew through meal with signature on work ticket and pay missed meal charge of $175 per crew member per missed meal.',
+                    'Mandatory missed meal charge at 10 hours from start of shift.'
+                  ]}
+                />
+              </div>
+            </Suspense>
           </section>
         </div>
 
@@ -819,23 +841,27 @@ const App: React.FC = () => {
         </footer>
       </main>
 
-      <AIExtractorModal
-        isOpen={showAIExtractor}
-        onClose={closeAIExtractor}
-        onExtract={handleAIExtraction}
-        sessionId={sessionId}
-        mode={extractorMode}
-      />
+      <Suspense fallback={null}>
+        <AIExtractorModal
+          isOpen={showAIExtractor}
+          onClose={closeAIExtractor}
+          onExtract={handleAIExtraction}
+          sessionId={sessionId}
+          mode={extractorMode}
+        />
+      </Suspense>
 
-      <QuoteSaveManager
-        equipmentData={equipmentData}
-        equipmentRequirements={equipmentData.equipmentRequirements}
-        logisticsData={logisticsData}
-        isOpen={showHistory}
-        onClose={closeHistory}
-        onLoadQuote={handleLoadQuote}
-        onQuoteSaved={handleQuoteSaved}
-      />
+      <Suspense fallback={null}>
+        <QuoteSaveManager
+          equipmentData={equipmentData}
+          equipmentRequirements={equipmentData.equipmentRequirements}
+          logisticsData={logisticsData}
+          isOpen={showHistory}
+          onClose={closeHistory}
+          onLoadQuote={handleLoadQuote}
+          onQuoteSaved={handleQuoteSaved}
+        />
+      </Suspense>
     </div>
   )
 }
