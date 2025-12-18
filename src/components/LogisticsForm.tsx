@@ -96,7 +96,13 @@ const LogisticsForm: React.FC<LogisticsFormProps> = ({
   errors
 }) => {
   const [approximateLabelEnabled, setApproximateLabelEnabled] = React.useState(false)
-  const [dimensionUnit, setDimensionUnit] = React.useState<'in' | 'ft'>('in')
+  const [dimensionUnit, setDimensionUnit] = React.useState<'in' | 'ft'>(
+    data.dimensionUnit || 'in'
+  )
+
+  React.useEffect(() => {
+    setDimensionUnit(data.dimensionUnit || 'in')
+  }, [data.dimensionUnit])
 
   const formatDescriptionValue = React.useCallback(
     (rawValue: string) =>
@@ -135,6 +141,7 @@ const LogisticsForm: React.FC<LogisticsFormProps> = ({
     })
 
     setDimensionUnit(unit)
+    onFieldChange('dimensionUnit', unit)
   }
 
   const toggleApproximateLabels = () => {
@@ -290,7 +297,7 @@ const LogisticsForm: React.FC<LogisticsFormProps> = ({
                 </button>
                 <button
                   onClick={addPiece}
-                  className="inline-flex items-center gap-1 rounded-lg bg-emerald-500 px-2.5 py-1.5 text-[11px] font-semibold text-black transition hover:bg-emerald-600"
+                  className="inline-flex items-center gap-1 rounded-lg bg-accent px-2.5 py-1.5 text-[11px] font-semibold text-black transition hover:bg-sky-300"
                 >
                   <Plus className="h-3 w-3" />
                   Add Item
@@ -315,7 +322,7 @@ const LogisticsForm: React.FC<LogisticsFormProps> = ({
                       type="checkbox"
                       checked={selectedPieces.includes(piece.id)}
                       onChange={() => togglePieceSelection(piece.id)}
-                      className="h-4 w-4 rounded border-accent/40 bg-transparent text-emerald-400 focus:ring-emerald-400"
+                      className="h-4 w-4 rounded border-accent/40 bg-transparent text-accent focus:ring-accent/60"
                     />
                     <span className="inline-flex h-6 min-w-[2rem] items-center justify-center rounded-md border border-accent/30 bg-accent/10 px-2 text-xs font-semibold uppercase tracking-wide text-accent/90">
                       #{index + 1}
@@ -363,7 +370,7 @@ const LogisticsForm: React.FC<LogisticsFormProps> = ({
                       </button>
                       <button
                         onClick={() => duplicatePiece(piece.id)}
-                        className="rounded-md p-1 text-emerald-300 transition hover:bg-emerald-400/10"
+                        className="rounded-md p-1 text-accent transition hover:bg-accent/10"
                         title="Duplicate item"
                       >
                         <Copy className="h-3.5 w-3.5" />

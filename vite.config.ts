@@ -19,7 +19,14 @@ export default defineConfig({
     sourcemap: false,
     rollupOptions: {
       output: {
-        manualChunks: undefined,
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('lucide-react')) return 'vendor-icons'
+            if (id.includes('react')) return 'vendor-react'
+            if (id.includes('react-hook-form') || id.includes('yup')) return 'vendor-forms'
+            return 'vendor'
+          }
+        },
       },
     },
   },

@@ -49,7 +49,7 @@ const ClarificationsSection: React.FC<ClarificationsSectionProps> = ({ title, in
         <h2 className="text-2xl font-semibold text-white">{title}</h2>
         <button
           onClick={handleAdd}
-          className="inline-flex items-center gap-2 rounded-xl bg-accent px-3 py-2 text-sm font-semibold text-black shadow-sm transition hover:bg-green-400"
+          className="inline-flex items-center gap-2 rounded-xl bg-accent px-3 py-2 text-sm font-semibold text-black shadow-sm transition hover:bg-sky-300"
         >
           <Plus className="h-4 w-4" /> Add clarification
         </button>

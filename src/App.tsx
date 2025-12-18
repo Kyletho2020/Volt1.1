@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { Suspense, lazy, useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 import {
   FileText,
@@ -15,17 +15,13 @@ import {
 import type { LucideIcon } from 'lucide-react'
 import { useSessionId } from './hooks/useSessionId'
 import { useApiKey } from './hooks/useApiKey'
-import AIExtractorModal from './components/AIExtractorModal'
 import { generateEmailTemplate, generateScopeTemplate } from './components/PreviewTemplates'
-import QuoteSaveManager from './components/QuoteSaveManager'
-import ClarificationsSection from './components/ClarificationsSection'
 import EquipmentForm from './components/EquipmentForm'
 import LogisticsForm from './components/LogisticsForm'
-import LogisticsQuoteEmailCard from './components/LogisticsQuoteEmailCard'
 import useEquipmentForm from './hooks/useEquipmentForm'
 import useLogisticsForm from './hooks/useLogisticsForm'
 import useModals from './hooks/useModals'
-import { EquipmentRequirements } from './components/EquipmentRequired'
+import type { EquipmentRequirements } from './components/EquipmentRequired'
 import { EquipmentData, LogisticsData } from './types'
 import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
@@ -34,6 +30,11 @@ import { createLogisticsPiece } from './lib/logisticsPieces'
 import { parseAddressParts } from './lib/address'
 import { HubSpotContact } from './services/hubspotService'
 import { QuoteService } from './services/quoteService'
+
+const AIExtractorModal = lazy(() => import('./components/AIExtractorModal'))
+const QuoteSaveManager = lazy(() => import('./components/QuoteSaveManager'))
+const ClarificationsSection = lazy(() => import('./components/ClarificationsSection'))
+const LogisticsQuoteEmailCard = lazy(() => import('./components/LogisticsQuoteEmailCard'))
 
 type TemplateType = 'email' | 'scope' | 'logistics'
 
@@ -490,53 +491,59 @@ const App: React.FC = () => {
 
   return (
     <div className="relative min-h-screen overflow-hidden text-white">
-      <div className="absolute inset-0 -z-40 bg-[linear-gradient(140deg,#03060f_0%,#09152a_48%,#02040a_100%)]" />
-      <div className="absolute inset-0 -z-30 bg-[radial-gradient(circle_at_16%_20%,rgba(28,255,135,0.18),transparent_58%)]" />
-      <div className="absolute inset-0 -z-20 bg-[radial-gradient(circle_at_82%_12%,rgba(56,189,248,0.18),transparent_62%)]" />
-      <div className="absolute -top-48 -left-48 -z-10 h-[28rem] w-[28rem] rounded-full bg-accent/30 blur-[150px] opacity-80" />
-      <div className="absolute -bottom-40 right-[-6rem] -z-10 h-[26rem] w-[26rem] rounded-full bg-sky-500/25 blur-[160px] opacity-70" />
+      <div className="absolute inset-0 -z-40 bg-[linear-gradient(160deg,#0a111f_0%,#0b1528_45%,#091224_100%)]" />
+      <div className="absolute inset-0 -z-30 bg-[radial-gradient(circle_at_18%_18%,rgba(107,200,255,0.24),transparent_42%)]" />
+      <div className="absolute inset-0 -z-20 bg-[radial-gradient(circle_at_82%_12%,rgba(78,174,255,0.2),transparent_52%)]" />
+      <div className="absolute -top-56 -left-52 -z-10 h-[30rem] w-[30rem] rounded-full bg-sky-500/35 blur-[180px] opacity-90" />
+      <div className="absolute -bottom-52 right-[-6rem] -z-10 h-[28rem] w-[28rem] rounded-full bg-sky-400/25 blur-[170px] opacity-70" />
+      <div className="absolute inset-x-0 top-64 -z-10 h-[18rem] bg-[radial-gradient(circle_at_50%_0%,rgba(107,200,255,0.14),transparent_60%)]" />
 
       <header className="relative z-10 border-b border-accent/10">
-        <div className="mx-auto flex max-w-7xl flex-col gap-8 px-4 py-10 sm:px-6 lg:px-8">
-          <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-            <div>
-              <span className="inline-flex items-center gap-2 rounded-full border border-accent/30 bg-accent-soft/40 px-4 py-1 text-xs font-semibold uppercase tracking-[0.35em] text-accent">
-                Volt 1.1 System
-              </span>
-              <h1 className="mt-6 text-4xl font-semibold tracking-tight text-white sm:text-5xl">
-                Volt 1.1 Operations Hub
-              </h1>
-              <p className="mt-3 max-w-2xl text-base text-slate-300 sm:text-lg">
-                Kyle is awesome! Keep being amazing and dont forget to smile!
-              </p>
-            </div>
-            <div className="grid w-full max-w-xl grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              <div className={statCardClass}>
-                <span className="text-xs uppercase tracking-[0.28em] text-slate-400">Project</span>
-                <p className="mt-2 truncate text-lg font-semibold text-white" title={projectNameDisplay}>
-                  {projectNameDisplay}
-                </p>
-                <p className="mt-3 text-xs text-slate-400">
-                  {hasScopeContent ? 'Scope drafted' : 'Scope awaiting details'}
+        <div className="mx-auto flex max-w-7xl flex-col gap-8 px-4 pb-12 pt-10 sm:px-6 lg:px-8">
+          <div className="relative overflow-hidden rounded-3xl border border-accent/15 bg-surface/70 px-6 py-8 shadow-[0_35px_120px_rgba(6,12,24,0.75)] backdrop-blur-xl sm:px-10 lg:py-12">
+            <div className="absolute inset-x-12 -top-32 h-48 rounded-full bg-[radial-gradient(circle_at_center,rgba(107,200,255,0.14),transparent_55%)]" />
+            <div className="absolute -bottom-16 -right-8 h-48 w-48 rounded-full bg-[radial-gradient(circle_at_center,rgba(92,178,255,0.18),transparent_55%)] blur-3xl" />
+            <div className="relative flex flex-col gap-10 lg:flex-row lg:items-center lg:justify-between">
+              <div className="max-w-2xl space-y-4">
+                <span className="inline-flex items-center gap-2 rounded-full border border-accent/40 bg-accent-soft/40 px-4 py-1 text-[11px] font-semibold uppercase tracking-[0.35em] text-accent">
+                  Volt 1.1
+                </span>
+                <h1 className="text-4xl font-semibold leading-tight tracking-tight text-white sm:text-5xl">
+                  Where Tasks Flow, Teams Sync, and Time Works for You
+                </h1>
+                <p className="max-w-2xl text-base text-slate-200 sm:text-lg">
+                  Smart, powerful features built to elevate your productivity and give your team more time to focus on the work that matters.
                 </p>
               </div>
-              <div className={statCardClass}>
-                <span className="text-xs uppercase tracking-[0.28em] text-slate-400">Client</span>
-                <p className="mt-2 truncate text-lg font-semibold text-white" title={companyDisplay}>
-                  {companyDisplay}
-                </p>
-                <p className="mt-3 truncate text-xs text-slate-400" title={contactDisplay}>
-                  Contact: {contactDisplay}
-                </p>
-              </div>
-              <div className={statCardClass}>
-                <span className="text-xs uppercase tracking-[0.28em] text-slate-400">Logistics</span>
-                <p className="mt-2 truncate text-lg font-semibold text-white" title={shipmentDisplay}>
-                  {shipmentDisplay}
-                </p>
-                <div className="mt-3 inline-flex items-center gap-2 rounded-full border border-accent/20 bg-accent/10 px-3 py-1 text-[11px] font-semibold text-accent">
-                  <Truck className="h-3.5 w-3.5" />
-                  {piecesCount} piece{piecesCount === 1 ? '' : 's'}
+
+              <div className="grid w-full max-w-xl grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                <div className={`${statCardClass} bg-[linear-gradient(180deg,rgba(107,200,255,0.12),rgba(12,19,33,0.92))]`}>
+                  <span className="text-xs uppercase tracking-[0.28em] text-slate-400">Project</span>
+                  <p className="mt-2 truncate text-lg font-semibold text-white" title={projectNameDisplay}>
+                    {projectNameDisplay}
+                  </p>
+                  <p className="mt-3 text-xs text-slate-400">
+                    {hasScopeContent ? 'Scope drafted' : 'Scope awaiting details'}
+                  </p>
+                </div>
+                <div className={`${statCardClass} bg-[linear-gradient(180deg,rgba(83,172,255,0.12),rgba(12,19,33,0.92))]`}>
+                  <span className="text-xs uppercase tracking-[0.28em] text-slate-400">Client</span>
+                  <p className="mt-2 truncate text-lg font-semibold text-white" title={companyDisplay}>
+                    {companyDisplay}
+                  </p>
+                  <p className="mt-3 truncate text-xs text-slate-400" title={contactDisplay}>
+                    Contact: {contactDisplay}
+                  </p>
+                </div>
+                  <div className={`${statCardClass} bg-[linear-gradient(180deg,rgba(74,132,255,0.14),rgba(12,19,33,0.92))]`}>
+                    <span className="text-xs uppercase tracking-[0.28em] text-slate-400">Logistics</span>
+                    <p className="mt-2 truncate text-lg font-semibold text-white" title={shipmentDisplay}>
+                      {shipmentDisplay}
+                  </p>
+                  <div className="mt-3 inline-flex items-center gap-2 rounded-full border border-accent/20 bg-accent/10 px-3 py-1 text-[11px] font-semibold text-accent">
+                    <Truck className="h-3.5 w-3.5" />
+                    {piecesCount} piece{piecesCount === 1 ? '' : 's'}
+                  </div>
                 </div>
               </div>
             </div>
@@ -727,10 +734,18 @@ const App: React.FC = () => {
                     errors={logisticsForm.formState.errors}
                   />
                   {logisticsData.shipmentType && (
-                    <LogisticsQuoteEmailCard
-                      equipmentData={equipmentData}
-                      logisticsData={logisticsData}
-                    />
+                    <Suspense
+                      fallback={
+                        <div className="rounded-2xl border border-accent/15 bg-surface/70 p-4 text-sm text-slate-300">
+                          Preparing logistics email…
+                        </div>
+                      }
+                    >
+                      <LogisticsQuoteEmailCard
+                        equipmentData={equipmentData}
+                        logisticsData={logisticsData}
+                      />
+                    </Suspense>
                   )}
                 </div>
               </div>
@@ -782,29 +797,42 @@ const App: React.FC = () => {
               </div>
             </div>
 
-            <div className="grid gap-6 lg:grid-cols-2">
-              <ClarificationsSection
-                title="Machinery Moving"
-                initialItems={[
-                  'Any change to the job will require approval in writing prior to completion of work.',
-                  'Customer is to supply clear pathway for all items to be loaded onto trailers',
-                  'Quote is based on no site visit and is not responsible for cracks in pavement or other unforeseen causes to not be able to perform work'
-                ]}
-              />
-              <ClarificationsSection
-                title="Crane"
-                initialItems={[
-                  'Crew to take half hour meal break between 4 - 5 hour start of shift in yard.',
-                  'Customer may work crew through first meal break and pay missed meal charge of $175 per crew member.',
-                  '60 ton boom truck quoted and 6 and 8 hour minimums. 8 hour quoted for budget.',
-                  'Quoted straight time and portal to portal.',
-                  'Overtime overtime to be charged $65/hour.',
-                  'Straight time is the first 8 hours worked between 5am - 6pm Monday through Friday including travel and dismantle.',
-                  'Customer may work crew through meal with signature on work ticket and pay missed meal charge of $175 per crew member per missed meal.',
-                  'Mandatory missed meal charge at 10 hours from start of shift.'
-                ]}
-              />
-            </div>
+            <Suspense
+              fallback={
+                <div className="grid gap-6 lg:grid-cols-2">
+                  {[0, 1].map(index => (
+                    <div
+                      key={index}
+                      className="h-40 rounded-3xl border border-accent/15 bg-surface/60 shadow-[0_35px_120px_rgba(10,18,35,0.55)]"
+                    />
+                  ))}
+                </div>
+              }
+            >
+              <div className="grid gap-6 lg:grid-cols-2">
+                <ClarificationsSection
+                  title="Machinery Moving"
+                  initialItems={[
+                    'Any change to the job will require approval in writing prior to completion of work.',
+                    'Customer is to supply clear pathway for all items to be loaded onto trailers',
+                    'Quote is based on no site visit and is not responsible for cracks in pavement or other unforeseen causes to not be able to perform work'
+                  ]}
+                />
+                <ClarificationsSection
+                  title="Crane"
+                  initialItems={[
+                    'Crew to take half hour meal break between 4 - 5 hour start of shift in yard.',
+                    'Customer may work crew through first meal break and pay missed meal charge of $175 per crew member.',
+                    '60 ton boom truck quoted and 6 and 8 hour minimums. 8 hour quoted for budget.',
+                    'Quoted straight time and portal to portal.',
+                    'Overtime overtime to be charged $65/hour.',
+                    'Straight time is the first 8 hours worked between 5am - 6pm Monday through Friday including travel and dismantle.',
+                    'Customer may work crew through meal with signature on work ticket and pay missed meal charge of $175 per crew member per missed meal.',
+                    'Mandatory missed meal charge at 10 hours from start of shift.'
+                  ]}
+                />
+              </div>
+            </Suspense>
           </section>
         </div>
 
@@ -813,23 +841,27 @@ const App: React.FC = () => {
         </footer>
       </main>
 
-      <AIExtractorModal
-        isOpen={showAIExtractor}
-        onClose={closeAIExtractor}
-        onExtract={handleAIExtraction}
-        sessionId={sessionId}
-        mode={extractorMode}
-      />
+      <Suspense fallback={null}>
+        <AIExtractorModal
+          isOpen={showAIExtractor}
+          onClose={closeAIExtractor}
+          onExtract={handleAIExtraction}
+          sessionId={sessionId}
+          mode={extractorMode}
+        />
+      </Suspense>
 
-      <QuoteSaveManager
-        equipmentData={equipmentData}
-        equipmentRequirements={equipmentData.equipmentRequirements}
-        logisticsData={logisticsData}
-        isOpen={showHistory}
-        onClose={closeHistory}
-        onLoadQuote={handleLoadQuote}
-        onQuoteSaved={handleQuoteSaved}
-      />
+      <Suspense fallback={null}>
+        <QuoteSaveManager
+          equipmentData={equipmentData}
+          equipmentRequirements={equipmentData.equipmentRequirements}
+          logisticsData={logisticsData}
+          isOpen={showHistory}
+          onClose={closeHistory}
+          onLoadQuote={handleLoadQuote}
+          onQuoteSaved={handleQuoteSaved}
+        />
+      </Suspense>
     </div>
   )
 }

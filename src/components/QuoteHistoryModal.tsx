@@ -319,7 +319,7 @@ const QuoteHistoryModal: React.FC<QuoteHistoryModalProps> = ({
                 <button
                   onClick={handleSaveNewQuote}
                   disabled={loading || !quoteNumber.trim()}
-                  className="w-full flex items-center justify-center px-4 py-2 bg-accent text-black rounded-lg hover:bg-green-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="w-full flex items-center justify-center px-4 py-2 bg-accent text-black rounded-lg hover:bg-sky-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
                   {loading ? (
                     <Loader className="w-4 h-4 animate-spin mr-2" />
@@ -439,7 +439,7 @@ const QuoteHistoryModal: React.FC<QuoteHistoryModalProps> = ({
                                 e.stopPropagation()
                                 handleLoadQuote(quote.id)
                               }}
-                              className="p-1 bg-accent text-black rounded hover:bg-green-400 transition-colors"
+                              className="p-1 bg-accent text-black rounded hover:bg-sky-300 transition-colors"
                               title="Load quote"
                             >
                               <Download className="w-3 h-3" />

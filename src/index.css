@@ -8,11 +8,31 @@
     @apply font-sans text-white antialiased bg-background;
     min-height: 100vh;
     background:
-      radial-gradient(circle at 15% 15%, rgba(28, 255, 135, 0.2), transparent 55%),
-      radial-gradient(circle at 75% 10%, rgba(56, 189, 248, 0.14), transparent 60%),
-      radial-gradient(circle at 50% 90%, rgba(28, 255, 135, 0.08), transparent 65%),
-      linear-gradient(180deg, #050b16 0%, #060f21 45%, #040812 100%);
+      radial-gradient(circle at 12% 18%, rgba(107, 200, 255, 0.2), transparent 45%),
+      radial-gradient(circle at 86% 12%, rgba(94, 165, 255, 0.18), transparent 42%),
+      radial-gradient(circle at 35% 82%, rgba(80, 158, 255, 0.14), transparent 50%),
+      linear-gradient(180deg, #091224 0%, #0b162c 38%, #091226 100%);
     background-attachment: fixed;
+    position: relative;
+  }
+
+  body::before,
+  body::after {
+    content: '';
+    position: fixed;
+    left: 0;
+    right: 0;
+    height: 32vh;
+    pointer-events: none;
+    background: radial-gradient(circle at 50% 0%, rgba(65, 118, 219, 0.2), transparent 55%);
+    opacity: 0.9;
+  }
+
+  body::after {
+    top: auto;
+    bottom: 0;
+    background: radial-gradient(circle at 50% 100%, rgba(67, 146, 255, 0.18), transparent 60%);
+    opacity: 0.7;
   }
 
   h1,
