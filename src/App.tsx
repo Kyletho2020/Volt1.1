@@ -10,7 +10,8 @@ import {
   Save,
   RefreshCcw,
   Truck,
-  Send
+  Send,
+  ClipboardList
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { useSessionId } from './hooks/useSessionId'
@@ -604,6 +605,13 @@ const App: React.FC = () => {
                         Start New Quote
                       </span>
                       <span className="text-xs text-slate-400">Reset</span>
+                    </button>
+                    <button type="button" onClick={openDailyConfirmation} className={primaryActionButton}>
+                      <span className="flex items-center gap-2">
+                        <ClipboardList className="h-4 w-4 text-accent" />
+                        Daily Confirmation
+                      </span>
+                      <span className="text-xs text-slate-400">Dispatch</span>
                     </button>
                     {quickSaveMessage && (
                       <p
