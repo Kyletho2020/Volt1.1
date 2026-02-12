@@ -41,9 +41,9 @@ const buildEquipmentSummary = (quote: SavedQuote): string => {
 };
 
 const buildConfirmationLine = (quote: SavedQuote): string => {
-  const contact = quote.contact_name || '';
   const company = quote.company_name || '';
-  const nameSection = [contact, company].filter(Boolean).join(' ');
+  const contact = quote.contact_name || '';
+  const nameSection = company || contact;
   const jobNumber = quote.job_number || '';
   const startTime = quote.start_time || '';
   const startTimePart = startTime ? `${startTime} start time` : '';
