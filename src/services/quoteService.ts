@@ -52,6 +52,7 @@ const generateLocalId = () => {
 export interface QuoteListItem {
   id: string
   quote_number: string
+  job_number: string | null
   project_name: string | null
   company_name: string | null
   contact_name: string | null
@@ -63,6 +64,8 @@ export interface QuoteListItem {
 export interface SavedQuote {
   id: string
   quote_number: string
+  job_number: string | null
+  start_time: string | null
   project_name: string | null
   company_name: string | null
   contact_name: string | null
@@ -119,6 +122,8 @@ export class QuoteService {
     const quoteData: SavedQuote = {
       id: existingId || generateLocalId(),
       quote_number: quoteNumber,
+      job_number: equipmentData.jobNumber || null,
+      start_time: equipmentData.startTime || null,
       project_name: equipmentData.projectName || null,
       company_name: equipmentData.companyName || null,
       contact_name: equipmentData.contactName || null,
@@ -180,6 +185,8 @@ export class QuoteService {
     try {
       const payload = {
         quote_number: quoteData.quote_number,
+        job_number: quoteData.job_number,
+        start_time: quoteData.start_time,
         project_name: quoteData.project_name,
         company_name: quoteData.company_name,
         contact_name: quoteData.contact_name,
@@ -236,9 +243,10 @@ export class QuoteService {
       return quotes
         .sort((a, b) => b.updated_at.localeCompare(a.updated_at))
         .slice(0, 50)
-        .map(({ id, quote_number, project_name, company_name, contact_name, email, created_at, updated_at }) => ({
+        .map(({ id, quote_number, job_number, project_name, company_name, contact_name, email, created_at, updated_at }) => ({
           id,
           quote_number,
+          job_number: job_number ?? null,
           project_name,
           company_name,
           contact_name,
@@ -251,7 +259,7 @@ export class QuoteService {
     try {
       const { data, error } = await supabase!
         .from('quotes')
-        .select('id, quote_number, project_name, company_name, contact_name, email, created_at, updated_at')
+        .select('id, quote_number, job_number, project_name, company_name, contact_name, email, created_at, updated_at')
         .order('updated_at', { ascending: false })
         .limit(50)
 
@@ -261,6 +269,7 @@ export class QuoteService {
 
       return (data || []).map(item => ({
         ...item,
+        job_number: item.job_number ?? null,
         email: item.email ?? null
       }))
     } catch (error) {
@@ -325,6 +334,7 @@ export class QuoteService {
         .filter(quote => {
           const values = [
             quote.quote_number,
+            quote.job_number || '',
             quote.project_name || '',
             quote.company_name || '',
             quote.contact_name || '',
@@ -335,9 +345,10 @@ export class QuoteService {
         })
         .sort((a, b) => b.updated_at.localeCompare(a.updated_at))
         .slice(0, 20)
-        .map(({ id, quote_number, project_name, company_name, contact_name, email, created_at, updated_at }) => ({
+        .map(({ id, quote_number, job_number, project_name, company_name, contact_name, email, created_at, updated_at }) => ({
           id,
           quote_number,
+          job_number: job_number ?? null,
           project_name,
           company_name,
           contact_name,
@@ -350,8 +361,8 @@ export class QuoteService {
     try {
       const { data, error } = await supabase!
         .from('quotes')
-        .select('id, quote_number, project_name, company_name, contact_name, email, created_at, updated_at')
-        .or(`quote_number.ilike.%${searchTerm}%,project_name.ilike.%${searchTerm}%,company_name.ilike.%${searchTerm}%,contact_name.ilike.%${searchTerm}%,email.ilike.%${searchTerm}%`)
+        .select('id, quote_number, job_number, project_name, company_name, contact_name, email, created_at, updated_at')
+        .or(`quote_number.ilike.%${searchTerm}%,job_number.ilike.%${searchTerm}%,project_name.ilike.%${searchTerm}%,company_name.ilike.%${searchTerm}%,contact_name.ilike.%${searchTerm}%,email.ilike.%${searchTerm}%`)
         .order('updated_at', { ascending: false })
         .limit(20)
 
@@ -361,6 +372,7 @@ export class QuoteService {
 
       return (data || []).map(item => ({
         ...item,
+        job_number: item.job_number ?? null,
         email: item.email ?? null
       }))
     } catch (error) {

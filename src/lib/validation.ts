@@ -15,6 +15,8 @@ export const pieceSchema = yup.object({
 })
 
 export const equipmentSchema = yup.object({
+  jobNumber: yup.string().optional(),
+  startTime: yup.string().optional(),
   projectName: yup.string().required('Project name is required'),
   companyName: yup.string().required('Company name is required'),
   jobNumber: yup.string(),

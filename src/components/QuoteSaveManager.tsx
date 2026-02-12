@@ -150,6 +150,8 @@ const QuoteSaveManager: React.FC<QuoteSaveManagerProps> = ({
       if (quote) {
         // Load the quote data into the forms
         const loadedEquipmentData = {
+          jobNumber: quote.job_number || '',
+          startTime: quote.start_time || '',
           projectName: quote.project_name || '',
           companyName: quote.company_name || '',
           contactName: quote.contact_name || '',

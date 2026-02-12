@@ -148,6 +148,8 @@ const QuoteHistoryModal: React.FC<QuoteHistoryModalProps> = ({
       const quote = await QuoteService.getQuote(id)
       if (quote) {
         const loadedEquipmentData = {
+          jobNumber: quote.job_number || '',
+          startTime: quote.start_time || '',
           projectName: quote.project_name || '',
           companyName: quote.company_name || '',
           contactName: quote.contact_name || '',

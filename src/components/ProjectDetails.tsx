@@ -19,6 +19,8 @@ import { UseFormRegister, FieldErrors } from 'react-hook-form'
 import { toTitleCase } from '../lib/titleCase'
 
 export interface ProjectDetailsData {
+  jobNumber: string
+  startTime: string
   projectName: string
   companyName: string
   contactName: string
@@ -140,7 +142,7 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({
   }
 
   const clearSection = () => {
-    ;(['projectName', 'companyName', 'contactName', 'siteAddress', 'sitePhone', 'scopeOfWork', 'email'] as (keyof ProjectDetailsData)[]).forEach(field => {
+    ;(['jobNumber', 'startTime', 'projectName', 'companyName', 'contactName', 'siteAddress', 'sitePhone', 'scopeOfWork', 'email'] as (keyof ProjectDetailsData)[]).forEach(field => {
       onChange(field, '')
     })
     onChange('shopLocation', 'Shop')
@@ -158,6 +160,62 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({
           <X className="h-4 w-4" />
           Clear Section
         </button>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium text-white mb-2">
+            <FileText className="w-4 h-4 inline mr-1" />
+            Job Number
+          </label>
+          {(() => {
+            const field = register('jobNumber')
+            return (
+              <>
+                <input
+                  type="text"
+                  value={data.jobNumber}
+                  onChange={(e) => {
+                    field.onChange(e)
+                    handleFieldChange('jobNumber', e.target.value)
+                  }}
+                  className={`w-full ${inputClasses}`}
+                  placeholder="e.g. 9237-24"
+                />
+                {errors.jobNumber && (
+                  <p className="text-red-500 text-xs mt-1">{String(errors.jobNumber.message)}</p>
+                )}
+              </>
+            )
+          })()}
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-white mb-2">
+            <FileText className="w-4 h-4 inline mr-1" />
+            Start Time
+          </label>
+          {(() => {
+            const field = register('startTime')
+            return (
+              <>
+                <input
+                  type="text"
+                  value={data.startTime}
+                  onChange={(e) => {
+                    field.onChange(e)
+                    handleFieldChange('startTime', e.target.value)
+                  }}
+                  className={`w-full ${inputClasses}`}
+                  placeholder="e.g. 8 am"
+                />
+                {errors.startTime && (
+                  <p className="text-red-500 text-xs mt-1">{String(errors.startTime.message)}</p>
+                )}
+              </>
+            )
+          })()}
+        </div>
       </div>
 
       <HubSpotContactSearch onSelectContact={handleSelectContact} />

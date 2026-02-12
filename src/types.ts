@@ -1,6 +1,8 @@
 import { EquipmentRequirements } from './components/EquipmentRequired'
 
 export interface EquipmentData {
+  jobNumber?: string
+  startTime?: string
   projectName?: string
   companyName?: string
   jobNumber?: string

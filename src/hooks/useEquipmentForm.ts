@@ -13,6 +13,8 @@ export const useEquipmentForm = () => {
   };
 
   const initialEquipmentData = {
+    jobNumber: '',
+    startTime: '',
     projectName: '',
     companyName: '',
     jobNumber: '',

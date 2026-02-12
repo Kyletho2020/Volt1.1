@@ -171,6 +171,8 @@ export const generateEmailTemplate = (
   equipmentRequirements: any
 ) => {
   const projectName = equipmentData.projectName || '[project name]'
+  const jobNumber = equipmentData.jobNumber || ''
+  const startTime = equipmentData.startTime || ''
   const contactName = equipmentData.contactName || '[Site Contact]'
   const contactFirstName = equipmentData.contactName
     ? equipmentData.contactName.trim().split(/\s+/)[0]
@@ -184,7 +186,10 @@ export const generateEmailTemplate = (
     ? `${equipmentRequirements.crewSize}-person crew`
     : '[Crew Size]'
 
-  return `Quote for ${contactFirstName}- Omega Morgan - ${projectName}\n\nHello ${contactFirstName},\n\nThank you for choosing to work with Omega Morgan on your upcoming project at ${siteAddress}.\n\nOur team is excited to support you and ensure everything goes smoothly from start to finish.\n\nBelow is a quick summary of the plan we discussed.\n\nPROJECT OVERVIEW\n• Project Name: ${projectName}\n• Site Contact: ${contactName}\n• Location: ${siteAddress}\n• Omega Morgan Equipment: ${equipmentSummary}\n• Crew on Site: ${crewSizeDescription}\n\nWORK PLAN\n${scopeOfWork}\n\nNEXT STEPS\nTo confirm the schedule, please return the completed mobile or credit account form along with the signed quote.\n\nIf you have any questions or need assistance, don’t hesitate to reach out.\n\nWe are happy to help, and we appreciate the opportunity to partner with you and your team. We look forward to a successful project.`
+  const jobLine = jobNumber ? `\n• Job Number: ${jobNumber}` : ''
+  const startTimeLine = startTime ? `\n• Start Time: ${startTime}` : ''
+
+  return `Quote for ${contactFirstName}- Omega Morgan - ${projectName}\n\nHello ${contactFirstName},\n\nThank you for choosing to work with Omega Morgan on your upcoming project at ${siteAddress}.\n\nOur team is excited to support you and ensure everything goes smoothly from start to finish.\n\nBelow is a quick summary of the plan we discussed.\n\nPROJECT OVERVIEW\n• Project Name: ${projectName}${jobLine}${startTimeLine}\n• Site Contact: ${contactName}\n• Location: ${siteAddress}\n• Omega Morgan Equipment: ${equipmentSummary}\n• Crew on Site: ${crewSizeDescription}\n\nWORK PLAN\n${scopeOfWork}\n\nNEXT STEPS\nTo confirm the schedule, please return the completed mobile or credit account form along with the signed quote.\n\nIf you have any questions or need assistance, don’t hesitate to reach out.\n\nWe are happy to help, and we appreciate the opportunity to partner with you and your team. We look forward to a successful project.`
 }
 
 export const generateScopeTemplate = (
@@ -193,6 +198,8 @@ export const generateScopeTemplate = (
   equipmentRequirements: any
 ) => {
   const siteAddress = equipmentData.siteAddress || '[Site Address]'
+  const jobNumber = equipmentData.jobNumber || ''
+  const jobLine = jobNumber ? `\nJob #: ${jobNumber}\n` : ''
   const contactName = equipmentData.contactName || '[Site Contact]'
   const phone = equipmentData.sitePhone || '[Site Phone]'
   const shopLocation = equipmentData.shopLocation || '[Shop]'
@@ -248,7 +255,7 @@ export const generateScopeTemplate = (
 
   return `Mobilize crew and Omega Morgan equipment to site:
 ${siteAddress}
-
+${jobLine}
 ${contactName}
 ${phone}
 
