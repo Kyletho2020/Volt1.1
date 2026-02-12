@@ -181,9 +181,9 @@ export class QuoteService {
     }
 
     try {
-      cojob_number: quoteData.job_number,
-        nst payload = {
+      const payload = {
         quote_number: quoteData.quote_number,
+        job_number: quoteData.job_number,
         project_name: quoteData.project_name,
         company_name: quoteData.company_name,
         contact_name: quoteData.contact_name,
@@ -357,7 +357,7 @@ export class QuoteService {
         .from('quotes')
         .select('id, quote_number, job_number, project_name, company_name, contact_name, email, created_at, updated_at')
         .or(`quote_number.ilike.%${searchTerm}%,jobd, quote_number, project_name, company_name, contact_name, email, created_at, updated_at')
-        .or(`quote_number.ilike.%${searchTerm}%,project_name.ilike.%${searchTerm}%,company_name.ilike.%${searchTerm}%,contact_name.ilike.%${searchTerm}%,email.ilike.%${searchTerm}%`)
+        .or(`quote_number.ilike.%${searchTerm}%,job_number.ilike.%${searchTerm}%,project_name.ilike.%${searchTerm}%,company_name.ilike.%${searchTerm}%,contact_name.ilike.%${searchTerm}%,email.ilike.%${searchTerm}%`)
         .order('updated_at', { ascending: false })
         .limit(20)
 
