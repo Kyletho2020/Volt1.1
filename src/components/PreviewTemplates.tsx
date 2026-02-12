@@ -158,7 +158,7 @@ const formatEquipmentList = (items: string[]) => {
 
 const formatUnderlinedHeading = (text: string) =>
   Array.from(text)
-    .map(char => (char === ' ' ? char : `${char}\u0332`))
+    .map(char => `${char}\u0332`)
     .join('')
 
 
