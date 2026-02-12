@@ -17,7 +17,6 @@ export const useEquipmentForm = () => {
     startTime: '',
     projectName: '',
     companyName: '',
-    jobNumber: '',
     contactName: '',
     siteAddress: '',
     sitePhone: '',

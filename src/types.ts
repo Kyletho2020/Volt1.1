@@ -5,7 +5,6 @@ export interface EquipmentData {
   startTime?: string
   projectName?: string
   companyName?: string
-  jobNumber?: string
   contactName?: string
   siteAddress?: string
   sitePhone?: string
