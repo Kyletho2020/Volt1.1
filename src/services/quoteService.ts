@@ -327,6 +327,34 @@ export class QuoteService {
     }
   }
 
+  static async getQuotesByJobNumbers(jobNumbers: string[]): Promise<SavedQuote[]> {
+    if (jobNumbers.length === 0) return []
+
+    const lowerNumbers = jobNumbers.map(n => n.toLowerCase())
+
+    if (!this.isRemoteEnabled()) {
+      return readLocalQuotes().filter(
+        quote => quote.job_number && lowerNumbers.includes(quote.job_number.toLowerCase())
+      )
+    }
+
+    try {
+      const { data, error } = await supabase!
+        .from('quotes')
+        .select('*')
+        .in('job_number', jobNumbers)
+
+      if (error) {
+        throw new Error(error.message)
+      }
+
+      return data || []
+    } catch (error) {
+      console.error('Error fetching quotes by job numbers:', error)
+      return []
+    }
+  }
+
   static async searchQuotes(searchTerm: string): Promise<QuoteListItem[]> {
     if (!this.isRemoteEnabled()) {
       const lowerTerm = searchTerm.toLowerCase()
