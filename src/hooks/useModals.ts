@@ -4,6 +4,7 @@ export const useModals = () => {
   const [showAIExtractor, setShowAIExtractor] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [showApiKeySetup, setShowApiKeySetup] = useState(false);
+  const [showDailyConfirmation, setShowDailyConfirmation] = useState(false);
 
   const openAIExtractor = () => setShowAIExtractor(true);
   const closeAIExtractor = () => setShowAIExtractor(false);
@@ -14,6 +15,9 @@ export const useModals = () => {
   const openApiKeySetup = () => setShowApiKeySetup(true);
   const closeApiKeySetup = () => setShowApiKeySetup(false);
 
+  const openDailyConfirmation = () => setShowDailyConfirmation(true);
+  const closeDailyConfirmation = () => setShowDailyConfirmation(false);
+
   return {
     showAIExtractor,
     openAIExtractor,
@@ -23,7 +27,10 @@ export const useModals = () => {
     closeHistory,
     showApiKeySetup,
     openApiKeySetup,
-    closeApiKeySetup
+    closeApiKeySetup,
+    showDailyConfirmation,
+    openDailyConfirmation,
+    closeDailyConfirmation
   };
 };
 

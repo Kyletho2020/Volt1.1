@@ -27,6 +27,7 @@ export interface ProjectDetailsData {
   shopLocation: string
   scopeOfWork: string
   email?: string
+  jobNumber?: string
 }
 
 interface ProjectDetailsProps {
@@ -262,6 +263,49 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({
             )
           })()}
         </div>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-white mb-2">
+          <FileText className="w-4 h-4 inline mr-1" />
+          Job Number
+        </label>
+        {(() => {
+          const field = register('jobNumber' as const)
+          return (
+            <>
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  value={data.jobNumber || ''}
+                  onChange={(e) => {
+                    field.onChange(e)
+                    handleFieldChange('jobNumber' as const, e.target.value)
+                  }}
+                  className={`flex-1 ${inputClasses}`}
+                  placeholder="e.g. 9237-24"
+                />
+                <button
+                  type="button"
+                  onClick={async () => {
+                    if (data.jobNumber) {
+                      await navigator.clipboard.writeText(data.jobNumber)
+                      // Add toast or state like others if needed
+                    }
+                  }}
+                  disabled={!data.jobNumber}
+                  className={iconButtonClasses}
+                  aria-label="Copy job number"
+                >
+                  <Copy className="h-4 w-4" />
+                </button>
+              </div>
+              {errors.jobNumber && (
+                <p className="text-red-500 text-xs mt-1">{String(errors.jobNumber.message)}</p>
+              )}
+            </>
+          )
+        })()}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

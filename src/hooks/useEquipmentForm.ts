@@ -15,6 +15,7 @@ export const useEquipmentForm = () => {
   const initialEquipmentData = {
     projectName: '',
     companyName: '',
+    jobNumber: '',
     contactName: '',
     siteAddress: '',
     sitePhone: '',

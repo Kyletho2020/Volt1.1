@@ -52,6 +52,7 @@ const generateLocalId = () => {
 export interface QuoteListItem {
   id: string
   quote_number: string
+  job_number: string | null
   project_name: string | null
   company_name: string | null
   contact_name: string | null
@@ -63,6 +64,7 @@ export interface QuoteListItem {
 export interface SavedQuote {
   id: string
   quote_number: string
+  job_number: string | null
   project_name: string | null
   company_name: string | null
   contact_name: string | null
@@ -118,6 +120,7 @@ export class QuoteService {
   ): Promise<{ success: boolean; id?: string; error?: string }> {
     const quoteData: SavedQuote = {
       id: existingId || generateLocalId(),
+      job_number: equipmentData.jobNumber || null,
       quote_number: quoteNumber,
       project_name: equipmentData.projectName || null,
       company_name: equipmentData.companyName || null,
@@ -178,7 +181,8 @@ export class QuoteService {
     }
 
     try {
-      const payload = {
+      cojob_number: quoteData.job_number,
+        nst payload = {
         quote_number: quoteData.quote_number,
         project_name: quoteData.project_name,
         company_name: quoteData.company_name,
@@ -251,7 +255,7 @@ export class QuoteService {
     try {
       const { data, error } = await supabase!
         .from('quotes')
-        .select('id, quote_number, project_name, company_name, contact_name, email, created_at, updated_at')
+        .select('id, quote_number, job_number, project_name, company_name, contact_name, email, created_at, updated_at')
         .order('updated_at', { ascending: false })
         .limit(50)
 
@@ -325,6 +329,7 @@ export class QuoteService {
         .filter(quote => {
           const values = [
             quote.quote_number,
+            quote.job_number || '',
             quote.project_name || '',
             quote.company_name || '',
             quote.contact_name || '',
@@ -350,7 +355,8 @@ export class QuoteService {
     try {
       const { data, error } = await supabase!
         .from('quotes')
-        .select('id, quote_number, project_name, company_name, contact_name, email, created_at, updated_at')
+        .select('id, quote_number, job_number, project_name, company_name, contact_name, email, created_at, updated_at')
+        .or(`quote_number.ilike.%${searchTerm}%,jobd, quote_number, project_name, company_name, contact_name, email, created_at, updated_at')
         .or(`quote_number.ilike.%${searchTerm}%,project_name.ilike.%${searchTerm}%,company_name.ilike.%${searchTerm}%,contact_name.ilike.%${searchTerm}%,email.ilike.%${searchTerm}%`)
         .order('updated_at', { ascending: false })
         .limit(20)
@@ -366,6 +372,30 @@ export class QuoteService {
     } catch (error) {
       console.error('Error searching quotes:', error)
       return []
+    }
+  }
+
+  static async getQuotesByJobNumbers(jobNumbers: string[]): Promise<SavedQuote[]> {
+    if (jobNumbers.length === 0) return [];
+
+    if (!this.isRemoteEnabled()) {
+      return readLocalQuotes().filter(quote => jobNumbers.includes(quote.job_number || ''));
+    }
+
+    try {
+      const { data, error } = await supabase!
+        .from('quotes')
+        .select('*')
+        .in('job_number', jobNumbers);
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      return data || [];
+    } catch (error) {
+      console.error('Error getting quotes by job numbers:', error);
+      return [];
     }
   }
 }

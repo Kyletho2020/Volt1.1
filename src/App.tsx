@@ -35,6 +35,7 @@ const AIExtractorModal = lazy(() => import('./components/AIExtractorModal'))
 const QuoteSaveManager = lazy(() => import('./components/QuoteSaveManager'))
 const ClarificationsSection = lazy(() => import('./components/ClarificationsSection'))
 const LogisticsQuoteEmailCard = lazy(() => import('./components/LogisticsQuoteEmailCard'))
+const DailyConfirmationModal = lazy(() => import('./components/DailyConfirmationModal'))
 
 type TemplateType = 'email' | 'scope' | 'logistics'
 
@@ -91,7 +92,10 @@ const App: React.FC = () => {
     closeAIExtractor,
     showHistory,
     openHistory,
-    closeHistory
+    closeHistory,
+    showDailyConfirmation,
+    openDailyConfirmation,
+    closeDailyConfirmation
   } = useModals()
 
   const [extractorMode, setExtractorMode] = useState<'all' | 'logistics' | 'scope'>('all')
@@ -860,6 +864,13 @@ const App: React.FC = () => {
           onClose={closeHistory}
           onLoadQuote={handleLoadQuote}
           onQuoteSaved={handleQuoteSaved}
+        />
+      </Suspense>
+
+      <Suspense fallback={null}>
+        <DailyConfirmationModal
+          isOpen={showDailyConfirmation}
+          onClose={closeDailyConfirmation}
         />
       </Suspense>
     </div>

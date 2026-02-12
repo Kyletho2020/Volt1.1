@@ -3,6 +3,7 @@ import { EquipmentRequirements } from './components/EquipmentRequired'
 export interface EquipmentData {
   projectName?: string
   companyName?: string
+  jobNumber?: string
   contactName?: string
   siteAddress?: string
   sitePhone?: string
