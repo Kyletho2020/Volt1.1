@@ -198,8 +198,6 @@ export const generateScopeTemplate = (
   equipmentRequirements: any
 ) => {
   const siteAddress = equipmentData.siteAddress || '[Site Address]'
-  const jobNumber = equipmentData.jobNumber || ''
-  const jobLine = jobNumber ? `\nJob #: ${jobNumber}\n` : ''
   const contactName = equipmentData.contactName || '[Site Contact]'
   const phone = equipmentData.sitePhone || '[Site Phone]'
   const shopLocation = equipmentData.shopLocation || '[Shop]'
@@ -255,7 +253,7 @@ export const generateScopeTemplate = (
 
   return `Mobilize crew and Omega Morgan equipment to site:
 ${siteAddress}
-${jobLine}
+
 ${contactName}
 ${phone}
 
