@@ -511,7 +511,7 @@ const App: React.FC = () => {
             <div className="relative flex flex-col gap-10 lg:flex-row lg:items-center lg:justify-between">
               <div className="max-w-2xl space-y-4">
                 <span className="inline-flex items-center gap-2 rounded-full border border-accent/40 bg-accent-soft/40 px-4 py-1 text-[11px] font-semibold uppercase tracking-[0.35em] text-accent">
-                  Volt 1.1
+                  Volt 1.2
                 </span>
                 <h1 className="text-4xl font-semibold leading-tight tracking-tight text-white sm:text-5xl">
                   Where Tasks Flow, Teams Sync, and Time Works for You
@@ -689,7 +689,7 @@ const App: React.FC = () => {
             <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.3em] text-accent">Workspace</p>
-                <h2 className="mt-3 text-3xl font-semibold text-white">Volt 1.1 Builder</h2>
+                <h2 className="mt-3 text-3xl font-semibold text-white">Volt 1.2 Builder</h2>
                 <p className="mt-2 text-sm text-slate-300">
                   Toggle between equipment and logistics flows without losing context or data.
                 </p>
@@ -849,7 +849,7 @@ const App: React.FC = () => {
         </div>
 
         <footer className="mt-16 border-t border-accent/10 pt-6 text-center text-xs text-slate-500">
-          Crafted for Omega Morgan&apos;s Volt 1.1 design language · Session ID: {sessionId}
+          Crafted for Omega Morgan&apos;s Volt 1.2 design language · Session ID: {sessionId}
         </footer>
       </main>
 
