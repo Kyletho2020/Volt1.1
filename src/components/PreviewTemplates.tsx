@@ -156,6 +156,12 @@ const formatEquipmentList = (items: string[]) => {
   return `${items.slice(0, -1).join(', ')} and ${items[items.length - 1]}`
 }
 
+const formatUnderlinedHeading = (text: string) =>
+  Array.from(text)
+    .map(char => (char === ' ' ? char : `${char}\u0332`))
+    .join('')
+
+
 const buildEquipmentSummary = (
   equipmentRequirements: any,
   options: { includeCrew?: boolean } = {}
@@ -188,8 +194,11 @@ export const generateEmailTemplate = (
 
   const jobLine = jobNumber ? `\n• Job Number: ${jobNumber}` : ''
   const startTimeLine = startTime ? `\n• Start Time: ${startTime}` : ''
+  const projectOverviewHeading = formatUnderlinedHeading('PROJECT OVERVIEW')
+  const workPlanHeading = formatUnderlinedHeading('WORK PLAN')
+  const nextStepsHeading = formatUnderlinedHeading('NEXT STEPS')
 
-  return `Quote for ${contactFirstName}- Omega Morgan - ${projectName}\n\nHello ${contactFirstName},\n\nThank you for choosing to work with Omega Morgan on your upcoming project at ${siteAddress}.\n\nOur team is excited to support you and ensure everything goes smoothly from start to finish.\n\nBelow is a quick summary of the plan we discussed.\n\nPROJECT OVERVIEW\n• Project Name: ${projectName}${jobLine}${startTimeLine}\n• Site Contact: ${contactName}\n• Location: ${siteAddress}\n• Omega Morgan Equipment: ${equipmentSummary}\n• Crew on Site: ${crewSizeDescription}\n\nWORK PLAN\n${scopeOfWork}\n\nNEXT STEPS\nTo confirm the schedule, please return the completed mobile or credit account form along with the signed quote.\n\nIf you have any questions or need assistance, don’t hesitate to reach out.\n\nWe are happy to help, and we appreciate the opportunity to partner with you and your team. We look forward to a successful project.`
+  return `Quote for ${contactFirstName}- Omega Morgan - ${projectName}\n\nHello ${contactFirstName},\n\nThank you for choosing to work with Omega Morgan on your upcoming project at ${siteAddress}.\n\nOur team is excited to support you and ensure everything goes smoothly from start to finish.\n\nBelow is a quick summary of the plan we discussed.\n\n${projectOverviewHeading}\n• Project Name: ${projectName}${jobLine}${startTimeLine}\n• Site Contact: ${contactName}\n• Location: ${siteAddress}\n• Omega Morgan Equipment: ${equipmentSummary}\n• Crew on Site: ${crewSizeDescription}\n\n${workPlanHeading}\n${scopeOfWork}\n\n${nextStepsHeading}\nTo confirm the schedule, please return the completed mobile or credit account form along with the signed quote.\n\nIf you have any questions or need assistance, don’t hesitate to reach out.\n\nWe are happy to help, and we appreciate the opportunity to partner with you and your team. We look forward to a successful project.`
 }
 
 export const generateScopeTemplate = (
