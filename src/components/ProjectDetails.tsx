@@ -24,6 +24,7 @@ export interface ProjectDetailsData {
   projectName: string
   companyName: string
   contactName: string
+  quotedContactName: string
   siteAddress: string
   sitePhone: string
   shopLocation: string
@@ -65,14 +66,14 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({
     'p-2 rounded-xl border border-accent/30 bg-accent-soft/40 text-accent transition hover:border-accent hover:bg-accent/10 hover:text-white disabled:cursor-not-allowed disabled:opacity-50'
   const handleFieldChange = (field: keyof ProjectDetailsData, rawValue: string) => {
     const value =
-      field === 'projectName' || field === 'contactName'
+      field === 'projectName' || field === 'contactName' || field === 'quotedContactName'
         ? toTitleCase(rawValue)
         : rawValue
     onChange(field, value)
     if (selectedContactId) {
       setPendingUpdates(prev => {
         const payload = { ...prev }
-        if (field === 'contactName') {
+        if (field === 'contactName' || field === 'quotedContactName') {
           const [firstName, ...rest] = value.split(' ')
           payload.firstName = firstName
           payload.lastName = rest.join(' ')
@@ -141,7 +142,7 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({
   }
 
   const clearSection = () => {
-    ;(['jobNumber', 'startTime', 'projectName', 'companyName', 'contactName', 'siteAddress', 'sitePhone', 'scopeOfWork', 'email'] as (keyof ProjectDetailsData)[]).forEach(field => {
+    ;(['jobNumber', 'startTime', 'projectName', 'companyName', 'contactName', 'quotedContactName', 'siteAddress', 'sitePhone', 'scopeOfWork', 'email'] as (keyof ProjectDetailsData)[]).forEach(field => {
       onChange(field, '')
     })
     onChange('shopLocation', 'Shop')
@@ -352,6 +353,37 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({
           })()}
         </div>
 
+        <div>
+          <label className="block text-sm font-medium text-white mb-2">
+            <User className="w-4 h-4 inline mr-1" />
+            Quoted Contact (optional)
+          </label>
+          {(() => {
+            const field = register('quotedContactName')
+            return (
+              <>
+                <input
+                  type="text"
+                  value={data.quotedContactName || ''}
+                  onChange={(e) => {
+                    const formattedValue = toTitleCase(e.target.value)
+                    e.target.value = formattedValue
+                    field.onChange(e)
+                    handleFieldChange('quotedContactName', formattedValue)
+                  }}
+                  className={`w-full ${inputClasses}`}
+                  placeholder="Defaults to site contact"
+                />
+                {errors.quotedContactName && (
+                  <p className="text-red-500 text-xs mt-1">{String(errors.quotedContactName.message)}</p>
+                )}
+              </>
+            )
+          })()}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium text-white mb-2">
             <Phone className="w-4 h-4 inline mr-1" />
