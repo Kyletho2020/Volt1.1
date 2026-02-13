@@ -19,6 +19,7 @@ describe('ProjectDetails copy button', () => {
       projectName: 'My Project',
       companyName: '',
       contactName: '',
+      quotedContactName: '',
       siteAddress: '',
       sitePhone: '',
       shopLocation: '',
@@ -32,6 +33,8 @@ describe('ProjectDetails copy button', () => {
         onChange={() => {}}
         onSelectContact={() => {}}
         onCopySiteAddress={() => true}
+        onOpenScopeExtractor={() => {}}
+        canUseAI={false}
         register={() => ({ onChange: () => {} }) as any}
         errors={{}}
       />
@@ -51,6 +54,7 @@ describe('ProjectDetails copy button', () => {
       projectName: '',
       companyName: '',
       contactName: '',
+      quotedContactName: '',
       siteAddress: '123 Main St, Portland, OR 97205',
       sitePhone: '',
       shopLocation: '',
@@ -64,6 +68,8 @@ describe('ProjectDetails copy button', () => {
         onChange={() => {}}
         onSelectContact={() => {}}
         onCopySiteAddress={copyHandler}
+        onOpenScopeExtractor={() => {}}
+        canUseAI={false}
         register={() => ({ onChange: () => {} }) as any}
         errors={{}}
       />

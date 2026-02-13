@@ -6,6 +6,7 @@ export interface EquipmentData {
   projectName?: string
   companyName?: string
   contactName?: string
+  quotedContactName?: string
   siteAddress?: string
   sitePhone?: string
   shopLocation?: string

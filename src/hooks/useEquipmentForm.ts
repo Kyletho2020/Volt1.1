@@ -18,6 +18,7 @@ export const useEquipmentForm = () => {
     projectName: '',
     companyName: '',
     contactName: '',
+    quotedContactName: '',
     siteAddress: '',
     sitePhone: '',
     shopLocation: 'Shop',
@@ -77,6 +78,7 @@ export const useEquipmentForm = () => {
     setEquipmentData(prev => ({
       ...prev,
       contactName: `${contact.firstName} ${contact.lastName}`.trim(),
+      quotedContactName: `${contact.firstName} ${contact.lastName}`.trim(),
       email: contact.email,
       sitePhone: contact.phone || prev.sitePhone,
       companyName: contact.companyName || prev.companyName,

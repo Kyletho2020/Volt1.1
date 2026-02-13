@@ -20,6 +20,7 @@ export const equipmentSchema = yup.object({
   projectName: yup.string().required('Project name is required'),
   companyName: yup.string().required('Company name is required'),
   contactName: yup.string().required('Site contact is required'),
+  quotedContactName: yup.string().optional(),
   email: yup
     .string()
     .trim()
