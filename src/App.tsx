@@ -31,6 +31,7 @@ import { createLogisticsPiece } from './lib/logisticsPieces'
 import { parseAddressParts } from './lib/address'
 import { HubSpotContact } from './services/hubspotService'
 import { QuoteService } from './services/quoteService'
+import HubSpotChatWidget from './components/HubSpotChatWidget'
 
 const AIExtractorModal = lazy(() => import('./components/AIExtractorModal'))
 const QuoteSaveManager = lazy(() => import('./components/QuoteSaveManager'))
@@ -502,6 +503,8 @@ const App: React.FC = () => {
       <div className="absolute -top-56 -left-52 -z-10 h-[30rem] w-[30rem] rounded-full bg-sky-500/35 blur-[180px] opacity-90" />
       <div className="absolute -bottom-52 right-[-6rem] -z-10 h-[28rem] w-[28rem] rounded-full bg-sky-400/25 blur-[170px] opacity-70" />
       <div className="absolute inset-x-0 top-64 -z-10 h-[18rem] bg-[radial-gradient(circle_at_50%_0%,rgba(107,200,255,0.14),transparent_60%)]" />
+
+      <HubSpotChatWidget />
 
       <header className="relative z-10 border-b border-accent/10">
         <div className="mx-auto flex max-w-7xl flex-col gap-8 px-4 pb-12 pt-10 sm:px-6 lg:px-8">
