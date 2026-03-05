@@ -23,6 +23,8 @@ export const useEquipmentForm = () => {
     shopLocation: 'Shop',
     scopeOfWork: '',
     email: '',
+    siteContactName: '',
+    siteContactPhone: '',
     equipmentRequirements: initialEquipmentRequirements
   };
 

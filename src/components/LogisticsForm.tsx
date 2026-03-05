@@ -18,19 +18,15 @@ import {
   normalizeStorageLocation,
   type StorageLocation
 } from '../lib/storage'
+import { Button, Toggle } from './ui'
 
 const APPROX_PATTERN = /\s*\(approx\.\)/gi
 
 const stripApproxSuffix = (value: string) =>
-  value
-    .replace(APPROX_PATTERN, ' ')
-    .replace(/\s+/g, ' ')
-    .trim()
+  value.replace(APPROX_PATTERN, ' ').replace(/\s+/g, ' ').trim()
 
 const titleCase = (value: string) =>
-  value
-    .toLowerCase()
-    .replace(/\b([a-z])/g, (_, char) => char.toUpperCase())
+  value.toLowerCase().replace(/\b([a-z])/g, (_, char) => char.toUpperCase())
 
 const applyApproxSuffix = (value: string) =>
   value ? `${value} (approx.)` : value
@@ -44,29 +40,15 @@ export const formatDescriptionInputValue = (
   const withoutApprox = stripApproxSuffix(normalizedWhitespace)
   const capitalized = titleCase(withoutApprox)
   const withApprox = options.approximateLabelEnabled ? applyApproxSuffix(capitalized) : capitalized
-
-  if (hasTrailingSpace) {
-    if (withApprox) {
-      return `${withApprox} `
-    }
-    return ' '
-  }
-
+  if (hasTrailingSpace) return withApprox ? `${withApprox} ` : ' '
   return withApprox
 }
 
 interface LogisticsFormProps {
   data: LogisticsData
   selectedPieces: string[]
-  onFieldChange: <K extends keyof LogisticsData>(
-    field: K,
-    value: LogisticsData[K]
-  ) => void
-  onPieceChange: (
-    index: number,
-    field: keyof LogisticsPiece,
-    value: string | number
-  ) => void
+  onFieldChange: <K extends keyof LogisticsData>(field: K, value: LogisticsData[K]) => void
+  onPieceChange: (index: number, field: keyof LogisticsPiece, value: string | number) => void
   addPiece: () => void
   duplicatePiece: (pieceId: string) => void
   removePiece: (pieceId: string) => void
@@ -79,44 +61,32 @@ interface LogisticsFormProps {
   errors: FieldErrors<LogisticsData>
 }
 
+const inputCls =
+  'h-9 rounded-lg border border-surface-overlay bg-surface-raised px-3 text-sm text-white placeholder-gray-500 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent'
+const selectCls =
+  'h-9 rounded-lg border border-surface-overlay bg-surface-raised px-3 text-sm text-white focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent'
+const labelCls = 'block text-xs font-medium uppercase tracking-wide text-gray-400 mb-1'
+
 const LogisticsForm: React.FC<LogisticsFormProps> = ({
-  data,
-  selectedPieces,
-  onFieldChange,
-  onPieceChange,
-  addPiece,
-  duplicatePiece,
-  removePiece,
-  togglePieceSelection,
-  deleteSelectedPieces,
-  movePiece,
-  onOpenLogisticsExtractor,
-  canUseAI,
-  register,
-  errors
+  data, selectedPieces, onFieldChange, onPieceChange,
+  addPiece, duplicatePiece, removePiece, togglePieceSelection,
+  deleteSelectedPieces, movePiece, onOpenLogisticsExtractor,
+  canUseAI, register, errors
 }) => {
   const [approximateLabelEnabled, setApproximateLabelEnabled] = React.useState(false)
-  const [dimensionUnit, setDimensionUnit] = React.useState<'in' | 'ft'>(
-    data.dimensionUnit || 'in'
-  )
+  const [dimensionUnit, setDimensionUnit] = React.useState<'in' | 'ft'>(data.dimensionUnit || 'in')
 
-  React.useEffect(() => {
-    setDimensionUnit(data.dimensionUnit || 'in')
-  }, [data.dimensionUnit])
+  React.useEffect(() => { setDimensionUnit(data.dimensionUnit || 'in') }, [data.dimensionUnit])
 
   const formatDescriptionValue = React.useCallback(
-    (rawValue: string) =>
-      formatDescriptionInputValue(rawValue, {
-        approximateLabelEnabled
-      }),
+    (rawValue: string) => formatDescriptionInputValue(rawValue, { approximateLabelEnabled }),
     [approximateLabelEnabled]
   )
 
   const parseMeasurement = (value: string | number | undefined) => {
     if (typeof value === 'number') return value
     if (!value) return null
-    const sanitized = value.replace(/[^0-9.-]/g, '')
-    const parsed = parseFloat(sanitized)
+    const parsed = parseFloat(value.replace(/[^0-9.-]/g, ''))
     return Number.isFinite(parsed) ? parsed : null
   }
 
@@ -129,17 +99,13 @@ const LogisticsForm: React.FC<LogisticsFormProps> = ({
   const handleDimensionUnitChange = (unit: 'in' | 'ft') => {
     if (unit === dimensionUnit) return
     const factor = unit === 'ft' ? 1 / 12 : 12
-
     data.pieces?.forEach((piece, pieceIndex) => {
       ;(['length', 'width', 'height'] as const).forEach(field => {
         const numericValue = parseMeasurement(piece[field])
         if (numericValue === null) return
-        const convertedValue = numericValue * factor
-        const formattedValue = formatMeasurement(convertedValue)
-        onPieceChange(pieceIndex, field, formattedValue)
+        onPieceChange(pieceIndex, field, formatMeasurement(numericValue * factor))
       })
     })
-
     setDimensionUnit(unit)
     onFieldChange('dimensionUnit', unit)
   }
@@ -148,29 +114,16 @@ const LogisticsForm: React.FC<LogisticsFormProps> = ({
     setApproximateLabelEnabled(prev => {
       const next = !prev
       data.pieces?.forEach((piece, index) => {
-        const baseDescription = stripApproxSuffix(piece.description || '')
-        const capitalized = titleCase(baseDescription)
-        const updatedDescription = next
-          ? applyApproxSuffix(capitalized)
-          : capitalized
-        onPieceChange(index, 'description', updatedDescription)
+        const base = stripApproxSuffix(piece.description || '')
+        const capitalized = titleCase(base)
+        onPieceChange(index, 'description', next ? applyApproxSuffix(capitalized) : capitalized)
       })
       return next
     })
   }
 
-  const createSyntheticEvent = (
-    name: string,
-    value: string
-  ): React.ChangeEvent<HTMLInputElement> => ({
-    target: { name, value }
-  } as React.ChangeEvent<HTMLInputElement>)
-  const containerClasses =
-    'relative overflow-hidden rounded-2xl border border-accent/20 bg-surface/70 p-4 shadow-[0_18px_60px_rgba(10,18,35,0.45)] backdrop-blur'
-  const inputClasses =
-    'h-9 rounded-lg border border-accent/25 bg-surface-highlight/60 px-3 text-sm text-white placeholder:text-slate-400 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/30'
-  const selectClasses =
-    'h-9 rounded-lg border border-accent/25 bg-surface-highlight/60 px-3 text-sm text-white focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/30'
+  const createSyntheticEvent = (name: string, value: string): React.ChangeEvent<HTMLInputElement> =>
+    ({ target: { name, value } } as React.ChangeEvent<HTMLInputElement>)
 
   const shipmentOptions = [
     { value: '', label: 'Select shipment type' },
@@ -178,22 +131,10 @@ const LogisticsForm: React.FC<LogisticsFormProps> = ({
     { value: 'FTL (Full Truck Load)', label: 'FTL (Full Truck Load)' }
   ] as const
 
-  const truckTypeOptions = [
-    'Flatbed',
-    'Flatbed with tarp',
-    'Conestoga',
-    'Step Deck',
-    'Dry Van'
-  ]
+  const truckTypeOptions = ['Flatbed', 'Flatbed with tarp', 'Conestoga', 'Step Deck', 'Dry Van']
 
-  const hasCustomShipmentType =
-    data.shipmentType &&
-    !shipmentOptions.some(option => option.value === data.shipmentType)
-  const hasCustomTruckType =
-    data.truckType &&
-    !truckTypeOptions.some(
-      (option) => option.toLowerCase() === data.truckType?.toLowerCase()
-    )
+  const hasCustomShipmentType = data.shipmentType && !shipmentOptions.some(o => o.value === data.shipmentType)
+  const hasCustomTruckType = data.truckType && !truckTypeOptions.some(o => o.toLowerCase() === data.truckType?.toLowerCase())
 
   const shipmentTypeRegister = register('shipmentType')
   const truckTypeRegister = register('truckType')
@@ -206,574 +147,386 @@ const LogisticsForm: React.FC<LogisticsFormProps> = ({
   const sanitizedSqFtInput = data.storageSqFt?.replace(/,/g, '') ?? ''
   const parsedSqFt = parseFloat(sanitizedSqFtInput)
   const storageCost =
-    data.includeStorage &&
-    storageRate !== null &&
-    !Number.isNaN(parsedSqFt)
-      ? parsedSqFt * storageRate
-      : null
-  const currencyFormatter = new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD'
-  })
+    data.includeStorage && storageRate !== null && !Number.isNaN(parsedSqFt)
+      ? parsedSqFt * storageRate : null
+  const currencyFormatter = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' })
   const storageCostLabel = storageCost !== null ? currencyFormatter.format(storageCost) : '--'
 
+  const actionBtnCls = 'rounded-md p-1 text-gray-500 transition hover:bg-surface-overlay hover:text-white disabled:opacity-40 disabled:cursor-not-allowed'
+
   return (
-    <div className={containerClasses}>
-      <div className="pointer-events-none absolute -bottom-32 -right-10 h-48 w-48 rounded-full bg-accent/25 blur-[120px] opacity-80" />
-      <div className="relative z-10 flex flex-col gap-5">
-        <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-          <div className="flex items-center gap-3">
-            <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-accent/15 text-accent">
-              <Truck className="h-4 w-4" />
-            </span>
-            <div>
-              <h2 className="text-lg font-semibold text-white">Shipment Items</h2>
-              <p className="text-xs text-slate-300">Add item details for accurate quote calculation.</p>
-            </div>
+    <div className="space-y-5">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <h2 className="text-sm font-semibold text-white">Shipment Items</h2>
+        <Button
+          variant={canUseAI ? 'secondary' : 'ghost'}
+          size="sm"
+          icon={Bot}
+          onClick={onOpenLogisticsExtractor}
+          disabled={!canUseAI}
+        >
+          Logistics AI
+        </Button>
+      </div>
+
+      {/* Pieces section */}
+      <div className="rounded-xl border border-surface-overlay/50 bg-surface-raised p-3">
+        <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+          <div className="flex items-center gap-2 text-xs font-semibold text-white">
+            <Package className="h-3.5 w-3.5 text-accent" />
+            Shipment Items
           </div>
-          <button
-            type="button"
-            onClick={onOpenLogisticsExtractor}
-            disabled={!canUseAI}
-            className={`inline-flex items-center justify-center gap-1 rounded-lg border px-3 py-1.5 text-[11px] font-medium transition ${
-              canUseAI
-                ? 'border-accent/40 bg-accent-soft/40 text-accent hover:border-accent hover:bg-accent/15 hover:text-white'
-                : 'border-accent/15 bg-surface/40 text-slate-500/80 cursor-not-allowed'
-            }`}
-          >
-            <Bot className="h-3 w-3" />
-            Logistics AI
-          </button>
+          <div className="flex flex-wrap items-center gap-1.5">
+            <button
+              type="button"
+              onClick={toggleApproximateLabels}
+              className={`inline-flex items-center gap-1 rounded-md border px-2 py-1 text-[11px] font-medium transition ${
+                approximateLabelEnabled
+                  ? 'border-accent/30 bg-accent-soft text-accent'
+                  : 'border-surface-overlay bg-surface text-gray-400 hover:text-white'
+              }`}
+              aria-pressed={approximateLabelEnabled}
+            >
+              <Info className="h-3 w-3" />
+              {approximateLabelEnabled ? 'Remove Approx.' : 'Add Approx.'}
+            </button>
+            <div className="flex items-center rounded-md border border-surface-overlay bg-surface text-[11px] font-medium text-gray-400">
+              <span className="px-2 py-1 text-[10px] uppercase tracking-wider">Dim</span>
+              {(['in', 'ft'] as const).map(unit => (
+                <button
+                  key={unit}
+                  type="button"
+                  onClick={() => handleDimensionUnitChange(unit)}
+                  className={`px-2 py-1 transition ${
+                    dimensionUnit === unit ? 'bg-accent-soft text-accent' : 'text-gray-400 hover:text-white'
+                  }`}
+                  aria-pressed={dimensionUnit === unit}
+                >
+                  {unit === 'in' ? 'Inches' : 'Feet'}
+                </button>
+              ))}
+            </div>
+            <Button
+              variant="danger"
+              size="sm"
+              icon={Trash2}
+              onClick={deleteSelectedPieces}
+              disabled={selectedPieces.length === 0}
+            >
+              Delete
+            </Button>
+            <Button variant="primary" size="sm" icon={Plus} onClick={addPiece}>
+              Add Item
+            </Button>
+          </div>
         </div>
 
-        <div className="space-y-5">
-          <div className="rounded-xl border border-accent/20 bg-surface-highlight/40 px-3 py-3">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div className="flex items-center gap-2 text-[13px] font-semibold text-white">
-                <Package className="h-3.5 w-3.5 text-accent" />
-                Shipment Items
-              </div>
+        {approximateLabelEnabled && (
+          <p className="mb-2 text-[11px] text-accent/80">
+            Items tagged with <span className="font-semibold">(approx.)</span> for estimated measurements.
+          </p>
+        )}
+
+        <div className="space-y-2">
+          {(data.pieces ?? []).map((piece, index) => (
+            <div
+              key={piece.id}
+              className="rounded-lg border border-surface-overlay/50 bg-surface p-3 transition hover:border-surface-overlay"
+            >
               <div className="flex flex-wrap items-center gap-2">
-                <button
-                  type="button"
-                  onClick={toggleApproximateLabels}
-                  className={`inline-flex items-center gap-1 rounded-lg border px-2.5 py-1.5 text-[11px] font-semibold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent/50 ${
-                    approximateLabelEnabled
-                      ? 'border-accent/30 bg-accent/10 text-accent'
-                      : 'border-accent/20 bg-surface/50 text-slate-200 hover:border-accent/40 hover:text-white'
-                  }`}
-                  aria-pressed={approximateLabelEnabled}
-                >
-                  <Info className="h-3 w-3" />
-                  {approximateLabelEnabled ? 'Remove Approx.' : 'Add Approx.'}
-                </button>
-                <div className="flex items-center rounded-lg border border-accent/20 bg-surface/60 text-[11px] font-semibold text-slate-200">
-                  <span className="px-2 py-1 text-[10px] uppercase tracking-[0.2em] text-slate-400">
-                    Dimensions
-                  </span>
-                  {(['in', 'ft'] as const).map(unit => (
-                    <button
-                      key={unit}
-                      type="button"
-                      onClick={() => handleDimensionUnitChange(unit)}
-                      className={`px-2.5 py-1 transition ${
-                        dimensionUnit === unit
-                          ? 'bg-accent/20 text-accent'
-                          : 'text-slate-300 hover:text-white'
-                      }`}
-                      aria-pressed={dimensionUnit === unit}
-                    >
-                      {unit === 'in' ? 'Inches' : 'Feet'}
-                    </button>
-                  ))}
-                </div>
-                <button
-                  onClick={deleteSelectedPieces}
-                  disabled={selectedPieces.length === 0}
-                  className="inline-flex items-center gap-1 rounded-lg bg-red-600/80 px-2.5 py-1.5 text-[11px] font-semibold text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-40"
-                >
-                  <Trash2 className="h-3 w-3" />
-                  Delete Selected
-                </button>
-                <button
-                  onClick={addPiece}
-                  className="inline-flex items-center gap-1 rounded-lg bg-accent px-2.5 py-1.5 text-[11px] font-semibold text-black transition hover:bg-sky-300"
-                >
-                  <Plus className="h-3 w-3" />
-                  Add Item
-                </button>
-              </div>
-            </div>
-
-            {approximateLabelEnabled && (
-              <p className="mt-2 text-[11px] text-accent/80">
-                Item names are now tagged with <span className="font-semibold">(approx.)</span> to highlight estimated measurements.
-              </p>
-            )}
-
-            <div className="mt-3 space-y-2 text-white">
-              {(data.pieces ?? []).map((piece, index) => (
-                <div
-                  key={piece.id}
-                  className="rounded-lg border border-white/10 bg-surface/60 p-3 shadow-sm transition hover:border-white/20"
-                >
-                  <div className="flex flex-wrap items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={selectedPieces.includes(piece.id)}
-                      onChange={() => togglePieceSelection(piece.id)}
-                      className="h-4 w-4 rounded border-accent/40 bg-transparent text-accent focus:ring-accent/60"
-                    />
-                    <span className="inline-flex h-6 min-w-[2rem] items-center justify-center rounded-md border border-accent/30 bg-accent/10 px-2 text-xs font-semibold uppercase tracking-wide text-accent/90">
-                      #{index + 1}
-                    </span>
-                    {(() => {
-                          const field = register(`pieces.${index}.description` as const)
-                          return (
-                            <div className="flex-1 min-w-[180px]">
-                              <input
-                                type="text"
-                                value={piece.description}
-                                onChange={(e) => {
-                                  const formattedValue = formatDescriptionValue(e.target.value)
-                                  field.onChange(createSyntheticEvent(field.name, formattedValue))
-                                  onPieceChange(index, 'description', formattedValue)
-                                }}
-                                className={`${inputClasses} w-full text-sm`}
-                                placeholder="Item description (e.g., Electronics box, Furniture)"
-                              />
-                          {errors.pieces?.[index]?.description && (
-                            <p className="mt-1 text-[11px] text-red-400">
-                              {String(errors.pieces[index]?.description?.message)}
-                            </p>
-                          )}
-                        </div>
-                      )
-                    })()}
-
-                    <div className="ml-auto flex items-center gap-1">
-                      <button
-                        onClick={() => movePiece(index, index - 1)}
-                        disabled={index === 0}
-                        className="rounded-md p-1 text-slate-300 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
-                        title="Move up"
-                      >
-                        <ArrowUp className="h-3.5 w-3.5" />
-                      </button>
-                      <button
-                        onClick={() => movePiece(index, index + 1)}
-                        disabled={index === (data.pieces?.length ?? 0) - 1}
-                        className="rounded-md p-1 text-slate-300 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
-                        title="Move down"
-                      >
-                        <ArrowDown className="h-3.5 w-3.5" />
-                      </button>
-                      <button
-                        onClick={() => duplicatePiece(piece.id)}
-                        className="rounded-md p-1 text-accent transition hover:bg-accent/10"
-                        title="Duplicate item"
-                      >
-                        <Copy className="h-3.5 w-3.5" />
-                      </button>
-                      <button
-                        onClick={() => removePiece(piece.id)}
-                        className="rounded-md p-1 text-red-400 transition hover:bg-red-500/10"
-                        title="Remove item"
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-6">
-                    <div>
-                      {(() => {
-                        const field = register(`pieces.${index}.quantity` as const)
-                        return (
-                          <>
-                            <label className="mb-1 block text-[11px] uppercase tracking-wide text-slate-400">Quantity</label>
-                            <input
-                              type="number"
-                              min="1"
-                              value={piece.quantity}
-                              onChange={(e) => {
-                                field.onChange(e)
-                                onPieceChange(index, 'quantity', parseInt(e.target.value) || 1)
-                              }}
-                              className={`${inputClasses} w-full text-center`}
-                              placeholder="0"
-                            />
-                            {errors.pieces?.[index]?.quantity && (
-                              <p className="mt-1 text-[11px] text-red-400">
-                                {String(errors.pieces[index]?.quantity?.message)}
-                              </p>
-                            )}
-                          </>
-                        )
-                      })()}
-                    </div>
-
-                    {(['length', 'width', 'height', 'weight'] as const).map((field) => (
-                      <div key={field}>
-                        {(() => {
-                          const fieldRegister = register(`pieces.${index}.${field}` as const)
-                          const rawValue = piece[field]
-                          const displayValue = typeof rawValue === 'number' ? rawValue.toString() : rawValue || ''
-                          return (
-                            <>
-                              <label className="mb-1 block text-[11px] uppercase tracking-wide text-slate-400">
-                                {field === 'weight'
-                                  ? 'Weight (lbs)'
-                                  : `${field.charAt(0).toUpperCase() + field.slice(1)} (${dimensionUnit === 'in' ? 'in' : 'ft'})`}
-                              </label>
-                              <input
-                                type="text"
-                                value={displayValue}
-                                onChange={(e) => {
-                                  fieldRegister.onChange(e)
-                                  onPieceChange(index, field, e.target.value)
-                                }}
-                                className={`${inputClasses} w-full text-center`}
-                                placeholder={field === 'weight'
-                                  ? '0'
-                                  : dimensionUnit === 'in'
-                                    ? '0"'
-                                    : '0 ft'}
-                              />
-                              {errors.pieces?.[index]?.[field] && (
-                                <p className="mt-1 text-[11px] text-red-400">
-                                  {String(errors.pieces[index]?.[field]?.message)}
-                                </p>
-                              )}
-                            </>
-                          )
-                        })()}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ))}
-              {(data.pieces?.length ?? 0) === 0 && (
-                <p className="rounded-lg border border-dashed border-white/15 bg-surface/40 px-4 py-6 text-center text-sm text-slate-300">
-                  No items added yet. Click <span className="font-semibold text-white">"Add Item"</span> to start detailing the shipment.
-                </p>
-              )}
-            </div>
-          </div>
-
-          {(() => {
-            const totalItems = (data.pieces ?? []).reduce((sum, piece) => sum + (Number(piece.quantity) || 0), 0)
-            const totalWeight = (data.pieces ?? []).reduce((sum, piece) => {
-              const qty = Number(piece.quantity) || 0
-              const weight = parseFloat(String(piece.weight).replace(/[^0-9.]/g, '')) || 0
-              return sum + qty * weight
-            }, 0)
-            const totalFootprint = (data.pieces ?? []).reduce((sum, piece) => {
-              const qty = Number(piece.quantity) || 0
-              const lengthRaw = parseFloat(String(piece.length).replace(/[^0-9.]/g, '')) || 0
-              const widthRaw = parseFloat(String(piece.width).replace(/[^0-9.]/g, '')) || 0
-              const lengthInches = dimensionUnit === 'ft' ? lengthRaw * 12 : lengthRaw
-              const widthInches = dimensionUnit === 'ft' ? widthRaw * 12 : widthRaw
-              const footprint = lengthInches * widthInches
-              return sum + footprint * qty
-            }, 0)
-            const totalFootprintSqFt = totalFootprint / 144
-
-            return (
-              <div className="rounded-xl border border-accent/20 bg-surface-highlight/40 p-3">
-                <p className="mb-3 text-[13px] font-semibold uppercase tracking-[0.18em] text-slate-300">
-                  Shipment Summary
-                </p>
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-                  <div className="rounded-lg border border-white/10 bg-surface/60 p-3">
-                    <p className="text-xs text-slate-400">Total Items</p>
-                    <p className="text-lg font-semibold text-white">{totalItems.toFixed(0)}</p>
-                  </div>
-                  <div className="rounded-lg border border-white/10 bg-surface/60 p-3">
-                    <p className="text-xs text-slate-400">Total Weight</p>
-                    <p className="text-lg font-semibold text-white">{totalWeight.toFixed(2)} lbs</p>
-                  </div>
-                  <div className="rounded-lg border border-white/10 bg-surface/60 p-3">
-                    <p className="text-xs text-slate-400">Total Floor Space</p>
-                    <p className="text-lg font-semibold text-white">{totalFootprintSqFt.toFixed(2)} sq ft</p>
-                  </div>
-                </div>
-              </div>
-            )
-          })()}
-
-          <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-            <div>
-              <label className="mb-1 block text-sm font-medium text-slate-200">Pickup Address</label>
-              <input
-                type="text"
-                value={data.pickupAddress}
-                onChange={(e) => onFieldChange('pickupAddress', e.target.value)}
-                className={`w-full ${inputClasses}`}
-              />
-              {errors.pickupAddress && (
-                <p className="mt-1 text-xs text-red-400">{String(errors.pickupAddress.message)}</p>
-              )}
-            </div>
-            <div>
-              <label className="mb-1 block text-sm font-medium text-slate-200">Pickup City</label>
-              <input
-                type="text"
-                value={data.pickupCity}
-                onChange={(e) => onFieldChange('pickupCity', e.target.value)}
-                className={`w-full ${inputClasses}`}
-              />
-              {errors.pickupCity && (
-                <p className="mt-1 text-xs text-red-400">{String(errors.pickupCity.message)}</p>
-              )}
-            </div>
-            <div>
-              <label className="mb-1 block text-sm font-medium text-slate-200">Pickup State</label>
-              <input
-                type="text"
-                value={data.pickupState}
-                onChange={(e) => onFieldChange('pickupState', e.target.value)}
-                className={`w-full ${inputClasses}`}
-              />
-              {errors.pickupState && (
-                <p className="mt-1 text-xs text-red-400">{String(errors.pickupState.message)}</p>
-              )}
-            </div>
-            <div>
-              <label className="mb-1 block text-sm font-medium text-slate-200">Pickup ZIP</label>
-              <input
-                type="text"
-                value={data.pickupZip}
-                onChange={(e) => onFieldChange('pickupZip', e.target.value)}
-                className={`w-full ${inputClasses}`}
-              />
-              {errors.pickupZip && (
-                <p className="mt-1 text-xs text-red-400">{String(errors.pickupZip.message)}</p>
-              )}
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <div>
-              <label className="mb-1 block text-sm font-medium text-slate-200">Delivery Address</label>
-              <input
-                type="text"
-                value={data.deliveryAddress}
-                onChange={(e) => onFieldChange('deliveryAddress', e.target.value)}
-                className={`w-full ${inputClasses}`}
-              />
-              {errors.deliveryAddress && (
-                <p className="mt-1 text-xs text-red-400">{String(errors.deliveryAddress.message)}</p>
-              )}
-            </div>
-            <div>
-              <label className="mb-1 block text-sm font-medium text-slate-200">Delivery City</label>
-              <input
-                type="text"
-                value={data.deliveryCity}
-                onChange={(e) => onFieldChange('deliveryCity', e.target.value)}
-                className={`w-full ${inputClasses}`}
-              />
-              {errors.deliveryCity && (
-                <p className="mt-1 text-xs text-red-400">{String(errors.deliveryCity.message)}</p>
-              )}
-            </div>
-            <div>
-              <label className="mb-1 block text-sm font-medium text-slate-200">Delivery State</label>
-              <input
-                type="text"
-                value={data.deliveryState}
-                onChange={(e) => onFieldChange('deliveryState', e.target.value)}
-                className={`w-full ${inputClasses}`}
-              />
-              {errors.deliveryState && (
-                <p className="mt-1 text-xs text-red-400">{String(errors.deliveryState.message)}</p>
-              )}
-            </div>
-            <div>
-              <label className="mb-1 block text-sm font-medium text-slate-200">Delivery ZIP</label>
-              <input
-                type="text"
-                value={data.deliveryZip}
-                onChange={(e) => onFieldChange('deliveryZip', e.target.value)}
-                className={`w-full ${inputClasses}`}
-              />
-              {errors.deliveryZip && (
-                <p className="mt-1 text-xs text-red-400">{String(errors.deliveryZip.message)}</p>
-              )}
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <div>
-              <label className="mb-1 block text-sm font-medium text-slate-200">Shipment Type</label>
-              <select
-                {...shipmentTypeRegister}
-                value={data.shipmentType || ''}
-                onChange={(e) => {
-                  shipmentTypeRegister.onChange(e)
-                  onFieldChange('shipmentType', e.target.value)
-                }}
-                className={`w-full ${selectClasses}`}
-              >
-                <option value="">Select shipment type</option>
-                {hasCustomShipmentType && (
-                  <option value={data.shipmentType}>{data.shipmentType}</option>
-                )}
-                {shipmentOptions
-                  .filter((option) => option.value !== '')
-                  .map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-              </select>
-              {errors.shipmentType && (
-                <p className="mt-1 text-xs text-red-400">{String(errors.shipmentType.message)}</p>
-              )}
-            </div>
-            <div>
-              <label className="mb-1 block text-sm font-medium text-slate-200">Truck Type Requested</label>
-              <select
-                {...truckTypeRegister}
-                value={data.truckType || ''}
-                onChange={(e) => {
-                  truckTypeRegister.onChange(e)
-                  onFieldChange('truckType', e.target.value)
-                }}
-                className={`w-full ${selectClasses}`}
-              >
-                <option value="">Select truck type</option>
-                {truckTypeOptions.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-                {hasCustomTruckType && (
-                  <option value={data.truckType}>{data.truckType}</option>
-                )}
-              </select>
-              {errors.truckType && (
-                <p className="mt-1 text-xs text-red-400">{String(errors.truckType.message)}</p>
-              )}
-            </div>
-          </div>
-
-          <div className="rounded-2xl border border-accent/25 bg-surface-highlight/60 p-4 shadow-[0_18px_36px_rgba(10,18,35,0.45)]">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <p className="text-sm font-medium text-slate-100">Include Storage</p>
-                <p className="text-xs text-slate-400">Add optional storage space to your logistics request.</p>
-              </div>
-              <label className="relative inline-flex cursor-pointer items-center">
                 <input
                   type="checkbox"
-                  {...includeStorageRegister}
-                  checked={Boolean(data.includeStorage)}
-                  onChange={(e) => {
-                    includeStorageRegister.onChange(e)
-                    onFieldChange('includeStorage', e.target.checked)
-
-                    if (!e.target.checked) {
-                      const resetLocationEvent = {
-                        target: {
-                          name: 'storageLocation',
-                          value: '',
-                          type: 'radio',
-                          checked: false
-                        }
-                      } as unknown as React.ChangeEvent<HTMLInputElement>
-                      const resetSqFtEvent = {
-                        target: {
-                          name: 'storageSqFt',
-                          value: '',
-                          type: 'number'
-                        }
-                      } as unknown as React.ChangeEvent<HTMLInputElement>
-                      storageLocationRegister.onChange(resetLocationEvent)
-                      storageSqFtRegister.onChange(resetSqFtEvent)
-                      onFieldChange('storageLocation', '')
-                      onFieldChange('storageSqFt', '')
-                    }
-                  }}
-                  className="peer sr-only"
+                  checked={selectedPieces.includes(piece.id)}
+                  onChange={() => togglePieceSelection(piece.id)}
+                  className="h-4 w-4 rounded border-surface-overlay bg-transparent text-accent focus:ring-accent/50"
                 />
-                <span className="h-6 w-11 rounded-full bg-slate-600 transition peer-checked:bg-accent"></span>
-                <span className="absolute left-1 top-1 h-4 w-4 rounded-full bg-white transition peer-checked:translate-x-5"></span>
-              </label>
-            </div>
-
-            {data.includeStorage && (
-              <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
-                <div>
-                  <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">Storage Type</p>
-                  <div className="flex flex-wrap gap-2">
-                    {(['inside', 'outside'] as const).map((value) => {
-                      const option: { value: StorageLocation; label: string; description: string } = {
-                        value,
-                        label: value === 'inside' ? 'Inside' : 'Outside',
-                        description: formatStorageRateLabel(value)
-                      }
-                      const isActive = normalizedStorageLocation === option.value
-                      const radioRegister = register('storageLocation')
-                      return (
-                        <label
-                          key={option.value}
-                          className={`flex flex-1 min-w-[120px] cursor-pointer flex-col gap-1 rounded-xl border px-3 py-2 text-xs font-semibold transition ${
-                            isActive
-                              ? 'border-accent bg-accent-soft/40 text-white'
-                              : 'border-accent/20 bg-surface/60 text-slate-200 hover:border-accent/60 hover:text-white'
-                          }`}
-                        >
-                          <input
-                            type="radio"
-                            {...radioRegister}
-                            value={option.value}
-                            checked={isActive}
-                            onChange={(e) => {
-                              radioRegister.onChange(e)
-                              onFieldChange('storageLocation', option.value)
-                            }}
-                            className="sr-only"
-                          />
-                          <span>{option.label}</span>
-                          <span className="text-[10px] font-normal text-slate-300">{option.description}</span>
-                        </label>
-                      )
-                    })}
-                  </div>
-                  {errors.storageLocation && (
-                    <p className="mt-2 text-xs text-red-400">{String(errors.storageLocation.message)}</p>
-                  )}
-                </div>
-                <div>
-                  <label className="mb-2 block text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
-                    Square Feet
-                  </label>
-                  <div className="rounded-xl border border-accent/25 bg-surface/60 p-3">
-                    <input
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      {...storageSqFtRegister}
-                      value={data.storageSqFt || ''}
-                      onChange={(e) => {
-                        storageSqFtRegister.onChange(e)
-                        onFieldChange('storageSqFt', e.target.value)
-                      }}
-                      className={`mb-2 w-full bg-transparent text-sm text-white outline-none placeholder:text-slate-400`}
-                      placeholder="Enter square footage"
-                    />
-                    <p className="text-xs text-slate-300">Cost: {storageCostLabel}</p>
-                  </div>
-                  {errors.storageSqFt && (
-                    <p className="mt-1 text-xs text-red-400">{String(errors.storageSqFt.message)}</p>
-                  )}
+                <span className="inline-flex h-6 min-w-[2rem] items-center justify-center rounded-md bg-accent-soft px-2 text-xs font-semibold text-accent">
+                  #{index + 1}
+                </span>
+                {(() => {
+                  const field = register(`pieces.${index}.description` as const)
+                  return (
+                    <div className="flex-1 min-w-[180px]">
+                      <input
+                        type="text"
+                        value={piece.description}
+                        onChange={(e) => {
+                          const v = formatDescriptionValue(e.target.value)
+                          field.onChange(createSyntheticEvent(field.name, v))
+                          onPieceChange(index, 'description', v)
+                        }}
+                        className={`${inputCls} w-full`}
+                        placeholder="Item description"
+                      />
+                      {errors.pieces?.[index]?.description && (
+                        <p className="mt-1 text-[11px] text-red-400">{String(errors.pieces[index]?.description?.message)}</p>
+                      )}
+                    </div>
+                  )
+                })()}
+                <div className="ml-auto flex items-center gap-0.5">
+                  <button onClick={() => movePiece(index, index - 1)} disabled={index === 0} className={actionBtnCls} title="Move up">
+                    <ArrowUp className="h-3.5 w-3.5" />
+                  </button>
+                  <button onClick={() => movePiece(index, index + 1)} disabled={index === (data.pieces?.length ?? 0) - 1} className={actionBtnCls} title="Move down">
+                    <ArrowDown className="h-3.5 w-3.5" />
+                  </button>
+                  <button onClick={() => duplicatePiece(piece.id)} className="rounded-md p-1 text-accent transition hover:bg-accent-soft" title="Duplicate">
+                    <Copy className="h-3.5 w-3.5" />
+                  </button>
+                  <button onClick={() => removePiece(piece.id)} className="rounded-md p-1 text-red-400 transition hover:bg-red-500/10" title="Remove">
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
                 </div>
               </div>
+
+              <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-6">
+                <div>
+                  {(() => {
+                    const field = register(`pieces.${index}.quantity` as const)
+                    return (
+                      <>
+                        <label className="mb-1 block text-[11px] uppercase tracking-wide text-gray-500">Qty</label>
+                        <input
+                          type="number" min="1" value={piece.quantity}
+                          onChange={(e) => { field.onChange(e); onPieceChange(index, 'quantity', parseInt(e.target.value) || 1) }}
+                          className={`${inputCls} w-full text-center`} placeholder="0"
+                        />
+                        {errors.pieces?.[index]?.quantity && <p className="mt-1 text-[11px] text-red-400">{String(errors.pieces[index]?.quantity?.message)}</p>}
+                      </>
+                    )
+                  })()}
+                </div>
+                {(['length', 'width', 'height', 'weight'] as const).map((field) => (
+                  <div key={field}>
+                    {(() => {
+                      const fieldReg = register(`pieces.${index}.${field}` as const)
+                      const raw = piece[field]
+                      const displayValue = typeof raw === 'number' ? raw.toString() : raw || ''
+                      return (
+                        <>
+                          <label className="mb-1 block text-[11px] uppercase tracking-wide text-gray-500">
+                            {field === 'weight' ? 'Wt (lbs)' : `${field.charAt(0).toUpperCase() + field.slice(1)} (${dimensionUnit})`}
+                          </label>
+                          <input
+                            type="text" value={displayValue}
+                            onChange={(e) => { fieldReg.onChange(e); onPieceChange(index, field, e.target.value) }}
+                            className={`${inputCls} w-full text-center`}
+                            placeholder="0"
+                          />
+                          {errors.pieces?.[index]?.[field] && <p className="mt-1 text-[11px] text-red-400">{String(errors.pieces[index]?.[field]?.message)}</p>}
+                        </>
+                      )
+                    })()}
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+          {(data.pieces?.length ?? 0) === 0 && (
+            <p className="rounded-lg border border-dashed border-surface-overlay bg-surface px-4 py-6 text-center text-sm text-gray-500">
+              No items yet. Click <span className="font-semibold text-white">"Add Item"</span> to start.
+            </p>
+          )}
+        </div>
+      </div>
+
+      {/* Shipment Summary */}
+      {(() => {
+        const totalItems = (data.pieces ?? []).reduce((s, p) => s + (Number(p.quantity) || 0), 0)
+        const totalWeight = (data.pieces ?? []).reduce((s, p) => {
+          const qty = Number(p.quantity) || 0
+          const w = parseFloat(String(p.weight).replace(/[^0-9.]/g, '')) || 0
+          return s + qty * w
+        }, 0)
+        const totalFootprint = (data.pieces ?? []).reduce((s, p) => {
+          const qty = Number(p.quantity) || 0
+          const l = parseFloat(String(p.length).replace(/[^0-9.]/g, '')) || 0
+          const w = parseFloat(String(p.width).replace(/[^0-9.]/g, '')) || 0
+          const lIn = dimensionUnit === 'ft' ? l * 12 : l
+          const wIn = dimensionUnit === 'ft' ? w * 12 : w
+          return s + lIn * wIn * qty
+        }, 0)
+        return (
+          <div className="rounded-xl border border-surface-overlay/50 bg-surface-raised p-3">
+            <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-400">Shipment Summary</p>
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+              <div className="rounded-lg bg-surface p-3 border border-surface-overlay/50">
+                <p className="text-xs text-gray-500">Total Items</p>
+                <p className="text-lg font-semibold text-white">{totalItems}</p>
+              </div>
+              <div className="rounded-lg bg-surface p-3 border border-surface-overlay/50">
+                <p className="text-xs text-gray-500">Total Weight</p>
+                <p className="text-lg font-semibold text-white">{totalWeight.toFixed(2)} lbs</p>
+              </div>
+              <div className="rounded-lg bg-surface p-3 border border-surface-overlay/50">
+                <p className="text-xs text-gray-500">Floor Space</p>
+                <p className="text-lg font-semibold text-white">{(totalFootprint / 144).toFixed(2)} sq ft</p>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {/* Pickup Address */}
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+        {([
+          ['pickupAddress', 'Pickup Address'],
+          ['pickupCity', 'Pickup City'],
+          ['pickupState', 'Pickup State'],
+          ['pickupZip', 'Pickup ZIP'],
+        ] as const).map(([field, label]) => (
+          <div key={field}>
+            <label className={labelCls}>{label}</label>
+            <input
+              type="text"
+              value={(data as Record<string, any>)[field] || ''}
+              onChange={(e) => onFieldChange(field as keyof LogisticsData, e.target.value)}
+              className={`w-full ${inputCls}`}
+            />
+            {(errors as Record<string, any>)[field] && (
+              <p className="mt-1 text-xs text-red-400">{String((errors as Record<string, any>)[field]?.message)}</p>
             )}
           </div>
+        ))}
+      </div>
+
+      {/* Delivery Address */}
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+        {([
+          ['deliveryAddress', 'Delivery Address'],
+          ['deliveryCity', 'Delivery City'],
+          ['deliveryState', 'Delivery State'],
+          ['deliveryZip', 'Delivery ZIP'],
+        ] as const).map(([field, label]) => (
+          <div key={field}>
+            <label className={labelCls}>{label}</label>
+            <input
+              type="text"
+              value={(data as Record<string, any>)[field] || ''}
+              onChange={(e) => onFieldChange(field as keyof LogisticsData, e.target.value)}
+              className={`w-full ${inputCls}`}
+            />
+            {(errors as Record<string, any>)[field] && (
+              <p className="mt-1 text-xs text-red-400">{String((errors as Record<string, any>)[field]?.message)}</p>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {/* Shipment & Truck Type */}
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+        <div>
+          <label className={labelCls}>Shipment Type</label>
+          <select
+            {...shipmentTypeRegister}
+            value={data.shipmentType || ''}
+            onChange={(e) => { shipmentTypeRegister.onChange(e); onFieldChange('shipmentType', e.target.value) }}
+            className={`w-full ${selectCls}`}
+          >
+            <option value="">Select shipment type</option>
+            {hasCustomShipmentType && <option value={data.shipmentType}>{data.shipmentType}</option>}
+            {shipmentOptions.filter(o => o.value !== '').map(o => (
+              <option key={o.value} value={o.value}>{o.label}</option>
+            ))}
+          </select>
+          {errors.shipmentType && <p className="mt-1 text-xs text-red-400">{String(errors.shipmentType.message)}</p>}
         </div>
+        <div>
+          <label className={labelCls}>Truck Type Requested</label>
+          <select
+            {...truckTypeRegister}
+            value={data.truckType || ''}
+            onChange={(e) => { truckTypeRegister.onChange(e); onFieldChange('truckType', e.target.value) }}
+            className={`w-full ${selectCls}`}
+          >
+            <option value="">Select truck type</option>
+            {truckTypeOptions.map(o => <option key={o} value={o}>{o}</option>)}
+            {hasCustomTruckType && <option value={data.truckType}>{data.truckType}</option>}
+          </select>
+          {errors.truckType && <p className="mt-1 text-xs text-red-400">{String(errors.truckType.message)}</p>}
+        </div>
+      </div>
+
+      {/* Storage */}
+      <div className="rounded-xl border border-surface-overlay/50 bg-surface-raised p-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-sm font-medium text-white">Include Storage</p>
+            <p className="text-xs text-gray-400">Add optional storage space to your logistics request.</p>
+          </div>
+          <label className="relative inline-flex cursor-pointer items-center">
+            <input
+              type="checkbox"
+              {...includeStorageRegister}
+              checked={Boolean(data.includeStorage)}
+              onChange={(e) => {
+                includeStorageRegister.onChange(e)
+                onFieldChange('includeStorage', e.target.checked)
+                if (!e.target.checked) {
+                  const resetLoc = { target: { name: 'storageLocation', value: '', type: 'radio', checked: false } } as unknown as React.ChangeEvent<HTMLInputElement>
+                  const resetSqFt = { target: { name: 'storageSqFt', value: '', type: 'number' } } as unknown as React.ChangeEvent<HTMLInputElement>
+                  storageLocationRegister.onChange(resetLoc)
+                  storageSqFtRegister.onChange(resetSqFt)
+                  onFieldChange('storageLocation', '')
+                  onFieldChange('storageSqFt', '')
+                }
+              }}
+              className="peer sr-only"
+            />
+            <span className="h-6 w-11 rounded-full bg-surface-overlay transition peer-checked:bg-accent" />
+            <span className="absolute left-1 top-1 h-4 w-4 rounded-full bg-white transition peer-checked:translate-x-5" />
+          </label>
+        </div>
+
+        {data.includeStorage && (
+          <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2">
+            <div>
+              <p className="mb-2 text-xs font-medium uppercase tracking-wider text-gray-400">Storage Type</p>
+              <div className="flex gap-2">
+                {(['inside', 'outside'] as const).map((value) => {
+                  const isActive = normalizedStorageLocation === value
+                  const radioReg = register('storageLocation')
+                  return (
+                    <label
+                      key={value}
+                      className={`flex flex-1 min-w-[100px] cursor-pointer flex-col gap-0.5 rounded-lg border px-3 py-2 text-xs font-medium transition ${
+                        isActive
+                          ? 'border-accent bg-accent-soft text-white'
+                          : 'border-surface-overlay bg-surface text-gray-400 hover:border-accent/30 hover:text-white'
+                      }`}
+                    >
+                      <input
+                        type="radio" {...radioReg} value={value} checked={isActive}
+                        onChange={(e) => { radioReg.onChange(e); onFieldChange('storageLocation', value) }}
+                        className="sr-only"
+                      />
+                      <span>{value === 'inside' ? 'Inside' : 'Outside'}</span>
+                      <span className="text-[10px] font-normal text-gray-500">{formatStorageRateLabel(value)}</span>
+                    </label>
+                  )
+                })}
+              </div>
+              {errors.storageLocation && <p className="mt-1 text-xs text-red-400">{String(errors.storageLocation.message)}</p>}
+            </div>
+            <div>
+              <label className="mb-2 block text-xs font-medium uppercase tracking-wider text-gray-400">Square Feet</label>
+              <div className="rounded-lg border border-surface-overlay bg-surface p-3">
+                <input
+                  type="number" step="0.01" min="0"
+                  {...storageSqFtRegister}
+                  value={data.storageSqFt || ''}
+                  onChange={(e) => { storageSqFtRegister.onChange(e); onFieldChange('storageSqFt', e.target.value) }}
+                  className="mb-2 w-full bg-transparent text-sm text-white outline-none placeholder-gray-500"
+                  placeholder="Enter square footage"
+                />
+                <p className="text-xs text-gray-500">Cost: {storageCostLabel}</p>
+              </div>
+              {errors.storageSqFt && <p className="mt-1 text-xs text-red-400">{String(errors.storageSqFt.message)}</p>}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )

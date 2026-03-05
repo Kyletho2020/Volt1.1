@@ -1,37 +1,21 @@
-import { useState } from 'react';
+import { useState } from 'react'
 
 export const useModals = () => {
-  const [showAIExtractor, setShowAIExtractor] = useState(false);
-  const [showHistory, setShowHistory] = useState(false);
-  const [showApiKeySetup, setShowApiKeySetup] = useState(false);
-  const [showDailyConfirmation, setShowDailyConfirmation] = useState(false);
-
-  const openAIExtractor = () => setShowAIExtractor(true);
-  const closeAIExtractor = () => setShowAIExtractor(false);
-
-  const openHistory = () => setShowHistory(true);
-  const closeHistory = () => setShowHistory(false);
-
-  const openApiKeySetup = () => setShowApiKeySetup(true);
-  const closeApiKeySetup = () => setShowApiKeySetup(false);
-
-  const openDailyConfirmation = () => setShowDailyConfirmation(true);
-  const closeDailyConfirmation = () => setShowDailyConfirmation(false);
+  const [showAIExtractor, setShowAIExtractor] = useState(false)
+  const [showHistory, setShowHistory] = useState(false)
+  const [showDailyConfirmation, setShowDailyConfirmation] = useState(false)
 
   return {
     showAIExtractor,
-    openAIExtractor,
-    closeAIExtractor,
+    openAIExtractor: () => setShowAIExtractor(true),
+    closeAIExtractor: () => setShowAIExtractor(false),
     showHistory,
-    openHistory,
-    closeHistory,
-    showApiKeySetup,
-    openApiKeySetup,
-    closeApiKeySetup,
+    openHistory: () => setShowHistory(true),
+    closeHistory: () => setShowHistory(false),
     showDailyConfirmation,
-    openDailyConfirmation,
-    closeDailyConfirmation
-  };
-};
+    openDailyConfirmation: () => setShowDailyConfirmation(true),
+    closeDailyConfirmation: () => setShowDailyConfirmation(false),
+  }
+}
 
-export default useModals;
+export default useModals

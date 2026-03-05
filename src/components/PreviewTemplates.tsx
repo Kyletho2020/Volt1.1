@@ -72,7 +72,7 @@ const formatWeight = (value: any, fallback: string) => {
     return fallback
   }
 
-  return `${numericValue.toLocaleString()} lbs`
+  return `${numericValue.toLocaleString()} lbs.`
 }
 
 const parseWeight = (value: any) => {
@@ -156,10 +156,7 @@ const formatEquipmentList = (items: string[]) => {
   return `${items.slice(0, -1).join(', ')} and ${items[items.length - 1]}`
 }
 
-const formatUnderlinedHeading = (text: string) =>
-  Array.from(text)
-    .map(char => `${char}\u0332`)
-    .join('')
+const formatUnderlinedHeading = (text: string) => text
 
 
 const buildEquipmentSummary = (
@@ -207,8 +204,8 @@ export const generateScopeTemplate = (
   equipmentRequirements: any
 ) => {
   const siteAddress = equipmentData.siteAddress || '[Site Address]'
-  const contactName = equipmentData.contactName || '[Site Contact]'
-  const phone = equipmentData.sitePhone || '[Site Phone]'
+  const contactName = equipmentData.siteContactName?.trim() || equipmentData.contactName || '[Site Contact]'
+  const phone = equipmentData.siteContactPhone?.trim() || equipmentData.sitePhone || '[Site Phone]'
   const shopLocation = equipmentData.shopLocation || '[Shop]'
   const scopeOfWork = equipmentData.scopeOfWork || ''
   const dimensionUnit = logisticsData.dimensionUnit === 'ft' ? 'ft' : 'in'

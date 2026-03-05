@@ -11,6 +11,8 @@ export interface EquipmentData {
   shopLocation?: string
   scopeOfWork?: string
   email?: string
+  siteContactName?: string
+  siteContactPhone?: string
   equipmentRequirements: EquipmentRequirements
 }
 

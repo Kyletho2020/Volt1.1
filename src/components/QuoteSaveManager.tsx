@@ -1,8 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useEffect } from 'react'
-import { Save, History, Search, Trash2, Edit3, Copy, Calendar, Building, User, FileText, X, Plus, Mail } from 'lucide-react'
+import { Save, History, Search, Trash2, Edit3, Copy, Calendar, Building, User, FileText, Plus, Mail } from 'lucide-react'
 import { QuoteService, QuoteListItem } from '../services/quoteService'
 import { generateEmailTemplate, generateScopeTemplate } from './PreviewTemplates'
+import { ensureJobFolders } from '../lib/projectFolders'
+import { Modal, Button, IconButton } from './ui'
 
 interface QuoteSaveManagerProps {
   equipmentData: any
@@ -41,33 +43,22 @@ const QuoteSaveManager: React.FC<QuoteSaveManagerProps> = ({
   const [showHistory, setShowHistory] = useState(false)
 
   useEffect(() => {
-    if (isOpen) {
-      loadQuotes()
-      generateNewQuoteNumber()
-    }
+    if (isOpen) { loadQuotes(); generateNewQuoteNumber() }
   }, [isOpen])
 
   useEffect(() => {
-    if (searchTerm.trim()) {
-      searchQuotes()
-    } else {
-      loadQuotes()
-    }
+    if (searchTerm.trim()) searchQuotes()
+    else loadQuotes()
   }, [searchTerm])
 
   const generateNewQuoteNumber = () => {
-    const newNumber = QuoteService.generateQuoteNumber(
-      equipmentData.projectName,
-      equipmentData.companyName
-    )
-    setQuoteNumber(newNumber)
+    setQuoteNumber(QuoteService.generateQuoteNumber(equipmentData.projectName, equipmentData.companyName))
   }
 
   const loadQuotes = async () => {
     setLoading(true)
     try {
-      const quoteList = await QuoteService.listQuotes()
-      setQuotes(quoteList)
+      setQuotes(await QuoteService.listQuotes())
     } catch (error) {
       console.error('Error loading quotes:', error)
       setMessage({ type: 'error', text: 'Failed to load quote history' })
@@ -78,11 +69,9 @@ const QuoteSaveManager: React.FC<QuoteSaveManagerProps> = ({
 
   const searchQuotes = async () => {
     if (!searchTerm.trim()) return
-    
     setLoading(true)
     try {
-      const results = await QuoteService.searchQuotes(searchTerm)
-      setQuotes(results)
+      setQuotes(await QuoteService.searchQuotes(searchTerm))
     } catch (error) {
       console.error('Error searching quotes:', error)
       setMessage({ type: 'error', text: 'Failed to search quotes' })
@@ -92,47 +81,25 @@ const QuoteSaveManager: React.FC<QuoteSaveManagerProps> = ({
   }
 
   const handleSaveQuote = async (overwriteId?: string) => {
-    if (!quoteNumber.trim()) {
-      setMessage({ type: 'error', text: 'Quote number is required' })
-      return
-    }
-
+    if (!quoteNumber.trim()) { setMessage({ type: 'error', text: 'Quote number is required' }); return }
     setLoading(true)
     setMessage(null)
-
     try {
-      const emailTemplate = generateEmailTemplate(
-        equipmentData,
-        logisticsData,
-        equipmentRequirements
-      )
-      const scopeTemplate = generateScopeTemplate(
-        equipmentData,
-        logisticsData,
-        equipmentRequirements
-      )
-
-      const result = await QuoteService.saveQuote(
-        quoteNumber,
-        equipmentData,
-        logisticsData,
-        equipmentRequirements,
-        emailTemplate,
-        scopeTemplate,
-        overwriteId
-      )
-
+      const emailTemplate = generateEmailTemplate(equipmentData, logisticsData, equipmentRequirements)
+      const scopeTemplate = generateScopeTemplate(equipmentData, logisticsData, equipmentRequirements)
+      const result = await QuoteService.saveQuote(quoteNumber, equipmentData, logisticsData, equipmentRequirements, emailTemplate, scopeTemplate, overwriteId)
       if (result.success) {
-        setMessage({
-          type: 'success',
-          text: overwriteId ? 'Quote updated successfully!' : 'Quote saved successfully!'
-        })
+        let folderNote = ''
+        if (equipmentData.companyName) {
+          const folders = await ensureJobFolders(equipmentData.companyName, equipmentData.jobNumber || undefined, equipmentData.projectName || undefined)
+          if (folders.created) folderNote = `  |  Folder: ${folders.path}`
+          else if (folders.error && folders.supported) folderNote = `  |  ${folders.error}`
+        }
+        setMessage({ type: 'success', text: (overwriteId ? 'Quote updated!' : 'Quote saved!') + folderNote })
         loadQuotes()
         const resultingId = result.id || overwriteId || null
         setSelectedQuote(resultingId)
-        if (resultingId) {
-          onQuoteSaved?.(resultingId, quoteNumber)
-        }
+        if (resultingId) onQuoteSaved?.(resultingId, quoteNumber)
       } else {
         setMessage({ type: 'error', text: result.error || 'Failed to save quote' })
       }
@@ -148,48 +115,24 @@ const QuoteSaveManager: React.FC<QuoteSaveManagerProps> = ({
     try {
       const quote = await QuoteService.getQuote(id)
       if (quote) {
-        // Load the quote data into the forms
         const loadedEquipmentData = {
-          jobNumber: quote.job_number || '',
-          startTime: quote.start_time || '',
-          projectName: quote.project_name || '',
-          companyName: quote.company_name || '',
-          contactName: quote.contact_name || '',
-          sitePhone: quote.site_phone || '',
-          shopLocation: quote.shop_location || 'Shop',
-          siteAddress: quote.site_address || '',
-          scopeOfWork: quote.scope_of_work || '',
-          email: quote.email || ''
+          jobNumber: quote.job_number || '', startTime: quote.start_time || '',
+          projectName: quote.project_name || '', companyName: quote.company_name || '',
+          contactName: quote.contact_name || '', sitePhone: quote.site_phone || '',
+          shopLocation: quote.shop_location || 'Shop', siteAddress: quote.site_address || '',
+          scopeOfWork: quote.scope_of_work || '', email: quote.email || ''
         }
-
-        const defaultRequirements = {
-          crewSize: '',
-          forklifts: [],
-          tractors: [],
-          trailers: [],
-          additionalEquipment: []
-        }
-
-        const loadedRequirements = quote.equipment_requirements
-          ? { ...defaultRequirements, ...quote.equipment_requirements }
-          : defaultRequirements
-
-        const loadedLogisticsData = {
+        const defaultReq = { crewSize: '', forklifts: [], tractors: [], trailers: [], additionalEquipment: [] }
+        const loadedReq = quote.equipment_requirements ? { ...defaultReq, ...quote.equipment_requirements } : defaultReq
+        const loadedLogistics = {
           ...(quote.logistics_data || {}),
           ...(quote.logistics_shipment ? { shipment: quote.logistics_shipment } : {}),
           ...(quote.logistics_storage ? { storage: quote.logistics_storage } : {})
         }
-
         setQuoteNumber(quote.quote_number || quoteNumber)
         setSelectedQuote(id)
-        onLoadQuote(
-          loadedEquipmentData,
-          loadedLogisticsData,
-          loadedRequirements,
-          id,
-          quote.quote_number || quoteNumber
-        )
-        setMessage({ type: 'success', text: 'Quote loaded successfully!' })
+        onLoadQuote(loadedEquipmentData, loadedLogistics, loadedReq, id, quote.quote_number || quoteNumber)
+        setMessage({ type: 'success', text: 'Quote loaded!' })
         setShowHistory(false)
         onQuoteLoaded?.(id, quote.quote_number || quoteNumber)
       }
@@ -201,18 +144,12 @@ const QuoteSaveManager: React.FC<QuoteSaveManagerProps> = ({
   }
 
   const handleDeleteQuote = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this quote?')) return
-
+    if (!confirm('Delete this quote?')) return
     setLoading(true)
     try {
       const success = await QuoteService.deleteQuote(id)
-      if (success) {
-        setMessage({ type: 'success', text: 'Quote deleted successfully!' })
-        loadQuotes()
-        setSelectedQuote(null)
-      } else {
-        setMessage({ type: 'error', text: 'Failed to delete quote' })
-      }
+      if (success) { setMessage({ type: 'success', text: 'Quote deleted!' }); loadQuotes(); setSelectedQuote(null) }
+      else setMessage({ type: 'error', text: 'Failed to delete quote' })
     } catch {
       setMessage({ type: 'error', text: 'Failed to delete quote' })
     } finally {
@@ -220,266 +157,178 @@ const QuoteSaveManager: React.FC<QuoteSaveManagerProps> = ({
     }
   }
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    })
-  }
-
-  if (!isOpen) return null
+  const formatDate = (dateString: string) =>
+    new Date(dateString).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
-      <div className="bg-gray-900 border-2 border-accent rounded-2xl shadow-2xl w-full max-w-4xl h-[80vh] flex flex-col">
-        {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b-2 border-accent">
-          <div className="flex items-center">
-            <Save className="w-6 h-6 text-white mr-2" />
-            <h3 className="text-xl font-bold text-white">Quote Manager</h3>
-          </div>
-          <button
-            onClick={onClose}
-            className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
-          >
-            <X className="w-5 h-5 text-white" />
-          </button>
+    <Modal isOpen={isOpen} onClose={onClose} title="Quote Manager" size="xl">
+      {usingLocalStorage && (
+        <div className="mx-6 mt-4 rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-sm text-amber-300">
+          Supabase not configured. Quotes stored locally.
         </div>
+      )}
 
-        {usingLocalStorage && (
-          <div className="mx-6 mt-4 rounded-lg border border-yellow-500/40 bg-yellow-500/10 p-3 text-sm text-yellow-100">
-            Supabase isn't configured in this environment. Quotes will be stored locally in this browser only.
-          </div>
-        )}
+      {message && (
+        <div className={`mx-6 mt-3 p-3 rounded-lg text-sm ${
+          message.type === 'success' ? 'bg-accent-soft text-accent border border-accent/30' : 'bg-red-500/10 text-red-300 border border-red-500/30'
+        }`}>
+          {message.text}
+        </div>
+      )}
 
-        {/* Message */}
-        {message && (
-          <div className={`mx-6 mt-4 p-3 rounded-lg flex items-center ${
-            message.type === 'success'
-              ? 'bg-gray-900 text-white border border-accent'
-              : 'bg-gray-900 text-white border border-red-500'
-          }`}>
-            {message.text}
-          </div>
-        )}
-
-        {/* Main Content */}
-        <div className="flex-1 overflow-hidden flex">
-          {/* Save Section */}
-          <div className="w-1/2 p-6 border-r-2 border-accent">
-            <h4 className="text-lg font-semibold text-white mb-4">Save Quote</h4>
-            
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-white mb-2">
-                  Quote Number
-                </label>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={quoteNumber}
-                    onChange={(e) => setQuoteNumber(e.target.value)}
-                    className="flex-1 px-3 py-2 bg-black border border-accent rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent text-white"
-                    placeholder="Enter quote number"
-                  />
-                  <button
-                    onClick={generateNewQuoteNumber}
-                    className="px-3 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors"
-                    title="Generate new number"
-                  >
-                    <Plus className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-
-              <div className="bg-black rounded-lg p-4 border border-accent">
-                <h5 className="text-sm font-medium text-white mb-2">Current Quote Info</h5>
-                <div className="space-y-1 text-sm text-gray-300">
-                  <div className="flex items-center">
-                    <FileText className="w-4 h-4 mr-2" />
-                    <span>{equipmentData.projectName || 'No project name'}</span>
-                  </div>
-                  <div className="flex items-center">
-                    <Building className="w-4 h-4 mr-2" />
-                    <span>{equipmentData.companyName || 'No company'}</span>
-                  </div>
-                  <div className="flex items-center">
-                    <User className="w-4 h-4 mr-2" />
-                    <span>{equipmentData.contactName || 'No contact'}</span>
-                  </div>
-                  <div className="flex items-center">
-                    <Mail className="w-4 h-4 mr-2" />
-                    <span>{equipmentData.email || 'No email provided'}</span>
-                  </div>
-                </div>
-              </div>
-
+      <div className="flex-1 overflow-hidden flex min-h-[400px]">
+        {/* Save Section */}
+        <div className="w-1/2 p-6 border-r border-surface-overlay/50">
+          <h4 className="text-sm font-semibold text-white mb-4">Save Quote</h4>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-xs font-medium uppercase tracking-wide text-gray-400 mb-1">Quote Number</label>
               <div className="flex gap-2">
-                <button
-                  onClick={() => handleSaveQuote()}
-                  disabled={loading || !quoteNumber.trim()}
-                  className="flex-1 flex items-center justify-center px-4 py-2 bg-accent text-black rounded-lg hover:bg-sky-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                >
-                  <Save className="w-4 h-4 mr-2" />
-                  Save New
-                </button>
-                
-                {selectedQuote && (
-                  <button
-                    onClick={() => handleSaveQuote(selectedQuote)}
-                    disabled={loading}
-                    className="flex-1 flex items-center justify-center px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                  >
-                    <Edit3 className="w-4 h-4 mr-2" />
-                    Overwrite
-                  </button>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* History Section */}
-          <div className="w-1/2 flex flex-col">
-            <div className="p-6 border-b-2 border-accent">
-              <div className="flex items-center justify-between mb-4">
-                <h4 className="text-lg font-semibold text-white">Quote History</h4>
-                <button
-                  onClick={() => setShowHistory(!showHistory)}
-                  className="flex items-center px-3 py-1 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors"
-                >
-                  <History className="w-4 h-4 mr-1" />
-                  {showHistory ? 'Hide' : 'Show'}
-                </button>
-              </div>
-
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <input
                   type="text"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  placeholder="Search quotes..."
-                  className="w-full pl-10 pr-4 py-2 bg-black border border-accent rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent text-white placeholder-gray-400"
+                  value={quoteNumber}
+                  onChange={(e) => setQuoteNumber(e.target.value)}
+                  className="flex-1 rounded-lg border border-surface-overlay bg-surface-raised px-3 py-2 text-sm text-white focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+                  placeholder="Enter quote number"
                 />
+                <IconButton icon={Plus} onClick={generateNewQuoteNumber} tooltip="Generate new number" />
               </div>
             </div>
 
-            {showHistory && (
-              <div className="flex-1 overflow-y-auto p-6">
-                {loading ? (
-                  <div className="text-center text-white py-8">Loading...</div>
-                ) : quotes.length === 0 ? (
-                  <div className="text-center text-gray-400 py-8">
-                    {searchTerm ? 'No quotes found' : 'No saved quotes'}
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {quotes.map((quote) => (
-                      <div
-                        key={quote.id}
-                        className={`p-4 rounded-lg border transition-colors cursor-pointer ${
-                          selectedQuote === quote.id
-                            ? 'border-accent bg-gray-800'
-                            : 'border-gray-600 bg-black hover:border-accent hover:bg-gray-800'
-                        }`}
-                        onClick={() => {
-                          const isCurrentlySelected = selectedQuote === quote.id
-                          setSelectedQuote(isCurrentlySelected ? null : quote.id)
-                          if (!isCurrentlySelected) {
-                            setQuoteNumber(quote.quote_number || '')
-                          }
-                        }}
-                      >
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center mb-1">
-                              <FileText className="w-4 h-4 text-accent mr-2 flex-shrink-0" />
-                              <span className="font-medium text-white truncate">
-                                {quote.quote_number}
-                              </span>
-                            </div>
-                            
-                            {quote.project_name && (
-                              <div className="flex items-center mb-1">
-                                <Building className="w-3 h-3 text-gray-400 mr-2 flex-shrink-0" />
-                                <span className="text-sm text-gray-300 truncate">
-                                  {quote.project_name}
-                                </span>
-                              </div>
-                            )}
-                            
-                            {quote.company_name && (
-                              <div className="flex items-center mb-1">
-                                <User className="w-3 h-3 text-gray-400 mr-2 flex-shrink-0" />
-                                <span className="text-sm text-gray-300 truncate">
-                                  {quote.company_name}
-                                </span>
-                              </div>
-                            )}
-
-                            {quote.email && (
-                              <div className="flex items-center mb-1">
-                                <Mail className="w-3 h-3 text-gray-400 mr-2 flex-shrink-0" />
-                                <span className="text-sm text-gray-300 truncate">
-                                  {quote.email}
-                                </span>
-                              </div>
-                            )}
-                            
-                            <div className="flex items-center">
-                              <Calendar className="w-3 h-3 text-gray-400 mr-2 flex-shrink-0" />
-                              <span className="text-xs text-gray-400">
-                                {formatDate(quote.updated_at)}
-                              </span>
-                            </div>
-                          </div>
-
-                          {selectedQuote === quote.id && (
-                            <div className="flex gap-1 ml-2">
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  handleLoadQuote(quote.id)
-                                }}
-                                className="p-1 bg-accent text-black rounded hover:bg-sky-300 transition-colors"
-                                title="Load quote"
-                              >
-                                <Copy className="w-3 h-3" />
-                              </button>
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  handleDeleteQuote(quote.id)
-                                }}
-                                className="p-1 bg-red-600 text-white rounded hover:bg-red-500 transition-colors"
-                                title="Delete quote"
-                              >
-                                <Trash2 className="w-3 h-3" />
-                              </button>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
+            <div className="rounded-lg border border-surface-overlay/50 bg-surface-raised p-3">
+              <h5 className="text-xs font-semibold text-white mb-2">Current Quote</h5>
+              <div className="space-y-1 text-xs text-gray-400">
+                <div className="flex items-center gap-2"><FileText className="w-3.5 h-3.5" />{equipmentData.projectName || 'No project name'}</div>
+                <div className="flex items-center gap-2"><Building className="w-3.5 h-3.5" />{equipmentData.companyName || 'No company'}</div>
+                <div className="flex items-center gap-2"><User className="w-3.5 h-3.5" />{equipmentData.contactName || 'No contact'}</div>
+                <div className="flex items-center gap-2"><Mail className="w-3.5 h-3.5" />{equipmentData.email || 'No email'}</div>
               </div>
-            )}
+            </div>
+
+            <div className="flex gap-2">
+              <Button
+                onClick={() => handleSaveQuote()}
+                disabled={loading || !quoteNumber.trim()}
+                icon={Save}
+                className="flex-1"
+              >
+                Save New
+              </Button>
+              {selectedQuote && (
+                <Button
+                  variant="secondary"
+                  onClick={() => handleSaveQuote(selectedQuote)}
+                  disabled={loading}
+                  icon={Edit3}
+                  className="flex-1"
+                >
+                  Overwrite
+                </Button>
+              )}
+            </div>
           </div>
         </div>
 
-        {/* Footer */}
-        <div className="p-6 border-t-2 border-accent bg-gray-900">
-          <p className="text-sm text-gray-400">
-            Quote numbers are automatically generated based on project/company name and timestamp. 
-            Click on a quote in history to select it for overwriting or loading.
-          </p>
+        {/* History Section */}
+        <div className="w-1/2 flex flex-col">
+          <div className="p-6 border-b border-surface-overlay/50">
+            <div className="flex items-center justify-between mb-3">
+              <h4 className="text-sm font-semibold text-white">Quote History</h4>
+              <Button variant="ghost" size="sm" icon={History} onClick={() => setShowHistory(!showHistory)}>
+                {showHistory ? 'Hide' : 'Show'}
+              </Button>
+            </div>
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Search quotes..."
+                className="w-full pl-10 pr-4 py-2 rounded-lg border border-surface-overlay bg-surface-raised text-sm text-white placeholder-gray-500 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+              />
+            </div>
+          </div>
+
+          {showHistory && (
+            <div className="flex-1 overflow-y-auto p-6">
+              {loading ? (
+                <div className="text-center text-gray-500 py-8 text-sm">Loading...</div>
+              ) : quotes.length === 0 ? (
+                <div className="text-center text-gray-500 py-8 text-sm">
+                  {searchTerm ? 'No quotes found' : 'No saved quotes'}
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {quotes.map((quote) => (
+                    <div
+                      key={quote.id}
+                      className={`p-3 rounded-lg border cursor-pointer transition ${
+                        selectedQuote === quote.id
+                          ? 'border-accent/40 bg-accent-soft'
+                          : 'border-surface-overlay/50 bg-surface-raised hover:border-accent/20'
+                      }`}
+                      onClick={() => {
+                        const isCurrent = selectedQuote === quote.id
+                        setSelectedQuote(isCurrent ? null : quote.id)
+                        if (!isCurrent) setQuoteNumber(quote.quote_number || '')
+                      }}
+                    >
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <FileText className="w-3.5 h-3.5 text-accent shrink-0" />
+                            <span className="text-sm font-medium text-white truncate">{quote.quote_number}</span>
+                          </div>
+                          {quote.project_name && (
+                            <div className="flex items-center gap-2 text-xs text-gray-400 truncate">
+                              <Building className="w-3 h-3 shrink-0" />{quote.project_name}
+                            </div>
+                          )}
+                          {quote.company_name && (
+                            <div className="flex items-center gap-2 text-xs text-gray-400 truncate">
+                              <User className="w-3 h-3 shrink-0" />{quote.company_name}
+                            </div>
+                          )}
+                          <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
+                            <Calendar className="w-3 h-3 shrink-0" />{formatDate(quote.updated_at)}
+                          </div>
+                        </div>
+
+                        {selectedQuote === quote.id && (
+                          <div className="flex gap-1 ml-2">
+                            <IconButton
+                              icon={Copy}
+                              size="sm"
+                              variant="accent"
+                              tooltip="Load quote"
+                              onClick={(e) => { e.stopPropagation(); handleLoadQuote(quote.id) }}
+                            />
+                            <IconButton
+                              icon={Trash2}
+                              size="sm"
+                              variant="danger"
+                              tooltip="Delete quote"
+                              onClick={(e) => { e.stopPropagation(); handleDeleteQuote(quote.id) }}
+                            />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
-    </div>
+
+      <div className="px-6 py-3 border-t border-surface-overlay/50">
+        <p className="text-xs text-gray-500">
+          Click a quote in history to select it for overwriting or loading.
+        </p>
+      </div>
+    </Modal>
   )
 }
 

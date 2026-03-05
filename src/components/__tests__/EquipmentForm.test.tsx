@@ -5,7 +5,7 @@ import EquipmentForm from '../EquipmentForm';
 import { EquipmentRequirements } from '../EquipmentRequired';
 import { HubSpotContact } from '../../services/hubspotService';
 
-it('EquipmentForm renders Equipment Quote heading', () => {
+it('EquipmentForm renders Project Details heading', () => {
   const data = {
     projectName: '',
     companyName: '',
@@ -30,10 +30,13 @@ it('EquipmentForm renders Equipment Quote heading', () => {
       onFieldChange={() => {}}
       onRequirementsChange={() => {}}
       onSelectContact={() => ({}) as HubSpotContact}
+      onCopySiteAddress={() => true}
+      onOpenScopeExtractor={() => {}}
+      canUseAI={false}
       register={() => ({ onChange: () => {}, onBlur: () => {}, ref: () => {} }) as any}
       errors={{}}
     />
   );
 
-  expect(html).toContain('Equipment Quote');
+  expect(html).toContain('Project Details');
 });

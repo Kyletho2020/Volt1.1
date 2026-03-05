@@ -32,12 +32,14 @@ describe('ProjectDetails copy button', () => {
         onChange={() => {}}
         onSelectContact={() => {}}
         onCopySiteAddress={() => true}
+        onOpenScopeExtractor={() => {}}
+        canUseAI={false}
         register={() => ({ onChange: () => {} }) as any}
         errors={{}}
       />
     )
 
-    const button = screen.getByLabelText(/copy project name/i)
+    const button = screen.getByTitle(/copy project name/i)
     fireEvent.click(button)
     await waitFor(() => {
       expect(navigator.clipboard.writeText).toHaveBeenCalledWith('My Project')
@@ -64,13 +66,15 @@ describe('ProjectDetails copy button', () => {
         onChange={() => {}}
         onSelectContact={() => {}}
         onCopySiteAddress={copyHandler}
+        onOpenScopeExtractor={() => {}}
+        canUseAI={false}
         register={() => ({ onChange: () => {} }) as any}
         errors={{}}
       />
     )
 
     const button = screen.getByRole('button', {
-      name: /copy site address to pickup location/i
+      name: /copy to pickup/i
     })
     fireEvent.click(button)
 
